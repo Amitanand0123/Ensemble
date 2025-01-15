@@ -26,8 +26,3 @@ A collaborative workspace platform that brings teams together seamlessly.
 - POST /api/auth/login
 - etc.
 
-## Contributing
-[Your contribution guidelines]
-
-## License
-[Your chosen license]
