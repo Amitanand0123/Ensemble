@@ -2,35 +2,45 @@ import nodemailer from 'nodemailer';
 
 const sendEmail = async (options)=>{
     try {
-        let testAccount=await nodemailer.createTestAccount();
+        console.log('Attempting to send email with options:', {
+            to: options.email,
+            subject: options.subject
+        });
+        
+        console.log('Using SMTP config:', {
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            user: process.env.SMTP_USER
+        });
 
-        const transporter=nodemailer.createTransport({
-            host:process.env.SMTP_HOST || "smtp.ethereal.email",
-            port:process.env.SMTP_PORT || 587,
-            secure:false,
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: false,
             auth:{
-                user:process.env.SMTP_USER || testAccount.user,
-                pass:process.env.SMTP_PASS || testAccount.pass
+                user: process.env.SMTP_USER,
+                pass: process.env.SMTP_PASS
             }
-        })
+        });
 
-        const message={
-            from:`${process.env.FROM_NAME}<${process.env.FROM_EMAIL}>`,
-            to:options.email,
-            subject:options.subject,
-            text:options.message,
-            html:options.html
-        }
+        const message = {
+            from: `${process.env.FROM_NAME}<${process.env.FROM_EMAIL}>`,
+            to: options.email,
+            subject: options.subject,
+            text: options.message,
+            html: options.html
+        };
+
+        console.log('Sending email with message:', message);
 
         const info = await transporter.sendMail(message);
-        if(process.env.NODE_ENV==='development'){
-            console.log('Preview URL: %s',nodemailer.getTestMessageUrl(info));
-        }
-        return info
+        console.log('Email sent successfully:', info);
+        
+        return info;
     } catch (error) {
-        console.error('Email sending failed: ',error);
+        console.error('Detailed email sending error:', error);
         throw error;
     }
 }
 
-export default sendEmail; 
+export default sendEmail;

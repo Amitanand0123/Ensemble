@@ -79,7 +79,7 @@ export const registerUser = async(req,res)=>{
         try{
             await sendVerificationEmail(user);
         }catch(error){
-            console.error('Error sending verification email:',emailError);
+            console.error('Error sending verification email:',error);
         }
 
         const {accessToken,refreshToken}=generateTokens(user);
@@ -169,6 +169,29 @@ export const loginUser = async(req,res)=>{
     }
 }
 
+export const logoutUser = async (req, res) => {
+    try {
+        // Clear the refresh token cookie
+        res.cookie('refreshToken', '', {
+            httpOnly: true,
+            expires: new Date(0), // Expire immediately
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict'
+        });
+
+        res.json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Logout failed',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
 
 export const forgotPassword = async(req,res)=>{
     try{

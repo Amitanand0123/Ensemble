@@ -48,6 +48,16 @@ const WorkspaceSchema = new mongoose.Schema({
             type:String,
             unique:true,
             sparse:true
+        },
+        theme:{
+            type:String,
+            enum:['light','dark'],
+            default:'light'
+        },
+        features:{
+            tasks:{type:Boolean,default:true},
+            chat:{type:Boolean,default:true},
+            files:{type:Boolean,default:true}
         }
     },
 
@@ -61,6 +71,25 @@ const WorkspaceSchema = new mongoose.Schema({
 })
 
 WorkspaceSchema.index({name:'text'})
-WorkspaceSchema.index({'settings.inviteCode':1},{unique:true,sparse:true})
+WorkspaceSchema.index({owner:1});
+WorkspaceSchema.index({'members.user':1});
+
+WorkspaceSchema.methods.isMember=function(userId){
+    if(!userId) return false;
+
+    return this.members.some(member=> 
+        member.user && 
+        member.user.toString()===userId.toString() && 
+        member.status==='active'
+    )
+}
+
+WorkspaceSchema.methods.isAdmin=function(userId){
+    return this.members.some(member=>
+        member.user.toString()===userId.toString() &&
+        member.role==='admin' &&
+        member.status==='active'
+    )
+}
 
 export default mongoose.model('Workspace',WorkspaceSchema);
