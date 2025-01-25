@@ -1,35 +1,47 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import HeroSection from './components/Hero';
 import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
+import { Login, Registration, ForgotPassword } from './components/auth/index';
 
 const App = () => {
   return (
-    <div className="bg-black text-white min-h-screen">
-      {/* Navbar */}
-      <Navbar />
+    <Router>
+      <div className="bg-black text-white min-h-screen">
+        {/* Navbar */}
+        <Navbar />
 
-      {/* Main Content */}
-      <main>
-        {/* Hero Section */}
-        <HeroSection />
+        {/* Main Content */}
+        <main>
+          <Routes>
+            {/* Home Route */}
+            <Route
+              path="/"
+              element={
+                <>
+                  <HeroSection />
+                  <Features />
+                  <HowItWorks />
+                  <Testimonials />
+                </>
+              }
+            />
 
-        {/* Features Section */}
-        <Features />
-
-        {/* How It Works Section */}
-        <HowItWorks />
-
-        {/* Testimonials Section */}
-        <Testimonials />
+            {/* Authentication Routes */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Registration />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+          </Routes>
+        </main>
 
         {/* Footer */}
         <Footer />
-      </main>
-    </div>
+      </div>
+    </Router>
   );
 };
 
