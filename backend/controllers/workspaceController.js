@@ -228,3 +228,39 @@ export const updateWorkspaceSettings=async(req,res)=>{
         })
     }
 }
+
+export const inviteToWorkspace=async(req,res)=>{
+    try {
+        const {email,role}=req.body;
+        const workspace=await Workspace.findById(req.params.id);
+
+        if(!workspace){
+            return res.status(404).json({success:false,message:'Workspace not found'})
+        }
+        if(!workspace.isAdmin(req.user._id)){
+            return res.status(403).json({success:false,message:'Only admins can invite users'})
+        }
+
+        const user=await User.findOne({email});
+        if(!user){
+            return res.status(404).json({success:false,message:'User not found'})
+        }
+
+        if(workspace.isMember(user._id)){
+            return res.status(400).json({success:false,message:'User is already a member'})
+        }
+        workspace.members.push({user:user._id,role,status:'pending'})
+        await workspace.save()
+
+        await sendEmail({
+            email:user.email,
+            subject:'Workspace Invitation',
+            message:`You have been invited to join the "${workspace.name}" workspace.`
+        })
+        
+        res.json({success:true,message:'Invitation sent successfully'})
+    } catch (error) {
+        console.error('Invite to workspace error:',error);
+        res.status(500).json({success:false,message:'Could not send invitation',error:process.env.NODE_ENV==='development'?error.message:undefined})
+    }
+}
