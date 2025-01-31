@@ -46,11 +46,10 @@ export const registerUser = async(req,res)=>{
     try{
         const errors=validationResult(req);
         if(!errors.isEmpty()){
-            return res.status(400).json(
-                {
-                    errors:errors.array()
-                }
-            )
+            return res.status(400).json({
+                success: false,
+                message: errors.array()[0].msg
+            });
         }
         const {firstName,lastName,email,password}=req.body
         const userExists=await User.findOne({
@@ -101,15 +100,14 @@ export const registerUser = async(req,res)=>{
                 name:`${user.name.first} ${user.name.last}`,
                 role:user.role,
                 isVerified:user.email_verification.verified
-            }
+            } 
         })
     }
     catch(error){
         console.error('Registration error:',error);
         res.status(500).json({
             success:false,
-            message:'Registration failed',
-            error:process.env.NODE_ENV==='development' ? error.message:'Internal server error'
+            message: error.message || 'Registration failed'
         });
     }
 }
@@ -256,7 +254,7 @@ export const resetPassword=async(req,res)=>{
     try{
         const resetPassword=crypto
             .createHash('sha256')
-            .update(req.params.resetToken)
+            .update(req.params.token)
             .digest('hex')
 
         const user=await User.findOne({

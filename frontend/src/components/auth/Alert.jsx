@@ -1,18 +1,28 @@
-import React,{useState} from 'react';
-import {AlertCircle} from 'lucide-react';
+import React from 'react';
+import { XCircle, CheckCircle, AlertCircle } from 'lucide-react';
 
+const Alert = ({ type, message }) => {
+    if (!message) return null;
 
-const Alert=({message,type="error"})=>{
-    const bgColor=type==="error"?"bg-red-500/10":"bg-green-500/10";
-    const borderColor=type==="error"?"border-red-500/20":"border-green-500/20";
-    const textcolor=type==="error"?"text-red-500":"text-green-500";
+    const alertStyles = {
+        success: 'bg-green-100 border-green-400 text-green-700',
+        error: 'bg-red-100 border-red-400 text-red-700',
+        warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
+        info: 'bg-blue-100 border-blue-400 text-blue-700'
+    };
 
-    return(
-        <div className={`flex items-center gap-2 p-4 rounded-lg ${bgColor} ${borderColor} border backdrop:-blur-sm animate-fade-in-up`}>
-            <AlertCircle className={`w-5 h-5 ${textcolor}`} />
-            <p className={`text-sm ${textcolor}`}>{message}</p>
+    const Icon = type === 'success' ? CheckCircle : type === 'error' ? XCircle : AlertCircle;
+
+    return (
+        <div className={`border px-4 py-3 rounded relative mb-4 ${alertStyles[type]}`} role="alert">
+            <div className="flex items-center">
+                <Icon className="w-5 h-5 mr-2" />
+                <span className="block sm:inline">
+                    {typeof message === 'string' ? message : JSON.stringify(message)}
+                </span>
+            </div>
         </div>
-    )
-}
+    );
+};
 
 export default Alert;

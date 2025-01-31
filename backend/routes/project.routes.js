@@ -1,5 +1,5 @@
 import express from 'express'
-import{protect} from '../middlewares/.js'
+import{protect} from '../middlewares/auth.js'
 import { createProject,getProjects,getProjectById,updateProject,deleteProject } from '../controllers/projectController.js'
 import {check,validationResult} from 'express-validator'
 

@@ -2,7 +2,7 @@ import Project from '../models/Project.js'
 import User from '../models/User.js';
 import Workspace from '../models/Workspace.js'
 
-export const createProject=async(requestAnimationFrame,res)=>{
+export const createProject=async(req,res)=>{
     try {
         const {name,description,workspace,priority,endDate,settings}=req.body;
 
@@ -74,8 +74,8 @@ export const getProjects=async(req,res)=>{
         .sort('-createdAt');
         
         res.json({
-            success:true.
-            count=projects.length,
+            success:true,
+            count:projects.length,
             projects
         })
     } catch (error) {

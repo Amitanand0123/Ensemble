@@ -76,6 +76,10 @@ WorkspaceSchema.index({'members.user':1});
 
 WorkspaceSchema.methods.isMember=function(userId){
     if(!userId) return false;
+    
+    if(this.owner.toString()===userId.toString()) {
+        return true;
+    }
 
     return this.members.some(member=> 
         member.user && 

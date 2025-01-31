@@ -1,9 +1,9 @@
 import { Eye, EyeOff } from 'lucide-react';
 import React, { useState } from 'react'
 
-const InputField=({icon:Icon,type,placeholder,value,onChange,error})=>{
+const InputField=({icon:Icon,type:initialType,placeholder,value,onChange,name,error})=>{
     const [showPassword,setShowPassword]=useState(false);
-    const inputType=type==="password" && showPassword?"text":type;
+    const type=initialType==="password" && showPassword?"text":initialType;
 
     return (
         <div className='space-y-1'>
@@ -12,7 +12,8 @@ const InputField=({icon:Icon,type,placeholder,value,onChange,error})=>{
                     <Icon className="w-5 h-5"/>
                 </div>
                 <input 
-                    type={inputType} 
+                    type={type} 
+                    name={name}
                     className={`w-full bg-gray-800/50 border ${error?'border-red-500/50':'border-gray-700'} rounded-lg py-3 px-10 text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 transition-colors backdrop-blur-sm`}
                     placeholder={placeholder}
                     value={value}

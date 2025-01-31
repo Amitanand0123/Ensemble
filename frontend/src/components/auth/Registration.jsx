@@ -1,6 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Alert from './Alert';
 import InputField from './InputField';
+import {useDispatch,useSelector} from 'react-redux'
+import {useNavigate} from 'react-router-dom';
+import {registerUser} from '../../redux/slices/authSlice.js'
 import { Loader, Lock, Mail, User } from 'lucide-react';
 
 const Registration=()=>{
@@ -13,40 +16,59 @@ const Registration=()=>{
         acceptTerms:false
     });
 
-    const[errors,setErrors]=useState({});
-    const [isLoading,setIsLoading]=useState(false);
-    const [alert,setAlert]=useState(null)
+    // const[errors,setErrors]=useState({});
+    // const [isLoading,setIsLoading]=useState(false);
+    // const [alert,setAlert]=useState(null)
+
+    // const handleSubmit=async(e)=>{
+    //     e.preventDefault();
+    //     setIsLoading(true);
+    //     setAlert(null);
+
+    //     try {
+    //         const response=await fetch('/api/auth/register',{
+    //             method:'POST',
+    //             headers:{'Content-Type':'application/json'},
+    //             body:JSON.stringify(formData)
+    //         })
+
+    //         const data=await response.json();
+    //         if(!response.ok){
+    //             throw new Error(data.message || 'Registration failed');
+    //         }
+
+    //         setAlert({
+    //             type:'success',
+    //             message:'Registration successful! Please check your email to verify your account.'
+    //         })
+
+    //         setTimeout(()=>{
+    //             window.location.href='/login';
+    //         },2000)
+    //     } catch (error) {
+    //         setAlert({type:'error',message:error.message});
+    //     } finally{
+    //         setIsLoading(false);
+    //     }
+    // }
+
+    const dispatch=useDispatch();
+    const navigate=useNavigate();
+    const {isLoading,error,isAuthenticated}=useSelector(state=>state.auth);
+
+    // useEffect(()=>{
+    //     if(isAuthenticated){
+    //         navigate('/');
+    //     }
+    // },[isAuthenticated,navigate])
 
     const handleSubmit=async(e)=>{
         e.preventDefault();
-        setIsLoading(true);
-        setAlert(null);
-
-        try {
-            const response=await fetch('/api/auth/register',{
-                method:'POST',
-                headers:{'Content-Type':'application/json'},
-                body:JSON.stringify(formData)
-            })
-
-            const data=await response.json();
-            if(!response.ok){
-                throw new Error(data.message || 'Registration failed');
-            }
-
-            setAlert({
-                type:'success',
-                message:'Registration successful! Please check your email to verify your account.'
-            })
-
-            setTimeout(()=>{
-                window.location.href='/login';
-            },2000)
-        } catch (error) {
-            setAlert({type:'error',message:error.message});
-        } finally{
-            setIsLoading(false);
+        if(formData.password!==formData.confirmPassword){
+            setAlert({type:'error',message:'Password do not match'})
+            return;
         }
+        dispatch(registerUser(formData))
     }
 
     return (
@@ -60,7 +82,10 @@ const Registration=()=>{
                         <h2 className='text-3xl font-bold text-white mb-2'>Create Account</h2>
                         <p className='text-gray-400'>Join Ensemble and start collaborating</p>
                     </div>
-                    {alert && <Alert {...alert}/>}
+                    {/* {alert && <Alert {...alert}/>} */}
+
+                    {error && <Alert type="error" message={error} />}
+
                     <form onSubmit={handleSubmit} className='space-y-6'>
                         <div className='grid grid-cols-2 gap-4'>
                             <InputField
@@ -69,7 +94,7 @@ const Registration=()=>{
                                 placeholder="First name"
                                 value={formData.firstName}
                                 onChange={(e)=>setFormData({...formData,firstName:e.target.value})}
-                                error={errors.firstName}
+                                // error={errors.firstName}
                             />
                             <InputField
                                 icon={User}
@@ -77,7 +102,7 @@ const Registration=()=>{
                                 placeholder="Last name"
                                 value={formData.lastName}
                                 onChange={(e)=>setFormData({...formData,lastName:e.target.value})}
-                                error={errors.lastName}
+                                // error={errors.lastName}
                             />
                         </div>
                         <InputField
@@ -86,7 +111,7 @@ const Registration=()=>{
                             placeholder="Email address"
                             value={formData.email}
                             onChange={(e)=>setFormData({...formData,email:e.target.value})}
-                            error={errors.email}
+                            // error={errors.email}
                         />
                         <InputField
                             icon={Lock}
@@ -94,7 +119,7 @@ const Registration=()=>{
                             placeholder="Password"
                             value={formData.password}
                             onChange={(e)=>setFormData({...formData,password:e.target.value})}
-                            error={errors.password}
+                            // error={errors.password}
                         />
                         <InputField
                             icon={Lock}
@@ -102,7 +127,7 @@ const Registration=()=>{
                             placeholder="Confirm password"
                             value={formData.confirmPassword}
                             onChange={(e)=>setFormData({...formData,confirmPassword:e.target.value})}
-                            error={errors.confirmPassword}
+                            // error={errors.confirmPassword}
                         />
                         <div className='flex items-start'>
                             <input 

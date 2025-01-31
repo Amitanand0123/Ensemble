@@ -1,4 +1,5 @@
-import Task from "../models/Task";
+import Task from "../models/Task.js";
+import Project from "../models/Project.js";
 
 
 export const createTask=async(req,res)=>{
@@ -21,7 +22,7 @@ export const createTask=async(req,res)=>{
         }
 
         const task=new Task({
-            title,description,project,workspace,assignedTo,status,priority,dueDate,tags
+            title,description,project,workspace,assignedTo,status,priority,dueDate,tags,createdBy: req.user._id,
         })
 
         if(req.files && req.files.attachments){
@@ -59,13 +60,23 @@ export const getTasks=async(req,res)=>{
     try {
         const {project,status,assignedTo}=req.query;
 
+        const currentWorkspace=req.user.workspaces?.[0]?.workspace
+        if(!currentWorkspace){
+            return res.status(400).json({
+                success:false,
+                message:'Current workspace not found for the user'
+            })
+        }
+
         const filter={
-            workspace:req.user.currentWorkspace
+            workspace:currentWorkspace
         }
 
         if(project) filter.project=project;
         if(status) filter.status=status;
         if(assignedTo) filter.assignedTo=assignedTo;
+
+        console.log('Filter:', filter);
 
         const tasks=await Task.find(filter)
             .populate('project','name')
@@ -73,11 +84,15 @@ export const getTasks=async(req,res)=>{
             .populate('createdBy','name email')
             .sort('-createdAt')
 
+        console.log('Tasks:', tasks);
+        
+
         res.json({
             success:true,
             count:tasks.length,
             tasks
         })
+
 
     } catch (error) {
         console.error('Get tasks error:',error);
@@ -88,6 +103,36 @@ export const getTasks=async(req,res)=>{
         })
     }
 }
+
+export const getTaskById = async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.id)
+            .populate('project', 'name')
+            .populate('assignedTo', 'name email')
+            .populate('createdBy', 'name email');
+
+        if (!task) {
+            return res.status(404).json({
+                success: false,
+                message: 'Task not found'
+            });
+        }
+
+        res.json({
+            success: true,
+            task
+        });
+
+    } catch (error) {
+        console.error('Get task by ID error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Could not fetch task',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+
 
 export const updateTask=async(req,res)=>{
     try {
@@ -107,8 +152,9 @@ export const updateTask=async(req,res)=>{
             })
         }
 
-        const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags']
+        const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags','project']
         const updates=Object.keys(req.body);
+        console.log('Request Body:', req.body);
         const isValidOperation=updates.every(update=> allowedUpdates.includes(update))
         if(!isValidOperation){
             return res.status(400).json({

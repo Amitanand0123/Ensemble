@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import InputField from './InputField';
+import {useDispatch,useSelector} from 'react-redux'
+import {useNavigate} from 'react-router-dom'
+import {clearError, loginUser} from '../../redux/slices/authSlice.js'
 import Alert from './Alert';
 import { Loader, Lock, Mail } from 'lucide-react';
 
@@ -10,36 +13,63 @@ const Login = () => {
         rememberMe: false
     });
 
-    const [errors, setErrors] = useState({});
-    const [isLoading, setIsLoading] = useState(false);
-    const [alert, setAlert] = useState(null);
+    // const [errors, setErrors] = useState({});
+    // const [isLoading, setIsLoading] = useState(false);
+    // const [alert, setAlert] = useState(null);
 
-    const handleSubmit = async (e) => {
+    // const handleSubmit = async (e) => {
+    //     e.preventDefault();
+    //     setIsLoading(true);
+    //     setAlert(null);
+
+    //     try {
+    //         const response = await fetch('/api/auth/login', {
+    //             method: 'POST',
+    //             headers: { 'Content-Type': 'application/json' },
+    //             body: JSON.stringify(formData)
+    //         });
+
+    //         const data = await response.json();
+
+    //         if (!response.ok) {
+    //             throw new Error(data.message || 'Login failed');
+    //         }
+
+    //         // Redirect on successful login
+    //         window.location.href = '/dashboard';
+    //     } catch (error) {
+    //         setAlert({ type: 'error', message: error.message });
+    //     } finally {
+    //         setIsLoading(false);
+    //     }
+    // };
+
+    const dispatch=useDispatch();
+    const navigate=useNavigate();
+    const {isLoading,error,isAuthenticated}=useSelector(state=>state.auth)
+
+    // useEffect(()=>{
+    //     if(isAuthenticated){
+    //         navigate('/')
+    //     }
+    // },[isAuthenticated,navigate])
+
+    useEffect(()=>{
+        dispatch(clearError());
+    },[dispatch])
+
+    const handleChange=(e)=>{
+        const {name,value,type,checked}=e.target
+        setFormData(prev=>({
+            ...prev,
+            [name]:type==='checkbox'?checked:value 
+        }))
+    }
+
+    const handleSubmit=async(e)=>{
         e.preventDefault();
-        setIsLoading(true);
-        setAlert(null);
-
-        try {
-            const response = await fetch('/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || 'Login failed');
-            }
-
-            // Redirect on successful login
-            window.location.href = '/dashboard';
-        } catch (error) {
-            setAlert({ type: 'error', message: error.message });
-        } finally {
-            setIsLoading(false);
-        }
-    };
+        dispatch(loginUser(formData))
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-800 to-black p-4">
@@ -55,24 +85,26 @@ const Login = () => {
                     </div>
 
                     {/* Display alert if there's an error */}
-                    {alert && <Alert type={alert.type} message={alert.message} />}
+                    {/* {alert && <Alert type={alert.type} message={alert.message} />} */}
+                    {error && <Alert type="error" message={error}/>}
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <InputField
                             icon={Mail}
                             type="email"
+                            name="email"
                             placeholder="Email address"
                             value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            error={errors.email}
+                            onChange={handleChange}
+                            // error={errors.email}
                         />
                         <InputField
                             icon={Lock}
                             type="password"
+                            name="password"
                             placeholder="Password"
                             value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            error={errors.password}
+                            onChange={handleChange}                            // error={errors.password}
                         />
                         <div className="flex items-center justify-between">
                             <label className="flex items-center">

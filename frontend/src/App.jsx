@@ -6,7 +6,8 @@ import Features from './components/Features';
 import HowItWorks from './components/HowItWorks';
 import Testimonials from './components/Testimonials';
 import Footer from './components/Footer';
-import { Login, Registration, ForgotPassword } from './components/auth/index';
+import { Login, Registration, ForgotPassword, ResetPassword } from './components/auth/index';
+import ProtectedRoute from './components/routes/ProtectedRoute';
 
 const App = () => {
   return (
@@ -35,6 +36,17 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+
+            {/* Future Protected Route Example */}
+            <Route
+              path="/protected-page"
+              element={
+                <ProtectedRoute>
+                  <h1>Protected Content</h1>
+                </ProtectedRoute>
+              }
+            />
           </Routes>
         </main>
 

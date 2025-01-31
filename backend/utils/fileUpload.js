@@ -6,7 +6,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 })
 
-const uploadToCloud=async(file)=>{
+export const uploadToCloud=async(file)=>{
     return new Promise((resolve,reject)=>{
         const uploadStream=cloudinary.uploader.upload_stream(
             {folder:'ensemble-tasks'},
@@ -34,5 +34,3 @@ export const uploadMultipleFiles=async(files)=>{
         }
     }))
 }
-
-export default uploadToCloud;

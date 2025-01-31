@@ -20,7 +20,7 @@ const Hero=()=>{
                                 ✨ Streamline Your Workflow
                             </span>
                         </div>
-                        {/* Main headline */}
+                         {/* Main headline */}
                         <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold'>
                             <span className='block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient'>
                                 Transform Your

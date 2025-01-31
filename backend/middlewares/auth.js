@@ -3,9 +3,13 @@ import User from '../models/User.js'
 
 export const protect = async(req, res, next) => {
     try {
-        console.log('Headers:', req.headers); // Log all headers
         const token = req.headers.authorization?.split(' ')[1];
-        console.log('Extracted token:', token);
+        if (!token) {
+            return res.status(401).json({
+                success: false,
+                message: 'Access denied. No token provided'
+            });
+        }
 
         if(!token) {
             return res.status(401).json({
