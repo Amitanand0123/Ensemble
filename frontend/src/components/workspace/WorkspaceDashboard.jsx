@@ -1,22 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { 
-  Plus, Settings, Users, FolderGit, ArrowRight, Search, 
-  Calendar, CheckCircle, Mail, Lock, Globe, MoreVertical,
-  Clock, AlertCircle, MessageSquare, File
-} from 'lucide-react';
+import { Plus, Settings, Users, ArrowRight, Search, Lock, Globe} from 'lucide-react';
+import { createWorkspace, fetchWorkspaces } from '../../redux/slices/workspaceSlice.js';
 
 
-const workspaceActions = {
-  fetchWorkspaces: () => ({ type: 'workspaces/fetch' }),
-  createWorkspace: (data) => ({ type: 'workspaces/create', payload: data }),
-  updateWorkspace: (id, data) => ({ type: 'workspaces/update', payload: { id, data } }),
-  deleteWorkspace: (id) => ({ type: 'workspaces/delete', payload: id }),
-  inviteMember: (id, email) => ({ type: 'workspaces/invite', payload: { id, email } }),
-};
-
-export const WorkspaceDashboard = () => {
+const WorkspaceDashboard = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -27,29 +16,38 @@ export const WorkspaceDashboard = () => {
   });
   const [searchQuery, setSearchQuery] = useState('');
 
-  const { workspaces, isLoading } = useSelector((state) => state.workspaces);
+  const { workspaces = [], isLoading = false } = useSelector(state => state.workspaces || {});
+
 
   useEffect(() => {
-    dispatch(workspaceActions.fetchWorkspaces());
+    dispatch(fetchWorkspaces());
   }, [dispatch]);
 
   const handleCreateWorkspace = async (e) => {
     e.preventDefault();
     try {
-      await dispatch(workspaceActions.createWorkspace(newWorkspaceData)).unwrap();
-      setIsCreateModalOpen(false);
-      setNewWorkspaceData({ name: '', description: '', isPrivate: false });
+        const result = await dispatch(createWorkspace(newWorkspaceData));
+        
+        if (createWorkspace.fulfilled.match(result)) {
+            setIsCreateModalOpen(false);
+            setNewWorkspaceData({ name: '', description: '', isPrivate: false });
+            // Correctly dispatch fetchWorkspaces
+            dispatch(fetchWorkspaces());
+        } else {
+            console.error('Workspace creation failed:', result.error);
+        }
     } catch (error) {
-      console.error('Failed to create workspace:', error);
+        console.error('Workspace creation error:', error);
     }
-  };
+};
+  
 
   const filteredWorkspaces = workspaces?.filter(workspace =>
     workspace.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white pt-32">
       <div className="relative">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
@@ -86,7 +84,7 @@ export const WorkspaceDashboard = () => {
             {filteredWorkspaces?.map((workspace) => (
               <div
                 key={workspace._id}
-                onClick={() => navigate(`/workspace/${workspace._id}`)}
+                onClick={() => navigate(`/workspaces/${workspace._id}`)}
                 className="group bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 p-6 hover:border-purple-500 transition-all duration-300 cursor-pointer animate-fade-in-up"
               >
                 <div className="flex items-start justify-between mb-4">
@@ -173,3 +171,5 @@ export const WorkspaceDashboard = () => {
     </div>
   );
 };
+
+export default WorkspaceDashboard;

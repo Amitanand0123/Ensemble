@@ -5,23 +5,29 @@ let socket=null
 export const initSocket=(token)=>{
     if(socket) return socket;
 
-    socket=io(process.env.REACT_APP_SOCKET_URL, {
+    const SOCKET_URL=import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
+
+    socket=io(SOCKET_URL, {
         auth:{token},
         reconnection:true,
         reconnectionAttempts:5,
-        reconnectionDelay:1000
+        reconnectionDelay:1000,
+        timeout:10000
     })
 
-    socket.on('connect',()=>{
-        console.log('Socket connected')
+    socket.on('connect',(reason)=>{
+        console.log('Socket connected',reason)
     })
 
-    socket.on('disconnect',()=>{
-        console.log('Socket disconnected')
+    socket.on('disconnect',(reason)=>{
+        console.log('Socket disconnected',reason)
     })
 
     socket.on('connect_error',(error)=>{
-        console.error('Connections error:',error)
+        console.error('Connection error:',error)
+        setTimeout(()=>{
+            socket.connect()
+        },1000)
     })
 
     return socket;
@@ -36,4 +42,20 @@ export const disconnectSocket=()=>{
 
 export const getSocket=()=>socket
 
-export default{initSocket,disconnectSocket,getSocket}
+export const emitSocketEvent=(event,data)=>{
+    if(!socket){
+        throw new Error('Socket not initialized')
+    }
+    return new Promise((resolve,reject)=>{
+        socket.emit(event,data,(response)=>{
+            if(response?.error){
+                reject(response.error)
+            }
+            else{
+                resolve(response)
+            }
+        })
+    })
+}
+
+export default{initSocket,disconnectSocket,getSocket,emitSocketEvent}

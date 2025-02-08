@@ -1,6 +1,6 @@
 import {useEffect} from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { createProject, fetchprojects, setCurrentProject } from '../redux/slices/projectSlice'
+import { createProject, fetchProjects, setCurrentProject } from '../redux/slices/projectSlice'
 
 export const useProjects=(workspaceId)=>{
     const dispatch=useDispatch()
@@ -8,7 +8,7 @@ export const useProjects=(workspaceId)=>{
 
     useEffect(()=>{
         if(workspaceId){
-            dispatch(fetchprojects(workspaceId))
+            dispatch(fetchProjects(workspaceId))
         }
     },[dispatch,workspaceId])
 

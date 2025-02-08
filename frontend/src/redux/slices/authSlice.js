@@ -41,7 +41,7 @@ export const loginUser=createAsyncThunk(
             const response=await axios.post('http://localhost:5000/api/auth/login',credentials);
             localStorage.setItem('token',response.data.token)
             localStorage.setItem('user', JSON.stringify(response.data.user));
-            axios.defaults.headers.common['Authorization']=`Bearer ${response.data.token}`
+            axios.defaults.headers.common['Authorization'] = `Bearer ${response.data.token}`;
             return response.data
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Login failed')
@@ -157,8 +157,15 @@ const authSlice=createSlice({
             .addCase(loginUser.fulfilled,(state,action)=>{
                 state.isLoading=false
                 state.isAuthenticated=true
-                state.user=action.payload.user
-                state.token=action.payload.token
+                state.user=action.payload.user;
+            
+                console.log("Login Fulfilled Payload:", action.payload); // Keep for debugging (optional)
+                console.log("Token from Payload:", action.payload.accessToken); // Log accessToken now
+            
+                state.token = action.payload.accessToken; // <--- Corrected: Use 'accessToken'
+                localStorage.setItem('token', action.payload.accessToken); // Update localStorage as well
+                axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.accessToken}`; // Update axios defaults
+            
             })
             .addCase(loginUser.rejected,(state,action)=>{
                 state.isLoading=false

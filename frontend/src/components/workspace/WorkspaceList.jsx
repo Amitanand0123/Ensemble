@@ -1,8 +1,8 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 import { useWorkspaces } from '../../hooks/useWorkspaces.js'
-import {Card,CardHeader,CardTitle,CardContent} from '@/compoenents/ui/card'
-import {Button} from '@/compoenents/ui/button'
+import {Card,CardHeader,CardTitle,CardContent} from '../ui/card'
+import {Button} from '../ui/button'
 import { PlusCircle,Settings,Users } from 'lucide-react'
 
 const WorkspaceList=()=>{

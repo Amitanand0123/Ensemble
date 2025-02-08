@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 import {useTasks} from '../../hooks/useTasks'
-import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter} from '@/components/ui/dialog'
+import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogFooter} from '../ui/dialog'
 import { Calendar } from 'lucide-react'
 
 

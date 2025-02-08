@@ -48,11 +48,11 @@ const Login = () => {
     const navigate=useNavigate();
     const {isLoading,error,isAuthenticated}=useSelector(state=>state.auth)
 
-    // useEffect(()=>{
-    //     if(isAuthenticated){
-    //         navigate('/')
+    // useEffect(() => {
+    //     if(isAuthenticated) {
+    //         navigate('/app/dashboard')  // Change from '/' to '/app/dashboard' per roadmap
     //     }
-    // },[isAuthenticated,navigate])
+    // }, [isAuthenticated, navigate])
 
     useEffect(()=>{
         dispatch(clearError());
@@ -66,9 +66,9 @@ const Login = () => {
         }))
     }
 
-    const handleSubmit=async(e)=>{
+    const handleSubmit = async(e) => {
         e.preventDefault();
-        dispatch(loginUser(formData))
+        await dispatch(loginUser(formData)).unwrap();
     }
 
     return (

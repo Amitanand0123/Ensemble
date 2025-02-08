@@ -1,9 +1,9 @@
 import React,{useEffect} from 'react'
 import { useDispatch,useSelector } from 'react-redux'
 import {Link} from 'react-router-dom'
-import {fetchprojects} from '../../redux/slices/projectSlice.js'
-import {Card,CardHeader,CardTitle,CardContent} from '@/compoenents/ui/card'
-import {Button} from '@/compoenents/ui/button'
+import {fetchProjects} from '../../redux/slices/projectSlice.js'
+import {Card,CardHeader,CardTitle,CardContent} from '../ui/card'
+import {Button} from '../ui/button'
 import { PlusCircle,Calendar,AlertCircle } from 'lucide-react'
 
 const ProjectList=({workspaceId})=>{
@@ -11,7 +11,7 @@ const ProjectList=({workspaceId})=>{
     const {projects,isLoading}=useSelector((state)=>state.projects)
 
     useEffect(()=>{
-        dispatch(fetchprojects(workspaceId))
+        dispatch(fetchProjects(workspaceId))
     },[dispatch,workspaceId])
 
     if(isLoading) return <div>Loading projects...</div>
@@ -19,7 +19,7 @@ const ProjectList=({workspaceId})=>{
     return(
         <div className='space-y-4'>
             <div className='flex justify-between items-center'>
-                <h3 className='text-sl font-semibold'>projects</h3>
+                <h3 className='text-sl font-semibold'>Projects</h3>
                 <Link to={`/workspace/${workspaceId}/projects/create`}>
                     <Button className="flex items-center gap-2">
                         <PlusCircle className='w-4 h-4' />
@@ -28,7 +28,7 @@ const ProjectList=({workspaceId})=>{
                 </Link>
             </div>
             <div>
-                {projects.map((project)=>(
+                {Array.isArray(projects) && projects.map((project)=>(
                     <Card key={project._id}>
                         <CardHeader>
                             <CardTitle>

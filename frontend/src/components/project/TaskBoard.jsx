@@ -1,8 +1,8 @@
 import React,{useState} from 'react'
 import {useTasks} from '../../hooks/useTasks.js'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '../ui/button';
 
 
 const TaskBoard=()=>{

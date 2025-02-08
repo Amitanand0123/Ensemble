@@ -2,17 +2,23 @@ import {createSlice,createAsyncThunk} from '@reduxjs/toolkit'
 import axios from 'axios'
 
 const initialState={
-    workspace:[],
+    workspaces:[],
     currentWorkspace:null,
+    workspaceDetail:null,
     isLoading:false,
     error:null
 }
 
 export const fetchWorkspaces=createAsyncThunk(
     'workspaces/fetchAll',
-    async (_,{rejectWithValue})=>{
+    async (_,{getState,rejectWithValue})=>{
         try {
-            const response=await axios.get('/api/workspaces')
+            const token = getState().auth.token || localStorage.getItem('token');
+            const response=await axios.get('http://localhost:5000/api/workspaces',{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
             return response.data.workspaces
         } catch (error) {
             return rejectWithValue(error.response.data)
@@ -20,17 +26,54 @@ export const fetchWorkspaces=createAsyncThunk(
     }
 )
 
-export const createWorkspace=createAsyncThunk(
+export const createWorkspace = createAsyncThunk(
     'workspaces/create',
-    async (workspaceData,{rejectWithValue})=>{
+    async (workspaceData, { getState, rejectWithValue }) => {
         try {
-            const response=await axios.post('/api/workspaces',workspaceData)
+            const token = getState().auth.token || localStorage.getItem('token');
+            if (!token) {
+                return rejectWithValue({ message: 'No authentication token found' });
+            }
+            console.log('Token from state:', token);
+
+            // Set default Authorization header for all axios requests
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            const response = await axios.post(
+                'http://localhost:5000/api/workspaces', 
+                workspaceData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            return response.data.workspace;
+        } catch (error) {
+            console.error('Workspace Creation Error:', error.response?.data);
+            return rejectWithValue(error.response?.data || { message: 'Unknown error' });
+        }
+    }
+);
+
+export const fetchWorkspaceDetail=createAsyncThunk(
+    'workspaces/fetchDetail',
+    async(workspaceId,{getState,rejectWithValue})=>{
+        try {
+            const token=getState().auth.token || localStorage.getItem('token')
+            const response=await axios.get(`http://localhost:5000/api/workspaces/${workspaceId}`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
             return response.data.workspace
         } catch (error) {
             return rejectWithValue(error.response.data)
         }
     }
 )
+
 
 const workspaceSlice=createSlice({
     name:'workspaces',
@@ -42,6 +85,9 @@ const workspaceSlice=createSlice({
     },
     extraReducers:(builder)=>{
         builder
+            .addCase(fetchWorkspaces.pending, (state) => { 
+                state.isLoading = true; 
+            })
             .addCase(fetchWorkspaces.fulfilled,(state,action)=>{
                 state.workspaces=action.payload
                 state.isLoading=false
@@ -50,8 +96,21 @@ const workspaceSlice=createSlice({
                 state.workspaces.push(action.payload)
                 state.currentWorkspace=action.payload
             })
+            .addCase(fetchWorkspaceDetail.pending,(state)=>{
+                state.isLoading=true
+                state.error=null
+            })
+            .addCase(fetchWorkspaceDetail.fulfilled,(state,action)=>{
+                state.workspaceDetail=action.payload
+                state.isLoading=false
+            })
+            .addCase(fetchWorkspaceDetail.rejected,(state,action)=>{
+                state.isLoading=false
+                state.error=action.payload
+            })
     }
 })
 
 export const {setCurrentWorkspace}=workspaceSlice.actions
 export default workspaceSlice.reducer
+export const selectWorkspaces=(state)=>state.workspaces.workspaces

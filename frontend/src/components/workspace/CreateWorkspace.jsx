@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
-import {Card,CardHeader,CardTitle,CardContent} from '@/compoenents/ui/card'
-import {Button} from '@/compoenents/ui/button'
-import {Input} from '@/compoenents/ui/input'
-import {TextArea} from '@/compoenents/ui/text-area'
-import {Switch} from '@/compoenents/ui/switch'
-import {Alert,AlertDescription} from '@/compoenents/ui/alert'
+import {Card,CardHeader,CardTitle,CardContent} from '../ui/card'
+import {Button} from '../ui/button'
+import {Input} from '../ui/input'
+import {Textarea} from '../ui/textarea'
+import {Switch} from '../ui/switch'
+import {Alert,AlertDescription} from '../ui/alert'
 
 const CreateWorkspace=()=>{
     const navigate=useNavigate()
@@ -62,7 +62,7 @@ const CreateWorkspace=()=>{
                         </div>
                         <div>
                             <label className='text-sm font-medium'>Description</label>
-                            <TextArea name="description" value={formData.description} onChange={handleChange} maxLength={500} placeholder="Enter workspace description" rows={4} />
+                            <Textarea name="description" value={formData.description} onChange={handleChange} maxLength={500} placeholder="Enter workspace description" rows={4} />
                         </div>
                         <div>
                             <label className=''>Private Workspace</label>

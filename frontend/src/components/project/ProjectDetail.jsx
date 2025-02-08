@@ -1,10 +1,12 @@
 import React,{useEffect} from 'react'
 import { useParams } from 'react-router-dom'
 import { useProjects } from '../../hooks/useProjects'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
 import {Calendar,Users,Clock} from 'lucide-react'
-
+import TaskBoard from './TaskBoard.jsx';
+import ProjectSettings from './ProjectSettings.jsx';
+import TaskList from './TaskList.jsx';
 
 const ProjectDetail=()=>{
     const {id}=useParams()
@@ -63,3 +65,5 @@ const ProjectDetail=()=>{
         </div>
     )
 }
+
+export default ProjectDetail

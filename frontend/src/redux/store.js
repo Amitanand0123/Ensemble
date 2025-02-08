@@ -9,15 +9,19 @@ import notificationReducer from "./slices/notificationSlice.js"
 const store=configureStore({
     reducer:{
         auth:authReducer,
-        workspace:workspaceReducer,
-        project:projectReducer,
+        workspaces:workspaceReducer,
+        projects:projectReducer,
         task:taskReducer,
         chat:chatReducer,
         notifications:notificationReducer
     },
     middleware:(getDefaultMiddleware)=>
         getDefaultMiddleware({
-            serializableCheck:false
+            serializableCheck:{
+                ignoredActions:['socket/connect','socket/disconnected'],
+                ignoredActionPaths:['payload.file','payload.socket'],
+                ignoredPaths:['socket.instance']
+            }
         })
 })
 

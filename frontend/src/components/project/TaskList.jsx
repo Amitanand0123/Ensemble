@@ -1,9 +1,9 @@
 import React,{useState} from 'react'
 import { useTasks } from '../../hooks/useTasks';
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '../ui/table';
+import { Button } from '../ui/button';
 import { PlusCircle, MoreVertical, Edit2, Trash2 } from 'lucide-react';
-import { DropdownMenu,DropdownMenuContent,DropdownMenuItem,DropdownMenuTrigger} from '@/components/ui/dropdown-menu';
+import { DropdownMenu,DropdownMenuContent,DropdownMenuItem,DropdownMenuTrigger} from '../ui/dropdown-menu';
 import CreateTask from './CreateTask';
 
 const TaskList=({projectId})=>{

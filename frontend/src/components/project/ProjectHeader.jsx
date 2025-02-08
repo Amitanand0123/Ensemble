@@ -1,7 +1,7 @@
 import React from 'react'
-import {Card,CardContent} from '@/compoenents/ui/card'
+import {Card,CardContent} from '../ui/card'
 import {Calendar,Users,Clock,BarChart2} from 'lucide-react'
-import {Progress} from '@/components/ui/progress'
+import {Progress} from '../ui/progress'
 
 
 const ProjectHeader=({project})=>{

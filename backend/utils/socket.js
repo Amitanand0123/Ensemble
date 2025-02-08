@@ -3,7 +3,7 @@ import {verifySocketToken} from '../middlewares/socketAuth.js'
 import Task from '../models/Task.js'
 import Project from '../models/Project.js'
 import Chat from '../models/Chat.js'
-import {uploadToCloud} from '../utils/fileUpload.js'
+import {uploadToCloud} from './fileUpload.js'
 
 export const setupSocketIO=(server)=>{
     const io=new Server(server,{
@@ -38,7 +38,7 @@ export const setupSocketIO=(server)=>{
         socket.on('taskUpdate',async (data)=>{
             try {
                 const {taskId,update}=data;
-                const task=await Task.findByid(taskId).populate('assignedTo','email');
+                const task=await Task.findById(taskId).populate('assignedTo','email');
                 if(!task){
                     return socket.emit('taskError',{message:'Task not found'})
                 }
@@ -87,7 +87,7 @@ export const setupSocketIO=(server)=>{
 
         socket.on('sendProjectMessage',async(data)=>{
             try {
-                const {projectId,content,attachements=[]}=data
+                const {projectId,content,attachments=[]}=data
                 const project=await Project.findById(projectId)
                 if(!project || !project.isMember(userId)){
                     return socket.emit('chatError',{message:'Not authorized'})
@@ -113,7 +113,7 @@ export const setupSocketIO=(server)=>{
                 // })
                 // socket.emit('projectmessageSent',message);
 
-                io.to(`project:${projetctId}`).emit('newProjectMessage',message)
+                io.to(`project:${projectId}`).emit('newProjectMessage',message)
             } catch (error) {
                 socket.emit('chatError',{message:'Could not send message'})
             }
