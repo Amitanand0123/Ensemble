@@ -54,14 +54,14 @@ const App = () => {
                 <Route path="create" element={<CreateWorkspace />} />
                 <Route path=":workspaceId" element={<WorkspaceDetail />}>
                     {/* Project Routes within Workspace are also correctly nested, keep them */}
-                    <Route path=":workspaceId/projects">
+                    <Route path="projects">
                         <Route path=":projectId" element={<ProjectDetail />} />
                         <Route path=":projectId/board" element={<TaskBoard />} />
                         <Route path=":projectId/settings" element={<ProjectSettings />} />
                         <Route path=":projectId/tasks/create" element={<CreateTask />} />
                     </Route>
                     {/* Chat Routes within Workspace are also correctly nested, keep them */}
-                    <Route path=":workspaceId/chat" element={<ChatWindow />} />
+                    <Route path="chat" element={<ChatWindow />} />
                 </Route>
             </Route>
 

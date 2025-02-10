@@ -244,3 +244,31 @@ export const inviteToProject=async(req,res)=>{
         res.status(500).json({success:false,message:'Could not send invitation',error:process.env.NODE_ENV==='development'?error.message:undefined})
     }
 }
+
+export const getProjectByWorkspaceId=async(req,res)=>{
+    const {workspaceId}=req.params
+    try {
+        const projects=await Project.find({
+            workspace:workspaceId,
+            'members.user':req.user._id,
+            'members.status':'active'
+        })
+        .populate('owner','name email')
+        .populate('members.user','name email')
+        .sort('-createdAt')
+
+        res.json({
+            success:true,
+            count:projects.length,
+            projects
+        })
+    } catch (error) {
+        console.error('Get projects by workspace ID error:',error)
+        res.status(500).json({
+            success:false,
+            message:'Could not fetch projects for this workspace',
+            error:process.env.NODE_ENV==='development'?error.message:undefined
+        })
+    }
+}
+

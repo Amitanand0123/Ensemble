@@ -11,9 +11,14 @@ const initialState={
 
 export const fetchProjects=createAsyncThunk(
     'projects/fetchAll',
-    async (workspaceId,{rejectWithValue})=>{
+    async (workspaceId,{rejectWithValue,getState})=>{
         try {
-            const response=await axios.get(`/api/projects?workspace=${workspaceId}`)
+            const token=getState().auth.token || localStorage.getItem('token')
+            const response=await axios.get(`http://localhost:5000/api/projects/workspace/${workspaceId}/projects`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
             return response.data.projects
         } catch (error) {
             return rejectWithValue(error.response.data)
@@ -23,9 +28,31 @@ export const fetchProjects=createAsyncThunk(
 
 export const createProject=createAsyncThunk(
     'projects/create',
-    async (projectData,{rejectWithValue})=>{
+    async (projectData,{rejectWithValue,getState})=>{
         try {
-            const response=await axios.post('/api/projects',projectData)
+            const token=getState().auth.token || localStorage.getItem('token')
+            const response=await axios.post('http://localhost:5000/api/projects',projectData,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
+            return response.data.project
+        } catch (error) {
+            return rejectWithValue(error.response.data)
+        }
+    }
+)
+
+export const fetchProjectDetail=createAsyncThunk(
+    'projects/fetchDetail',
+    async (projectId,{rejectWithValue,getState})=>{
+        try {
+            const token=getState().auth.token || localStorage.getItem('token')
+            const response=await axios.get(`http://localhost:5000/api/projects/${projectId}`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
             return response.data.project
         } catch (error) {
             return rejectWithValue(error.response.data)
@@ -73,6 +100,18 @@ const projectSlice=createSlice({
                 state.isLoading=false
                 state.error=action.payload
             })
+            .addCase(fetchProjectDetail.pending, (state) => {
+                state.isLoading = true;
+                state.error = null;
+            })
+            .addCase(fetchProjectDetail.fulfilled, (state, action) => {
+                state.currentProject = action.payload;
+                state.isLoading = false;
+            })
+            .addCase(fetchProjectDetail.rejected, (state, action) => {
+                state.isLoading = false;
+                state.error = action.payload;
+            });
         }
 })
 

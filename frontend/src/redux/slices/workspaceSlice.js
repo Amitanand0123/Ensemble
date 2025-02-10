@@ -74,6 +74,23 @@ export const fetchWorkspaceDetail=createAsyncThunk(
     }
 )
 
+export const deleteWorkspace=createAsyncThunk(
+    'workspaces/delete',
+    async(workspaceId,{getState,rejectWithValue})=>{
+        try {
+            const token=getState().auth.token || localStorage.getItem('token');
+            const response=await axios.delete(`http://localhost:5000/api/workspaces/${workspaceId}`,{
+                headers:{
+                    'Authorization':`Bearer ${token}`
+                }
+            })
+            return {success:true,workspaceId}
+        } catch (error) {
+            return rejectWithValue(error.response?.data || {message:'Failed to delete workspace'})
+        }
+    }
+)
+
 
 const workspaceSlice=createSlice({
     name:'workspaces',
@@ -105,6 +122,19 @@ const workspaceSlice=createSlice({
                 state.isLoading=false
             })
             .addCase(fetchWorkspaceDetail.rejected,(state,action)=>{
+                state.isLoading=false
+                state.error=action.payload
+            })
+            .addCase(deleteWorkspace.pending,(state)=>{
+                state.isLoading=true
+                state.error=null
+            })
+            .addCase(deleteWorkspace.fulfilled,(state,action)=>{
+                state.isLoading=false
+                state.workspaceDetail=null
+                state.workspaces=state.workspaces.filter(workspace=>workspace._id!== action.payload.workspaceId)
+            })
+            .addCase(deleteWorkspace.rejected,(state,action)=>{
                 state.isLoading=false
                 state.error=action.payload
             })

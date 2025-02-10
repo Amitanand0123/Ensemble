@@ -11,7 +11,7 @@ import {Alert,AlertDescription} from '../ui/alert'
 const CreateWorkspace=()=>{
     const navigate=useNavigate()
     const {createNewWorkspace}=useWorkspaces()
-    const [error,setError]=useState('')
+    const [error,setError]=useState('') 
     const [formData,setFormData]=useState({
         name:'',
         description:'',

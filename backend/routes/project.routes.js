@@ -1,6 +1,6 @@
 import express from 'express'
-import{protect} from '../middlewares/auth.js'
-import { createProject,getProjects,getProjectById,updateProject,deleteProject } from '../controllers/projectController.js'
+import {protect} from '../middlewares/auth.js'
+import { createProject,getProjects,getProjectById,updateProject,deleteProject, getProjectByWorkspaceId } from '../controllers/projectController.js'
 import {check,validationResult} from 'express-validator'
 
 const router=express.Router();
@@ -34,5 +34,7 @@ router.route('/:id')
     .get(getProjectById)   
     .patch(validateProject,updateProject)
     .delete(deleteProject);
+
+router.get('/workspace/:workspaceId/projects',getProjectByWorkspaceId)
 
 export default router;

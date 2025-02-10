@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWorkspaceDetail } from '../../redux/slices/workspaceSlice'; // Keep import of fetchWorkspaceDetail for refresh after update
+import { fetchWorkspaceDetail, deleteWorkspace } from '../../redux/slices/workspaceSlice'; // Import deleteWorkspace
 import axios from 'axios';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -8,11 +8,12 @@ import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { Switch } from '../ui/switch';
 import { Alert, AlertDescription } from '../ui/alert';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
 
 const WorkspaceSettings = ({ workspaceId }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate(); // Initialize useNavigate for redirection
 
-    // Directly select workspaceDetail from Redux state
     const workspace = useSelector(state => state.workspaces.workspaceDetail);
 
     const [settings, setSettings] = useState({
@@ -25,6 +26,7 @@ const WorkspaceSettings = ({ workspaceId }) => {
 
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [deleteError, setDeleteError] = useState(''); // Error state for delete
 
     useEffect(() => {
         if (workspace) {
@@ -48,20 +50,34 @@ const WorkspaceSettings = ({ workspaceId }) => {
             const response = await axios.patch(`/api/workspaces/${workspaceId}`, settings);
             if (response.data.success) {
                 setSuccess('Workspace settings updated successfully');
-                dispatch(fetchWorkspaceDetail(workspaceId)); // Refresh workspaceDetail after update
+                dispatch(fetchWorkspaceDetail(workspaceId));
             }
         } catch (error) {
             setError(error.response?.data?.message || 'Failed to update settings');
         }
     };
 
+    const handleDeleteWorkspace = async () => {
+        setDeleteError(''); // Clear delete error
+        if (window.confirm("Are you sure you want to delete this workspace? This action is irreversible!")) { // Confirmation
+            try {
+                await dispatch(deleteWorkspace(workspaceId)).unwrap();
+                alert('Workspace deleted successfully.'); // Success alert
+                navigate('/dashboard'); // Redirect to dashboard after deletion
+            } catch (deleteErr) {
+                setDeleteError(deleteErr.message || 'Failed to delete workspace.'); // Set delete error
+            }
+        }
+    };
+
+
     if (!workspace) {
-        return <div>Loading Settings...</div>;
+        return <div className="text-white">Loading Settings...</div>; // Keep text white for loading
     }
 
     return (
-        <div>
-            <Card>
+        <div className="text-white"> {/* Ensure text is white in settings too */}
+            <Card className='bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up'> {/* Card styling to match */}
                 <CardHeader>
                     <CardTitle>Workspace Settings</CardTitle>
                 </CardHeader>
@@ -82,13 +98,13 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Name
                                 </label>
-                                <Input id="name" placeholder="Workspace name" value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} />
+                                <Input className="bg-gray-900 text-white" id="name" placeholder="Workspace name" value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} /> {/* Input style */}
                             </div>
                             <div className="space-y-2">
                                 <label htmlFor="description" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Description
                                 </label>
-                                <Textarea id="description" placeholder="Workspace description" value={settings.description} onChange={(e) => setSettings({ ...settings, description: e.target.value })} />
+                                <Textarea className="bg-gray-900 text-white" id="description" placeholder="Workspace description" value={settings.description} onChange={(e) => setSettings({ ...settings, description: e.target.value })} /> {/* Textarea style */}
                             </div>
                             <div className="flex items-center justify-between">
                                 <label htmlFor="isPrivate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
@@ -106,7 +122,7 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 <label htmlFor="theme" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                     Theme
                                 </label>
-                                <Input id="theme" placeholder="Theme" value={settings.theme} onChange={(e) => setSettings({ ...settings, theme: e.target.value })} />
+                                <Input className="bg-gray-900 text-white" id="theme" placeholder="Theme" value={settings.theme} onChange={(e) => setSettings({ ...settings, theme: e.target.value })} /> {/* Input style */}
                             </div>
                         </div>
 
@@ -116,13 +132,19 @@ const WorkspaceSettings = ({ workspaceId }) => {
                 </CardContent>
             </Card>
 
-            <Card className="mt-6">
+            <Card className="mt-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up"> {/* Card styling to match */}
                 <CardHeader>
-                    <CardTitle>Danger Zone</CardTitle>
+                    <CardTitle className="text-red-500">Danger Zone</CardTitle> {/* Danger Zone title in red */}
                 </CardHeader>
                 <CardContent>
-                    {/* Danger zone content... */}
-                    <div>Danger Zone Content Here</div>
+                    {deleteError && ( // Display delete error if any
+                        <Alert variant="destructive">
+                            <AlertDescription>{deleteError}</AlertDescription>
+                        </Alert>
+                    )}
+                    <Button variant="destructive" onClick={handleDeleteWorkspace}> {/* Destructive button variant for delete */}
+                        Delete Workspace
+                    </Button>
                 </CardContent>
             </Card>
         </div>
