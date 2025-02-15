@@ -1,58 +1,72 @@
 import { useEffect,useState } from "react";
 import axios from "axios";
-import { fetchTasks } from "../redux/slices/taskSlice";
+import { bulkUpdateTasks, createTask, deleteTask, fetchTasks } from "../redux/slices/taskSlice.js";
+import { useDispatch } from "react-redux";
 
-export const useTasks=(projectId)=>{
-    const [tasks,setTasks]=useState([])
-    const [isLoading,setIsLoading]=useState(true)
-    const [error,setError]=useState(null)
+export const useTasks=(projectId,workspaceId)=>{
+    const dispatch=useDispatch()
+    const [filters,setFilters]=useState({})
+
+    const handleCreateTask=async(taskData)=>{
+        try {
+            if(!taskData.title?.trim()){
+                throw new Error('Task title is required')
+            }
+            const resultAction=await dispatch(createTask({taskData}))
+            if(createTask.fulfilled.match(resultAction)){
+                dispatch(fetchTasks({projectId}))
+                return resultAction.payload
+            } 
+            if(resultAction.error){
+                throw new Error(resultAction.error.message)
+            }
+            throw new Error(resultAction.error.message || 'Failed to create task')
+        } catch (error) {
+            console.error('Task creation error:',error)
+            throw error;
+        }
+    }
+
+    const handleBulkUpdate=async(tasks)=>{
+        try {
+            const resultAction=await dispatch(bulkUpdateTasks({tasks}))
+            if(bulkUpdateTasks.fulfilled.match(resultAction)){
+
+                return resultAction.payload
+            }
+        } catch (error) {
+            console.error('Task update error:',error)
+            throw error;
+            
+        }
+    }
+
+    const handleDeleteTask=async(taskId)=>{
+        try {
+            const resultAction=await dispatch(deleteTask({projectId,taskId}))
+            if(deleteTask.fulfilled.match(resultAction)){
+                return resultAction.payload
+            }
+            throw new Error('Failed to delete task')
+        } catch (error) {
+            console.error('Task deletion error:',error)
+            throw error;
+        }
+    }
+
+    const refreshTasks=()=>{
+        dispatch(fetchTasks({projectId,filters}))
+    }
 
     useEffect(()=>{
-        if(projectId){
-            fetchTasks()
-        }
-    },[projectId])
+        refreshTasks()
+    },[projectId,filters])
 
-    const fetchTasks=async()=>{
-        setIsLoading(true)
-        try {
-            const response=await axios.get(`/api/projects/${projectId}/tasks`)
-            setTasks(response.data.tasks)
-        } catch (error) {
-            setError(error.response?.data?.message || 'Failed to fetch tasks')
-        } finally {
-            setIsLoading(false)
-        }
+    return {
+        createTask:handleCreateTask,
+        updateTask:handleBulkUpdate,
+        deleteTask:handleDeleteTask,
+        setFilters,
+        refreshTasks
     }
-
-    const createTask=async(taskData)=>{
-        try {
-            const response=await axios.post(`/api/projects/${projectId}/tasks`,taskData)
-            setTasks([...tasks,response.data.task])
-            return response.data.task
-        } catch (error) {
-            throw new Error(error.response?.data?.message || 'Failed to create task')
-        }
-    }
-
-    const updateTask=async(taskId,taskData)=>{
-        try {
-            const response=await axios.post(`/api/projects/${projectId}/tasks/${taskId}`,taskData)
-            setTasks(tasks.map(task=> task._id?response.data.task:task))
-            return response.data.task
-        } catch (error) {
-            throw new Error(error.reponse?.data?.message||'Failed to update task')
-        }
-    }
-
-    const deleteTask=async(taskId)=>{
-        try {
-            await axios.delete(`/api/projects/${projectId}/tasks/${taskId}`)
-            setTasks(tasks.filter(task=>task._id!==taskId))
-        } catch (error) {
-            throw new Error(error.response?.data?.message||'Failed to delete task')
-        }
-    }
-
-    return {tasks,isLoading,error,createTask,updateTask,deleteTask,refreshTasks:fetchTasks}
 }

@@ -52,17 +52,13 @@ const App = () => {
             <Route path="/workspaces">
                 <Route index element={<WorkspaceDashboard />} />
                 <Route path="create" element={<CreateWorkspace />} />
-                <Route path=":workspaceId" element={<WorkspaceDetail />}>
-                    {/* Project Routes within Workspace are also correctly nested, keep them */}
-                    <Route path="projects">
-                        <Route path=":projectId" element={<ProjectDetail />} />
-                        <Route path=":projectId/board" element={<TaskBoard />} />
-                        <Route path=":projectId/settings" element={<ProjectSettings />} />
-                        <Route path=":projectId/tasks/create" element={<CreateTask />} />
-                    </Route>
-                    {/* Chat Routes within Workspace are also correctly nested, keep them */}
-                    <Route path="chat" element={<ChatWindow />} />
-                </Route>
+                <Route path=":workspaceId" element={<WorkspaceDetail />} />  {/* Workspace Detail Route */}
+                {/* Project Detail Route - NOT nested under workspaceId anymore */}
+                <Route path=":workspaceId/projects/:projectId" element={<ProjectDetail />} />
+                <Route path=":workspaceId/projects/:projectId/board" element={<TaskBoard />} />
+                <Route path=":workspaceId/projects/:projectId/settings" element={<ProjectSettings />} />
+                <Route path=":workspaceId/projects/:projectId/tasks/create" element={<CreateTask />} />
+                <Route path=":workspaceId/chat" element={<ChatWindow />} />
             </Route>
 
             {/* 404 Route */}

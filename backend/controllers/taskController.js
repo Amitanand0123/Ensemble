@@ -5,10 +5,16 @@ import User from "../models/User.js";
 import { setupSocketIO } from "../utils/socket.js"; // Correct named import
 
 
-
 export const createTask=async(req,res)=>{
     try {
-        const {title,description,project,workspace,assignedTo,status,priority,dueDate,tags}=req.body
+        const {title,description,project,workspace,assignedTo,status,priority,dueDate,tags,estimatedHours}=req.body
+
+        if(!title || !project || !workspace){
+            return res.status(400).json({
+                success:false,
+                message:'All fields are required'
+            })
+        }
 
         const projectDoc=await Project.findById(project);
         if(!projectDoc){
@@ -18,32 +24,25 @@ export const createTask=async(req,res)=>{
             })
         }
 
-        if(!projectDoc.isMember(req.user._id)){
-            return res.status(403).json({
-                success:false,
-                message:'You do not have permission to create tasks in this project'
-            })
-        }
-
         const task=new Task({
-            title,description,project,workspace,assignedTo,status,priority,dueDate,tags,createdBy: req.user._id,
+            title,
+            description:description || '',
+            project,
+            workspace,
+            assignedTo:assignedTo || [],
+            status:status || 'todo',
+            priority:priority || 'medium',
+            dueDate:dueDate || null,
+            tags:tags || [],
+            estimatedHours:estimatedHours || 0,
+            createdBy:req.user._id,
         })
 
-        if(req.files && req.files.attachments){
-            const attachments=await Promise.all(
-                req.files.attachment.map(async(file)=>{
-                    const uploadResult=await uploadToCloud(file);
-                    return {
-                        filename:file.originalname,
-                        url:uploadResult.url,
-                        uploadedBy:req.user._id
-                    }
-                })
-            )
-            task.attachments=attachments
-        }
-
         await task.save();
+        const savedTask=await Task.findById(task._id)
+            .populate('assignedTo','name email')
+            .populate('createdBy','name email')
+            
         res.status(201).json({
             success:true,
             task
@@ -270,5 +269,55 @@ export const addTaskDependeny=async(req,res)=>{
     } catch (error) {
         console.error('Add task dependency error:',error)
         res.status(500).json({success:false,message:'Could not add dependency',error:process.env.NODE_ENV==='development'?error.message:undefined})
+    }
+}
+
+export const getTasksbyProject=async(req,res)=>{
+    try {
+        const {projectId}=req.params;
+        const {status,priority,assignedTo,search}=req.query
+        const project=await Project.findById(projectId)
+        if(!project){
+            return res.status(404).json({
+                success:false,
+                message:'Project not found'
+            })
+        }
+        if(!project.isMember(req.user._id)){
+            return res.status(403).json({
+                success:false,
+                message:'Not authorized to view tasks in this project'
+            })
+        }
+        const filter={project:projectId}
+        if(status) filter.status=status;
+        if(priority) filter.priority=priority;
+        if(assignedTo) filter['assignedTo.user']=assignedTo
+        if(search){
+            filter.$or=[
+                {title:{$regex:search,$options:'i'}},
+                {description:{$regex:search,$options:'i'}}
+            ]
+        }
+
+        const tasks=await Task.find(filter)
+            .populate('assignedTo.user','name email avatar')
+            .populate('createdBy','name email avatar')
+            .populate('comments.user','name email avatar')
+            .sort({createdAt:-1})
+
+        res.json({
+            success:true,
+            tasks:tasks,
+            count:tasks.length
+        })
+
+    } catch (error) {
+        console.error('Get tasks by project error:',error);
+        res.status(500).json({
+            success:false,
+            message:'Could not fetch tasks',
+            error:process.env.NODE_ENV==='development'?error.message:undefined
+        }) 
     }
 }

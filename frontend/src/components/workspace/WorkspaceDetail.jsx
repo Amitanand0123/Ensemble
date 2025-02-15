@@ -18,6 +18,7 @@ import { Label } from "../ui/label";
 import axios from 'axios';
 import { fetchProjects } from '../../redux/slices/projectSlice';
 import { ChatWindow } from '../chat';
+import { useLocation } from 'react-router-dom';
 
 const WorkspaceDetail = () => {
     const { workspaceId } = useParams();
@@ -222,31 +223,35 @@ const WorkspaceDetail = () => {
                         </CardContent>
                     </Card>
 
-                    <Tabs defaultValue="projects" className="animate-fade-in-up">
-                        <TabsList className="bg-gray-800/50 backdrop-blur-sm border border-gray-700">
-                            <TabsTrigger value="projects">Projects</TabsTrigger>
-                            <TabsTrigger value="members">Members</TabsTrigger>
-                            <TabsTrigger value="files">Files</TabsTrigger>
-                            <TabsTrigger value="settings">Settings</TabsTrigger>
-                            <TabsTrigger value="chat">Chat</TabsTrigger>
-                        </TabsList>
-                        <TabsContent value="projects">
-                            <ProjectList workspaceId={workspaceId} />
-                            <Outlet/>
-                        </TabsContent>
-                        <TabsContent value="members">
-                            <MembersList members={workspaceDetail.members || []} />
-                        </TabsContent>
-                        <TabsContent value="files">
-                            <FilesList workspaceId={workspaceId} />
-                        </TabsContent>
-                        <TabsContent value="settings">
-                            <WorkspaceSettings workspaceId={workspaceId} />
-                        </TabsContent>
-                        <TabsContent value="chat">
-                            <ChatWindow workspaceId={workspaceId} />
-                        </TabsContent>
-                    </Tabs>
+                    {!location.pathname.includes(`/projects/`) ? (
+                        <Tabs defaultValue="projects" className="animate-fade-in-up">
+                            <TabsList className="bg-gray-800/50 backdrop-blur-sm border border-gray-700">
+                                <TabsTrigger value="projects">Projects</TabsTrigger>
+                                <TabsTrigger value="members">Members</TabsTrigger>
+                                <TabsTrigger value="files">Files</TabsTrigger>
+                                <TabsTrigger value="settings">Settings</TabsTrigger>
+                                <TabsTrigger value="chat">Chat</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="projects">
+                                <ProjectList workspaceId={workspaceId} />
+                                <Outlet/>
+                            </TabsContent>
+                            <TabsContent value="members">
+                                <MembersList members={workspaceDetail.members || []} />
+                            </TabsContent>
+                            <TabsContent value="files">
+                                <FilesList workspaceId={workspaceId} />
+                            </TabsContent>
+                            <TabsContent value="settings">
+                                <WorkspaceSettings workspaceId={workspaceId} />
+                            </TabsContent>
+                            <TabsContent value="chat">
+                                <ChatWindow workspaceId={workspaceId} />
+                            </TabsContent>
+                        </Tabs>
+                    ): (
+                        <Outlet />
+                    )}
                 </div>
             </div>
 

@@ -55,7 +55,7 @@ export const fetchProjectDetail=createAsyncThunk(
             })
             return response.data.project
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.response.data) 
         }
     }
 )
