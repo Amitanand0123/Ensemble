@@ -4,7 +4,7 @@ import {protect} from '../middlewares/auth.js'
 import { loginValidation, registerValidation, validateRequest } from '../middlewares/validation.js';
 
 
-const router=express.Router();
+const router=express.Router(); 
 
 router.post('/register',registerValidation,validateRequest,registerUser);
 router.post('/login',loginValidation,validateRequest,loginUser)

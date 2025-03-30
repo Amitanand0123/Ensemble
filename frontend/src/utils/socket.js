@@ -3,7 +3,12 @@ import io from 'socket.io-client'
 let socket=null
 
 export const initSocket=(token)=>{
-    if(socket) return socket;
+    if(socket && socket.connected) return socket;
+
+    if(socket){
+        socket.close();
+        socket=null;
+    }
 
     const SOCKET_URL=import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000'
 

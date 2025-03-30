@@ -11,7 +11,7 @@ const Login = () => {
         email: '',
         password: '',
         rememberMe: false
-    });
+    }); 
 
     // const [errors, setErrors] = useState({});
     // const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +46,7 @@ const Login = () => {
 
     const dispatch=useDispatch();
     const navigate=useNavigate();
-    const {isLoading,error,isAuthenticated}=useSelector(state=>state.auth)
+    const {isLoading,error,isAuthenticated,isAdmin}=useSelector(state=>state.auth)
 
     // useEffect(() => {
     //     if(isAuthenticated) {
@@ -58,6 +58,17 @@ const Login = () => {
         dispatch(clearError());
     },[dispatch])
 
+    useEffect(()=>{
+        if(isAuthenticated){
+            if(isAdmin){
+                navigate('/admin/dashboard')
+            }
+            else{
+                navigate('/dashboard')
+            }
+        }
+    },[isAuthenticated,navigate,isAdmin])
+
     const handleChange=(e)=>{
         const {name,value,type,checked}=e.target
         setFormData(prev=>({
@@ -68,7 +79,11 @@ const Login = () => {
 
     const handleSubmit = async(e) => {
         e.preventDefault();
-        await dispatch(loginUser(formData)).unwrap();
+        try{
+            await dispatch(loginUser(formData)).unwrap();
+        } catch(error){
+            console.log('Login failed:',error)
+        }
     }
 
     return (

@@ -13,8 +13,9 @@ const Registration=()=>{
         email:'',
         password:'',
         confirmPassword:'',
+        role:'user',
         acceptTerms:false
-    });
+    });  
 
     // const[errors,setErrors]=useState({});
     // const [isLoading,setIsLoading]=useState(false);
@@ -51,21 +52,30 @@ const Registration=()=>{
     //         setIsLoading(false);
     //     }
     // }
-
+    const [alert,setAlert]=useState(null);
     const dispatch=useDispatch();
     const navigate=useNavigate();
-    const {isLoading,error,isAuthenticated}=useSelector(state=>state.auth);
+    const {isLoading,error,isAuthenticated,isAdmin}=useSelector(state=>state.auth);
 
     // useEffect(()=>{
     //     if(isAuthenticated){
     //         navigate('/');
     //     }
     // },[isAuthenticated,navigate])
-
+    useEffect(()=>{
+        if(isAuthenticated){
+            if(isAdmin){
+                navigate('/admin/dashboard');
+            }
+            else{
+                navigate('/dashboard');
+            }
+        }
+    },[isAuthenticated,navigate,isAdmin])
     const handleSubmit=async(e)=>{
         e.preventDefault();
         if(formData.password!==formData.confirmPassword){
-            setAlert({type:'error',message:'Password do not match'})
+            setAlert({type:'error',message:'Passwords do not match'})
             return;
         }
         dispatch(registerUser(formData))
@@ -129,6 +139,44 @@ const Registration=()=>{
                             onChange={(e)=>setFormData({...formData,confirmPassword:e.target.value})}
                             // error={errors.confirmPassword}
                         />
+                        {/* Role selection */}
+                        <div className='space-y-2'>
+                            <label className='text-sm text-gray-300 mb-1 block'>Account Type</label>
+                            <div className='bg-gray-800/50 border border-gray-700 rounded-lg p-3 flex'>
+                                <div className='flex items-center space-x-2 mr-4'>
+                                    <input 
+                                        type="radio"
+                                        name="role"
+                                        id="role-user"
+                                        value="user"
+                                        checked={formData.role === 'user'}
+                                        onChange={(e) => setFormData({...formData, role: e.target.value})}
+                                        className='w-4 h-4 text-purple-500 border-gray-700 focus:ring-purple-500'
+                                    />
+                                    <label htmlFor="role-user" className='text-sm text-gray-300'>
+                                        Employee
+                                    </label>
+                                </div>
+                                <div className='flex items-center space-x-2'>
+                                    <input 
+                                        type="radio"
+                                        name="role"
+                                        id="role-admin"
+                                        value="admin"
+                                        checked={formData.role === 'admin'}
+                                        onChange={(e) => setFormData({...formData, role: e.target.value})}
+                                        className='w-4 h-4 text-purple-500 border-gray-700 focus:ring-purple-500'
+                                    />
+                                    <label htmlFor="role-admin" className='text-sm text-gray-300'>
+                                        Administrator
+                                    </label>
+                                </div>
+                            </div>
+                            <p className='text-xs text-gray-400 mt-1'>
+                                Admins can create projects, manage members and workspaces
+                            </p>
+                        </div>
+                        
                         <div className='flex items-start'>
                             <input 
                                 type="checkbox"

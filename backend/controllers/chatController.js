@@ -1,6 +1,7 @@
 import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import Project from "../models/Project.js";
+import Workspace from "../models/Workspace.js";
 
 export const getPersonalMessages=async(req,res)=>{
     try {
@@ -57,6 +58,36 @@ export const getProjectMessages=async(req,res)=>{
         res.status(500).json({
             success:false,
             message:'Could not fetch project messages',
+            error:process.env.NODE_ENV==='development'?error.message:undefined
+        })
+    }
+}
+
+export const getWorkspaceMessages=async(req,res)=>{
+    try{
+        const {workspaceId}=req.params;
+        const workspace=await Workspace.findById(workspaceId);
+        if(!workspace || !workspace.isMember(req.user._id)){
+            return res.status(403).json({
+                success:false,
+                message:'Not authorized to view workspace messages'
+            })
+        }
+        const messages=await Chat.find({
+            type:'workspace',
+            workspace:workspaceId
+        })
+        .populate('sender','name avatar')
+        .sort({createdAt:1})
+
+        res.json({
+            success:true,
+            messages
+        })
+    } catch(error){
+        res.status(500).json({
+            success:false,
+            message:'Could not fetch personal messages',
             error:process.env.NODE_ENV==='development'?error.message:undefined
         })
     }

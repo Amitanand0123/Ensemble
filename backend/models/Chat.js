@@ -14,6 +14,10 @@ const ChatSchema=new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:'Project'
     },
+    workspace:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'Workspace'
+    },
     content:{
         type:String,
         required:true,
@@ -21,7 +25,7 @@ const ChatSchema=new mongoose.Schema({
     },
     type:{
         type:String,
-        enum:['personal','project'],
+        enum:['personal','project','workspace'],
         required:true
     },
     readBy:[{

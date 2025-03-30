@@ -2,6 +2,7 @@ import {Server} from 'socket.io'
 import {verifySocketToken} from '../middlewares/socketAuth.js'
 import Task from '../models/Task.js'
 import Project from '../models/Project.js'
+import Workspace from '../models/Workspace.js'
 import Chat from '../models/Chat.js'
 import {uploadToCloud} from './fileUpload.js'
 
@@ -15,7 +16,7 @@ export const setupSocketIO=(server)=>{
     })
 
     const onlineUsers=new Map()
-
+ 
     io.use(verifySocketToken)
 
     io.on('connection',async (socket)=>{
@@ -27,6 +28,11 @@ export const setupSocketIO=(server)=>{
         const userProjects=await Project.find({'members.user':userId})
         userProjects.forEach(project=>{
             socket.join(`project:${project._id}`)
+        })
+
+        const userWorkspaces=await Workspace.find({'members.user':userId})
+        userWorkspaces.forEach(workspace=>{
+            socket.join(`workspace:${workspace._id}`)
         })
 
         socket.broadcast.emit('userStatusChanged',{
@@ -79,7 +85,7 @@ export const setupSocketIO=(server)=>{
                 if(receiverSocketId){
                     io.to(receiverId.toString()).emit('newMessage',message)
                 }
-                socket.io(receiverId.toString()).emit('newPersonalMessage',message)
+                io.to(receiverId.toString()).emit('newPersonalMessage',message)
             } catch (error) {
                 socket.emit('chatError',{message:'Could not send message'})
             }
@@ -119,6 +125,30 @@ export const setupSocketIO=(server)=>{
             }
         })
 
+        socket.on('sendWorkspaceMessage',async(data)=>{
+            try {
+                const {workspaceId,content,attachments=[]}=data
+                console.log(workspaceId,content,attachments)
+                const workspace=await Workspace.findById(workspaceId)
+                if(!workspace || !workspace.isMember(userId)){
+                    return socket.emit('chatError',{message:'Not authorized'})
+                }
+                const message=new Chat({
+                    sender:userId,
+                    workspace:workspaceId,
+                    content,
+                    type:'workspace',
+                    attachments,
+                    readBy:[{user:userId,readAt:new Date()}]
+                })
+                await message.save()
+                await message.populate('sender','name avatar')
+                io.to(`workspace:${workspaceId}`).emit('newWorkspaceMessage',message)
+            } catch (error) {
+                socket.emit('chatError',{message:'Could not send message'})
+            }
+        })
+
         socket.on('uploadChatFile',async(data)=>{
             try {
                 const {file,type,receiverId,projectId}=data;
@@ -133,7 +163,8 @@ export const setupSocketIO=(server)=>{
                 socket.emit('fileUploadSuccess',{
                     attachment,
                     receiverId:type==='personal'?receiverId:undefined,
-                    projectId:type==='project'?projectId:undefined
+                    projectId:type==='project'?projectId:undefined,
+                    workspaceId:type==='workspace'?workspaceId:undefined
                 })
                 // if(type=='personal'){
                 //     socket.emit('fileUploadSucess',{attachment,receiverId})
@@ -148,9 +179,15 @@ export const setupSocketIO=(server)=>{
         })
 
         socket.on('typing',(data)=>{
-            const {receiverId,projectId,isTyping}=data
-            if(projectId){
-                socket.io(`project:${projectId}`).emit('userTyping',{
+            const {receiverId,projectId,workspaceId,isTyping}=data
+            if(workspaceId){
+                io.to(`workspace:${workspaceId}`).emit('userTyping',{
+                    userId,
+                    isTyping
+                })
+            }
+            else if(projectId){
+                io.to(`project:${projectId}`).emit('userTyping',{
                     userId,
                     isTyping
                 })

@@ -6,7 +6,7 @@ import crypto from 'crypto'
 import sendEmail from '../utils/sendEmail.js'
 import { validationResult } from 'express-validator'
 
-dotenv.config()
+dotenv.config() 
 
 const JWT_SECRET=process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET=process.env.JWT_REFRESH_SECRET;
@@ -25,7 +25,7 @@ const generateTokens = (user) =>{
         },
         JWT_SECRET,
         {
-            expiresIn:'1h'
+            expiresIn:'1d'
         }
     );
 
@@ -51,9 +51,9 @@ export const registerUser = async(req,res)=>{
                 message: errors.array()[0].msg
             });
         }
-        const {firstName,lastName,email,password}=req.body
+        const {firstName,lastName,email,password,role}=req.body
         const userExists=await User.findOne({
-            email:{$regex:new RegExp(`^${email}$`,'i')}
+            email:{$regex:new RegExp(`^${email}$`,'i')} //'i' makes it case insensitive
         });
 
         if(userExists){
@@ -63,6 +63,9 @@ export const registerUser = async(req,res)=>{
             })
         }
 
+        const allowedRoles=['admin','user','moderator'];
+        const userRole=role && allowedRoles.includes(role) ? role : 'user';
+
         const user=new User({
             name:{
                 first:firstName.trim(),
@@ -70,7 +73,7 @@ export const registerUser = async(req,res)=>{
             },
             email:email.toLowerCase(),
             password,
-            role:req.body.role || 'user',
+            role:userRole,
         });
 
         await user.save();
@@ -102,7 +105,7 @@ export const registerUser = async(req,res)=>{
                 isVerified:user.email_verification.verified
             } 
         })
-    }
+    } 
     catch(error){
         console.error('Registration error:',error);
         res.status(500).json({
@@ -154,7 +157,8 @@ export const loginUser = async(req,res)=>{
                 id:user._id,
                 email:user.email,
                 name:`${user.name.first} ${user.name.last}`,
-                role:user.role
+                role:user.role,
+                isVerified:user.email_verification.verified
             }
         })
     } catch(error){

@@ -19,6 +19,10 @@ import axios from 'axios';
 import { fetchProjects } from '../../redux/slices/projectSlice';
 import { ChatWindow } from '../chat';
 import { useLocation } from 'react-router-dom';
+import ChatSidebar from '../chat/ChatSidebar';
+import ChatTab from '../chat/ChatTab';
+
+
 
 const WorkspaceDetail = () => {
     const { workspaceId } = useParams();
@@ -26,6 +30,8 @@ const WorkspaceDetail = () => {
     const workspaceDetail = useSelector(state => state.workspaces.workspaceDetail);
     const isLoading = useSelector(state => state.workspaces.isLoading);
     const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
+    const [isChatSidebarOpen, setIsChatSidebarOpen] = useState(false)
+    const location=useLocation()
 
     useEffect(() => {
         if (!workspaceDetail || workspaceDetail._id !== workspaceId) {
@@ -242,11 +248,11 @@ const WorkspaceDetail = () => {
                             <TabsContent value="files">
                                 <FilesList workspaceId={workspaceId} />
                             </TabsContent>
+                            <TabsContent value="chat">
+                                <ChatTab type="workspace" id={workspaceId} />
+                            </TabsContent>
                             <TabsContent value="settings">
                                 <WorkspaceSettings workspaceId={workspaceId} />
-                            </TabsContent>
-                            <TabsContent value="chat">
-                                <ChatWindow workspaceId={workspaceId} />
                             </TabsContent>
                         </Tabs>
                     ): (
@@ -260,6 +266,7 @@ const WorkspaceDetail = () => {
                 isOpen={isCreateProjectModalOpen}
                 onClose={() => setIsCreateProjectModalOpen(false)}
             />
+            {/* <ChatSidebar type="workspace" targetId={workspaceId}/> */}
         </div>
     );
 };

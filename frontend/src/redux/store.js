@@ -5,6 +5,7 @@ import projectReducer from "./slices/projectSlice.js"
 import taskReducer from "./slices/taskSlice.js"
 import chatReducer from "./slices/chatSlice.js"
 import notificationReducer from "./slices/notificationSlice.js"
+import usersReducer from "./slices/usersSlice.js"
 
 const store=configureStore({
     reducer:{
@@ -13,7 +14,8 @@ const store=configureStore({
         projects:projectReducer,
         task:taskReducer,
         chat:chatReducer,
-        notifications:notificationReducer
+        notifications:notificationReducer,
+        users:usersReducer
     },
     middleware:(getDefaultMiddleware)=>
         getDefaultMiddleware({

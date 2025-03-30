@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 
-export const verifySocketToken=async(WebSocket,next)=>{
-    const token=WebSocket.handshake.auth.token
+export const verifySocketToken=async(socket,next)=>{
+    const token=socket.handshake.auth.token
     try {
         const decoded=jwt.verify(token,process.env.JWT_SECRET)
         const user=await User.findById(decoded.userId)

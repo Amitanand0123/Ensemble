@@ -14,7 +14,7 @@ import axios from 'axios'
 const handleAuthError=(error)=>{
     const message=error.response?.data?.message || error.message || 'Authentication failed'
     return message
-}
+} 
 
 export const registerUser=createAsyncThunk(
     'auth/register',
@@ -23,15 +23,14 @@ export const registerUser=createAsyncThunk(
             const response=await axios.post('http://localhost:5000/api/auth/register',userData)
             localStorage.setItem('token',response.data.token)
             localStorage.setItem('user',JSON.stringify(response.data.user))
-            return response.data
+            return response.data // This will be `action.payload` in `.fulfilled`
         } catch (error) {
-            // Format the error message properly
             const errorMessage = error.response?.data?.errors 
-                ? error.response.data.errors[0].msg // If it's a validation error
-                : error.response?.data?.message || 'Registration failed'; // If it's a custom error or fallback
+                ? error.response.data.errors[0].msg
+                : error.response?.data?.message || 'Registration failed';
             return rejectWithValue(errorMessage)
         }
-    }
+    } 
 )
 
 export const loginUser=createAsyncThunk(
@@ -60,13 +59,30 @@ export const loginUser=createAsyncThunk(
 
 export const logoutUser=createAsyncThunk(
     'auth/logout',
-    async(_,{rejectWithValue})=>{
+    async(_,{getState,rejectWithValue})=>{
         try {
-            await axios.post('http://localhost:5000/api/auth/logout')
+            const {auth}=getState()
+            const token=auth.token
+            console.log("Token from state before logout: ",token)
+            let config={
+                withCredentials:true
+            }
+            if(token){
+                config.headers={
+                    'Authorization':`Bearer ${token}`
+                }
+            }
+            else{
+                console.warn("Attempting to logout without a token")
+            }
+            await axios.post('http://localhost:5000/api/auth/logout',{},config)
+            delete axios.defaults.headers.common['Authorization']
             localStorage.removeItem('token')
             localStorage.removeItem('user')
+            return {};
         } catch (error) {
-            return rejectWithValue(handleAuthError(error))
+            console.error("Logout API call failed:",error.response?.data || error.message);
+            return rejectWithValue(error.response?.data?.message || handleAuthError(error))
         }
     }
 )
@@ -115,13 +131,22 @@ const initialState={
     isAuthenticated:!!localStorage.getItem('token'),
     isLoading:false,
     error:null,
-    message:null
+    message:null,
+    isAdmin:localStorage.getItem('user') ? 
+            JSON.parse(localStorage.getItem('user')).role === 'admin' : false
 }
 
 const authSlice=createSlice({
     name:'auth',
     initialState,
     reducers:{
+        resetAuth:(state)=>{
+            state.isAuthenticated=false,
+            state.user=null,
+            state.isAdmin=false,
+            localStorage.removeItem('token'),
+            localStorage.removeItem('user')
+        },
         clearError:(state)=>{
             state.error=null;
         },
@@ -143,6 +168,7 @@ const authSlice=createSlice({
                 state.isLoading=false
                 state.isAuthenticated=true
                 state.user=action.payload.user
+                state.isAdmin=action.payload.user.role==='admin'
                 state.token=action.payload.token
                 state.message='Registration successful! Please verify your email'
             })
@@ -158,14 +184,20 @@ const authSlice=createSlice({
                 state.isLoading=false
                 state.isAuthenticated=true
                 state.user=action.payload.user;
+                state.isAdmin=action.payload.user.role==='admin';
+                console.log("Login Payload received :", JSON.stringify(action.payload,null,2)); // Keep for debugging (optional)
+                console.log("Specific access token:", action.payload.accessToken); // Log accessToken now
             
-                console.log("Login Fulfilled Payload:", action.payload); // Keep for debugging (optional)
-                console.log("Token from Payload:", action.payload.accessToken); // Log accessToken now
-            
-                state.token = action.payload.accessToken; // <--- Corrected: Use 'accessToken'
-                localStorage.setItem('token', action.payload.accessToken); // Update localStorage as well
-                axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.accessToken}`; // Update axios defaults
-            
+                const receivedToken = action.payload.accessToken; // <--- Corrected: Use 'accessToken'
+                if(typeof receivedToken!=='string' || !receivedToken.includes('.')){
+                    console.error("Received token is not a valid JWT string:");
+                }
+                state.token=receivedToken;
+                localStorage.setItem('token', receivedToken); // Update localStorage as well
+                localStorage.setItem('user', JSON.stringify(action.payload.user));
+                axios.defaults.headers.common['Authorization'] = `Bearer ${action.token}`; // Update axios defaults
+                state.message='Login successful';
+                state.error=null;
             })
             .addCase(loginUser.rejected,(state,action)=>{
                 state.isLoading=false
@@ -175,7 +207,18 @@ const authSlice=createSlice({
                 state.isAuthenticated=false
                 state.user=null
                 state.token=null
+                state.isAdmin=false
+                state.isLoading=false
                 state.message='Logged out successfully'
+                state.error=null
+                localStorage.removeItem('token')
+                localStorage.removeItem('user')
+                delete axios.defaults.headers.common['Authorization']
+            })
+            .addCase(logoutUser.rejected,(state,action)=>{
+                state.isLoading=false
+                state.error=action.payload
+                console.error("Logout rejected in reducer: ", action.payload);
             })
             .addCase(forgotPassword.pending,(state)=>{
                 state.isLoading=true
@@ -220,5 +263,5 @@ const authSlice=createSlice({
     }
 })
 
-export const { clearError,clearMessage,updateUser}=authSlice.actions
+export const { clearError,clearMessage,updateUser,resetAuth}=authSlice.actions
 export default authSlice.reducer

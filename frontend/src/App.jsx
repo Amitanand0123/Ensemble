@@ -33,39 +33,27 @@ const App = () => {
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
-
         <main className="flex-grow">
           <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
-
-            {/* Auth Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
-
-            {/* Dashboard Route */}
             <Route path="/dashboard" element={<WorkspaceDashboard />} />
-
-            {/* Workspace Routes */}
             <Route path="/workspaces">
                 <Route index element={<WorkspaceDashboard />} />
                 <Route path="create" element={<CreateWorkspace />} />
-                <Route path=":workspaceId" element={<WorkspaceDetail />} />  {/* Workspace Detail Route */}
-                {/* Project Detail Route - NOT nested under workspaceId anymore */}
+                <Route path=":workspaceId" element={<WorkspaceDetail />} />
                 <Route path=":workspaceId/projects/:projectId" element={<ProjectDetail />} />
                 <Route path=":workspaceId/projects/:projectId/board" element={<TaskBoard />} />
                 <Route path=":workspaceId/projects/:projectId/settings" element={<ProjectSettings />} />
                 <Route path=":workspaceId/projects/:projectId/tasks/create" element={<CreateTask />} />
                 <Route path=":workspaceId/chat" element={<ChatWindow />} />
             </Route>
-
-            {/* 404 Route */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>
-
         <Footer />
       </div>
     </Router>

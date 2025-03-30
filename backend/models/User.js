@@ -18,7 +18,7 @@ const NotificationSchema = new mongoose.Schema({
   message: { type: String, required: true },
   read: { type: Boolean, default: false },
   date: { type: Date, default: Date.now },
-  link: { type: String }, // URL to the relevant content
+  link: { type: String },
   sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 });
 
@@ -106,7 +106,7 @@ const UserSchema = new mongoose.Schema(
    }
    ,
 
-    socialLinks: {
+    socialLinks: { 
       github: { type: String },
       linkedin: { type: String },
       website: { type: String }
@@ -162,13 +162,13 @@ UserSchema.index({ 'skills': 1 });
 UserSchema.index({ createdAt: -1 });
 
 // Virtual for full name
-UserSchema.virtual('fullName').get(function() {
+UserSchema.virtual('fullName').get(function() { //virtuals are fields that do not get stored in the MongoDB database. Instead, they are computed dynamically when accessed.
   return `${this.name.first} ${this.name.last}`;
 });
 
 // Pre-save middleware for password hashing
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password')) return next(); // To prevent unnecessary re-hashing every time a user updates other fields (like name or email).Without this check, the password would be re-hashed on every update, making the user unable to log in.
   
   try {
     const salt = await bcrypt.genSalt(12);
@@ -234,4 +234,4 @@ UserSchema.statics.getUserStats = async function() {
   ]);
 };
 
-export default mongoose.model('User', UserSchema);
+export default mongoose.model('User', UserSchema); 
