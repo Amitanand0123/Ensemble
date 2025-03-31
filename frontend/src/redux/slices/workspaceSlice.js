@@ -7,7 +7,7 @@ const initialState={
     workspaceDetail:null,
     isLoading:false,
     error:null
-}
+} 
 
 export const fetchWorkspaces=createAsyncThunk(
     'workspaces/fetchAll',
@@ -74,6 +74,26 @@ export const fetchWorkspaceDetail=createAsyncThunk(
     }
 )
 
+export const joinWorkspace=createAsyncThunk(
+    'workspaces/join',
+    async (inviteCode,{getState,rejectWithValue})=>{
+        try {
+            const token=getState().auth.token || localStorage.getItem('token');
+            const response=await axios.post(
+                'http://localhost:5000/api/workspaces/join',
+                {inviteCode},
+                {
+                    headers:{'Authorization':`Bearer ${token}`}
+                }
+            )
+            return response.data.workspace;
+        } catch (error) {
+            console.error("Joim workspace API error:",error.response?.data)
+            return rejectWithValue(error.response?.data || {message:'Failed to join workspace'})
+        }
+    }
+)
+
 export const deleteWorkspace=createAsyncThunk(
     'workspaces/delete',
     async(workspaceId,{getState,rejectWithValue})=>{
@@ -98,6 +118,9 @@ const workspaceSlice=createSlice({
     reducers:{
         setCurrentWorkspace:(state,action)=>{
             state.currentWorkspace=action.payload
+        },
+        clearWorkspaceError:(state)=>{
+            state.error=null
         }
     },
     extraReducers:(builder)=>{
@@ -138,9 +161,33 @@ const workspaceSlice=createSlice({
                 state.isLoading=false
                 state.error=action.payload
             })
+            .addCase(joinWorkspace.pending,(state)=>{
+                state.isLoading=true
+                state.error=null
+            })
+            .addCase(joinWorkspace.fulfilled,(state,action)=>{
+                state.isLoading=false
+                const joinedWorkspace=action.payload
+                const exists=state.workspaces.some(ws=>ws._id===joinedWorkspace._id)
+                if(!exists && joinedWorkspace){
+                    state.workspaces.push(joinedWorkspace)
+                }
+                else if(exists && joinedWorkspace){
+                    state.workspaces=state.workspaces.map(ws=>ws._id===joinedWorkspace._id ? {...ws,...joinedWorkspace}:ws)
+                }
+                state.error=null
+            })
+            .addCase(joinWorkspace.rejected,(state,action)=>{
+                state.isLoading=false
+                state.error=action.payload || {message:'Failed to join workspace'}
+            })
     }
 })
 
-export const {setCurrentWorkspace}=workspaceSlice.actions
+export const {setCurrentWorkspace,clearWorkspaceError}=workspaceSlice.actions
 export default workspaceSlice.reducer
 export const selectWorkspaces=(state)=>state.workspaces.workspaces
+export const selectCurrentWorkspace=(state)=>state.workspaces.currentWorkspace
+export const selectWorkspaceDetail=(state)=>state.workspaces.workspaceDetail
+export const selectWorkspaceError=(state)=>state.workspaces.error
+export const selectWorkspaceLoading=(state)=>state.workspaces.isLoading

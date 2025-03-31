@@ -7,40 +7,65 @@ export const createWorkspace = async(req,res)=>{
     try{
         console.log('Request user:', req.user); // Check if user exists
         console.log('Request body:', req.body); // Check incoming data
+        if(req.user.role!=='admin'){
+            return res.status(403).json({
+                success:false,
+                message:'Only admins can create workspaces'
+            })
+        }
         const {name,description,isPrivate}=req.body;
+        if(!name){
+            return res.status(400).json({
+                success:false,
+                message:'Workspace name is required'
+            })
+        }
         const workspace=new Workspace({
             name,
             description,
-            owner:req.user._id,
+            owner:req.user._id, 
             members:[{
                 user:req.user._id,
                 role:'admin',
                 status:'active'
             }],
             settings:{
-                isPrivate,
+                isPrivate:isPrivate || false,
                 inviteCode:crypto.randomBytes(6).toString('hex')
-            }
+            },
+            status:'active'
         });
 
         await workspace.save();
+        const user=await User.findById(req.user._id);
+        if(user){
+            user.workspaces.push({
+                workspace:workspace._id,
+                role:'admin',
+                lastAccessed:Date.now()
+            });
+            await user.save({validateBeforeSave:false});
+        }
+        else{
+            console.warn(`User ${req.uesr._id} not found when trying to update workspace list.`)
+        }
 
-        const savedWorkspace = await Workspace.findById(workspace._id);
-
-        req.user.workspaces.push({
-            workspace:workspace._id,
-            role:'owner',
-            lastAccessed:Date.now()
-        });
-
-        await req.user.save();
+        const populatedWorkspace=await Workspace.findById(workspace._id)
+                .populate('owner','name email')
+                .populate('members.user','name email');
 
         res.status(201).json({
             success:true,
-            workspace
+            workspace:populatedWorkspace
         });
     } catch(error){
         console.log('Crete workspace error: ',error);
+        if(error.code==11000){
+            return res.status(400).json({
+                success:false,
+                message:'Workspace name already exists.'
+            })
+        }
         res.status(500).json({
             success:false,
             message:'Could not create workspace',
@@ -51,16 +76,13 @@ export const createWorkspace = async(req,res)=>{
 
 export const getWorkspaces =async(req,res)=>{
     try{
+        if(!req.user || !req.user._id){
+            return res.status(401).json({
+                success:false,
+                message:'User not authenticated'
+            })
+        }
         console.log('Finding workspaces for user:', req.user._id);
-        
-        
-        // Debug: First check if workspaces exist at all
-        const allWorkspaces = await Workspace.find({});
-        console.log('All workspaces in DB:', allWorkspaces);
-        
-        // Debug: Check specific workspace by ID
-        const specificWorkspace = await Workspace.findById('678bc45be010272e8b2afcb8');
-        console.log('Specific workspace:', specificWorkspace);
         const workspaces=await Workspace.find({
             'members.user':req.user._id,
             status:'active'
@@ -69,13 +91,13 @@ export const getWorkspaces =async(req,res)=>{
         .populate('members.user','name email')
         .sort('-createdAt')
 
-        console.log('Found workspaces:', workspaces);
+        console.log(`Found ${workspaces.length} workspaces for user ${req.user._id}`);
 
         res.json({
             success:true,
             count:workspaces.length,
             workspaces
-        });
+        }); 
 
     } catch(error){
         console.error('Get workspaces error: ',error);
@@ -123,13 +145,16 @@ export const getWorkspaceById=async(req,res)=>{
 export const joinWorkspace=async(req,res)=>{
     try {
         const {inviteCode}=req.body;
+        if(!inviteCode){
+            return res.status(400).json({success:false,message:'Invite code is required'})
+        }
         const workspace=await Workspace.findOne({
             'settings.inviteCode':inviteCode,
             status:'active'
         })
 
         if(!workspace){
-            return res.status(400).json({
+            return res.status(404).json({
                 success:false,
                 message:'Invalid invite code or workspace not found'
             })
@@ -146,23 +171,35 @@ export const joinWorkspace=async(req,res)=>{
             user:req.user._id,
             role:'member',
             status:'active',
+            joinedAt:Date.now()
         })
 
         await workspace.save()
-
-        req.user.workspaces.push({
-            workspace:workspace._id,
-            role:'member',
-            lastAccessed:Date.now()
-        })
-
-        await req.user.save()
-
+        const user=await User.findById(req.user._id);
+        if(user){
+            const alreadyAdded=user.workspaces.find(w=>w.workspace.toString()===workspace._id.toString())
+            if(!alreadyAdded){
+                user.workspaces.push({
+                    workspace:workspace._id,
+                    role:'member',
+                    lastAccessed:Date.now()
+                })
+                await user.save({validateBeforeSave:false})
+            }
+        }
+        else{
+            console.warn(`User ${req.user._id} not found when trying to update workspace list after joining.`)
+        }
+        const populatedWorkspace=await Workspace.findById(workspace._id)
+                .populate('owner','name email')
+                .populate('members.user','name email');
+        
         res.json({
             success:true,
             message:'Successfully joined workspace',
-            workspace
+            workspace:populatedWorkspace
         })
+
     } catch (error) {
         console.error('Join workspace error:',error)
         res.status(500).json({

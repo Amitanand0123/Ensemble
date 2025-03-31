@@ -68,6 +68,7 @@ export const setupSocketIO=(server)=>{
         })
 
         socket.on('sendPersonalMessage',async(data)=>{
+            const userId=socket.user._id
             try {
                 const {receiverId,content,attachments=[]}=data;
                 const message=new Chat({
@@ -80,23 +81,41 @@ export const setupSocketIO=(server)=>{
                 })
                 await message.save()
                 await message.populate('sender','name avatar')
-                socket.emit('messageSent',message);
-                const receiverSocketId=onlineUsers.get(receiverId.toString())
-                if(receiverSocketId){
-                    io.to(receiverId.toString()).emit('newMessage',message)
-                }
                 io.to(receiverId.toString()).emit('newPersonalMessage',message)
+                if(callback){
+                    callback({
+                        success:true,
+                        data:message
+                    })
+                }
+                // socket.emit('messageSent',message);
+                // const receiverSocketId=onlineUsers.get(receiverId.toString())
             } catch (error) {
-                socket.emit('chatError',{message:'Could not send message'})
+                console.error('[Socket Event: sendPersonalMessage] Error:',error)
+                if(callback){
+                    callback({
+                        success:false,
+                        error:'Could not send personal message'
+                    })
+                }
+                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 
-        socket.on('sendProjectMessage',async(data)=>{
+        socket.on('sendProjectMessage',async(data,callback)=>{
+            const userId=socket.user._id;
             try {
                 const {projectId,content,attachments=[]}=data
                 const project=await Project.findById(projectId)
                 if(!project || !project.isMember(userId)){
-                    return socket.emit('chatError',{message:'Not authorized'})
+                    if(callback){
+                        callback({
+                            success:false,
+                            error:'Not authorized'
+                        })
+                    }
+                    return ;
+                    // return socket.emit('chatError',{message:'Not authorized'})
                 }
 
                 const message=new Chat({
@@ -110,28 +129,55 @@ export const setupSocketIO=(server)=>{
 
                 await message.save()
                 await message.populate('sender','name avatar')
-                // const memberIds=project.members
-                //     .filter((m)=> m.status==='active')
-                //     .map((m)=>m.user.toString())
-
-                // memberIds.forEach((memberId)=>{
-                //     socket.io(memberId).emit('newProjectMessage',message)
-                // })
-                // socket.emit('projectmessageSent',message);
-
                 io.to(`project:${projectId}`).emit('newProjectMessage',message)
+                if(callback){
+                    callback({
+                        success:true,
+                        data:message
+                    })
+                }
             } catch (error) {
-                socket.emit('chatError',{message:'Could not send message'})
+                console.error('[Socket Event: sendProjectMessage] Error:',error);
+                if(callback){
+                    callback({
+                        success:false,
+                        error:'Could not send project message'
+                    })
+                }
+                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 
-        socket.on('sendWorkspaceMessage',async(data)=>{
+        socket.on('sendWorkspaceMessage',async(data,callback)=>{
+            const userId=socket.user._id;
             try {
                 const {workspaceId,content,attachments=[]}=data
+                console.log(`[Socket Event: sendWorkspaceMessage] Received for workspace ${workspaceId} from user ${userId}`)
                 console.log(workspaceId,content,attachments)
                 const workspace=await Workspace.findById(workspaceId)
-                if(!workspace || !workspace.isMember(userId)){
-                    return socket.emit('chatError',{message:'Not authorized'})
+                if(!workspace){
+                    console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
+                    if(callback){
+                        callback({
+                            success:false,
+                            error:'Not authorized to send message in this workspace'
+                        })
+                    }
+                    return;
+                    // return socket.emit('chatError',{message:'Not authorized'})
+                }
+                const isuserMember=workspace.isMember(userId)
+                console.log(`[Socket Event: sendWorkspaceMessage] user ${userId} isMember of workspace ${workspaceId}? ${isuserMember}`)
+                if(!isuserMember){
+                    console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
+                    if(callback){
+                        callback({
+                            success:false,
+                            error:'Not authorized to send message in this workspace'
+                        })
+                    }
+                    return;
+                    // return socket.emit('chatError',{message:'Not authorized'})
                 }
                 const message=new Chat({
                     sender:userId,
@@ -144,7 +190,21 @@ export const setupSocketIO=(server)=>{
                 await message.save()
                 await message.populate('sender','name avatar')
                 io.to(`workspace:${workspaceId}`).emit('newWorkspaceMessage',message)
+                console.log(`[Socket Event: sendWorkspaceMessage] Message sent to workspace room: ${workspaceId}`)
+                if(callback){
+                    callback({
+                        success:true,
+                        data:message
+                    })
+                }
             } catch (error) {
+                console.error('[Socket Event: sendWorkspaceMessage] Error:',error)
+                if(callback){
+                    callback({
+                        success:false,
+                        error:'Could not send message due to server error'
+                    })
+                }
                 socket.emit('chatError',{message:'Could not send message'})
             }
         })

@@ -17,9 +17,7 @@ import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
 import axios from 'axios';
 import { fetchProjects } from '../../redux/slices/projectSlice';
-import { ChatWindow } from '../chat';
 import { useLocation } from 'react-router-dom';
-import ChatSidebar from '../chat/ChatSidebar';
 import ChatTab from '../chat/ChatTab';
 
 

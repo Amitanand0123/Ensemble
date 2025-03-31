@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.routes.js';
 import chatRoutes from './routes/chat.routes.js';
 import errorHandler from './middlewares/errorHandler.js';
 import workspaceRoutes from './routes/workspace.routes.js';
+import chatbotRoutes from './routes/chatbot.routes.js';
 import { set } from 'mongoose';
 import projectRoutes from './routes/project.routes.js';
 import tasksRoutes from './routes/task.routes.js';
@@ -41,6 +42,7 @@ app.use('/api/workspaces', workspaceRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', tasksRoutes);
 app.use('/api/chat/',chatRoutes);
+app.use('/api/chatbot',chatbotRoutes)
 
 // Error handler
 app.use(errorHandler);

@@ -11,7 +11,7 @@ const ChatHeader = ({ chatType, targetId }) => {
   const isLoadingUsers = useSelector(state => state.users.isLoading);
 
   // Fetch user data if not available and it's a personal chat
-  useEffect(() => {
+  useEffect(() => { 
     if (chatType === 'personal' && !user && targetId) {
       dispatch(fetchUserById(targetId));
     }

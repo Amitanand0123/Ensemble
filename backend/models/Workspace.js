@@ -75,17 +75,21 @@ WorkspaceSchema.index({owner:1});
 WorkspaceSchema.index({'members.user':1});
 
 WorkspaceSchema.methods.isMember=function(userId){
-    if(!userId) return false;
-    
-    if(this.owner.toString()===userId.toString()) {
+    if(!userId){
+        console.log(`[isMember Check - ${this.name}] Failed: No userId provided.`)
+        return false;
+    }
+    const userIdStr=userId.toString();
+    if(this.owner.toString()===userIdStr){ 
+        console.log(`[isMember Check - ${this.name}] User ${userIdStr} is owner.`)
         return true;
     }
-
-    return this.members.some(member=> 
-        member.user && 
-        member.user.toString()===userId.toString() && 
-        member.status==='active'
+    const isMemberInArray=this.members.some(member=>
+        member.user && member.user.toString()===userIdStr
     )
+    console.log(`[isMember Check - ${this.name}] User ${userIdStr} is member: ${isMemberInArray}`)
+
+    return isMemberInArray;
 }
 
 WorkspaceSchema.methods.isAdmin=function(userId){

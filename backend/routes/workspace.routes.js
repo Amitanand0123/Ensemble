@@ -28,8 +28,8 @@ const validateWorkspace=[
 ]
 
 router.route('/')
-    .post(createWorkspace)
-    .get(getWorkspaces)
+    .post(protect,createWorkspace)
+    .get(protect,getWorkspaces)
 
 router.route('/:id')
     .get(getWorkspaceById)

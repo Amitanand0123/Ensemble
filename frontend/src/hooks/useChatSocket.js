@@ -88,7 +88,7 @@ export const useChatSocket = (token) => {
     if (!socket) return Promise.reject('Socket not connected');
     
     return new Promise((resolve, reject) => {
-      socket.emit('send-personal-message', { receiverId: userId, content, attachments }, (response) => {
+      socket.emit('sendPersonalMessage', { receiverId: userId, content, attachments }, (response) => {
         if (response && response.success) {
           resolve(response.data);
         } else {
@@ -133,7 +133,7 @@ export const useChatSocket = (token) => {
     if (!socket) return Promise.reject('Socket not intialized');
     
     return new Promise((resolve, reject) => {
-      socket.emit('send-project-message', { projectId, content, attachments }, (response) => {
+      socket.emit('sendProjectMessage', { projectId, content, attachments }, (response) => {
         if (response && response.success) {
           if(currentUser && response.data){
             const message={

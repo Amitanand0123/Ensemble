@@ -28,7 +28,7 @@ export const getPersonalMessages=async(req,res)=>{
             message:'Could not fetch messages',
             error:process.env.NODE_ENV==='development'?error.message:undefined
         })
-    }
+    } 
 }
 
 export const getProjectMessages=async(req,res)=>{
