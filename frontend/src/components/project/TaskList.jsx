@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchTasks } from '../../redux/slices/taskSlice';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, MoreVertical, Edit2, Trash2 } from 'lucide-react';
+import { PlusCircle, MoreVertical, Edit2, Trash2, Paperclip } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import CreateTask from './CreateTask';
 import { useTasks } from '../../hooks/useTasks';
@@ -93,6 +93,30 @@ const TaskList = ({ projectId, workspaceId }) => {
                                     </TableCell>
                                     <TableCell>
                                         {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'No due date'}
+                                    </TableCell>
+                                    <TableCell>
+                                        {task.attachments && task.attachments.length > 0 && (
+                                            <div className="flex items-center gap-1 text-gray-400 text-xs">
+                                                <Paperclip className="w-3 h-3" />
+                                                {task.attachments.length}
+                                                {/* You could make this a popover/tooltip showing filenames */}
+                                                <ul>
+                                                {task.attachments.map(att => (
+                                                    <li key={att.public_id}>
+                                                        <a
+                                                            href={att.url}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-blue-400 hover:text-blue-300 hover:underline"
+                                                            title={`Uploaded by ${att.uploadedBy?.name || 'Unknown'} on ${new Date(att.uploadedAt).toLocaleDateString()}`}
+                                                            >
+                                                            {att.filename}
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </TableCell>
                                     <TableCell>
                                         <DropdownMenu>

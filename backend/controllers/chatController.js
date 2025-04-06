@@ -2,6 +2,7 @@ import Chat from "../models/Chat.js";
 import User from "../models/User.js";
 import Project from "../models/Project.js";
 import Workspace from "../models/Workspace.js";
+import { uploadToCloud } from "../utils/fileUpload.js";
 
 export const getPersonalMessages=async(req,res)=>{
     try {
@@ -118,5 +119,48 @@ export const markMessagesAsread=async(req,res)=>{
             message:'Could not mark messages as read',
             error:process.env.NODE_ENV==='development'?error.message:undefined
         })
+    }
+}
+
+export const uploadChatAttachment=async(req,res)=>{
+    try {
+        if(!req.file){
+            return res.status(400).json({
+                success:false,
+                message:'No file uploaded'
+            })
+        }
+        console.log(`Received chat file uplaod: ${req.file.originalname},Size: ${req.file.size}`);
+        const result=await uploadToCloud(
+            req.file.buffer,
+            req.file.originalname,
+            'ensemble-chat'
+        )
+        const attachmentMetadata={
+            filename:req.file.originalname,
+            url:result.url,
+            public_id:result.public_id,
+            mimetype:req.file.mimetype,
+            size:req.file.size
+        }
+        console.log("Chat file uploaded successfully to Cloudinary:",attachmentMetadata.url)
+        res.status(200).json({
+            success:true,
+            message:'File uploaded successfully,ready to attach to message',
+            attachment:attachmentMetadata
+        })
+    } catch (error) {
+        console.error('Chat attachment upload error:',error);
+        if(error.code==='LIMIT_FILE_SIZE'){
+            return res.status(400).json({
+                success:false,
+                message:'File size limit exceeded'
+            })
+            res.status(500).json({
+                success:false,
+                message:'Failed to upload file.',
+                error:process.env.NODE_ENV==='development'?error.message:undefined
+            })
+        }
     }
 }

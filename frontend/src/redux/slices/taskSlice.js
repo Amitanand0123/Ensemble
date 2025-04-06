@@ -8,11 +8,28 @@ const initialState = {
     error: null
 }
 
+const handleReject=(error)=>{
+    const message=error.response?.data?.message ||
+                    error.response?.data?.error ||
+                    error.message ||
+                    'An unknown error occurred'
+    console.error("API Error:",error.response?.data || error)
+    return message;
+}
+
 export const fetchTasks = createAsyncThunk(
     'tasks/fetchAll',
     async ({ projectId, filters }, { rejectWithValue, getState }) => {
+        
         try {
             const token=getState().auth.token || localStorage.getItem('token');
+            if(!token){
+                return rejectWithValue('No auth token found')
+            }
+            if(!projectId){
+                return rejectWithValue('Project ID is required')
+            }
+            console.log(`Fetching tasks for project ${projectId} with filters:`,filters)
             const response = await axios.get(`http://localhost:5000/api/tasks/project/${projectId}/tasks`, {
                 params: filters,
                 headers: {
@@ -21,28 +38,32 @@ export const fetchTasks = createAsyncThunk(
             })
             return response.data.tasks || []
         } catch (error) {
-            return rejectWithValue(error.response?.data || 'Failed to fetch tasks')
+            console.error(`Error fetching tasks for project ${projectId}:`,error)
+            return rejectWithValue(handleReject(error))
         }
     }
 ) 
 
 export const createTask = createAsyncThunk(
     'tasks/create',
-    async ({ taskData }, { rejectWithValue, getState }) => {
+    async ({ formData }, { rejectWithValue, getState }) => {
         try {
             const token=getState().auth.token || localStorage.getItem('token')
-            console.log("Token from state:", token);
+            if(!token) return rejectWithValue('No auth token found')
+            console.log("Dispatching createTask with FormData");
             const response = await axios.post('http://localhost:5000/api/tasks',
-                taskData,
+                formData,
                 {
                     headers:{
                         'Authorization':`Bearer ${token}`
                     }
                 }
             )
+            console.log("Create task response:",response.data)
             return response.data.task
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to create task')
+            console.error("Error creating task:",error)
+            return rejectWithValue(handleReject(error))
         }
     }
 )
@@ -64,17 +85,56 @@ export const updateTask = createAsyncThunk(
     async ({taskId,updates},{rejectWithValue,getState})=>{
         try {
             const token=getState().auth.token || localStorage.getItem('token')
+            if(!token){
+                return rejectWithValue('No auth token found')
+            }
+            if(!taskId){
+                return rejectWithValue('Task ID is required')
+            }
+            console.log(`Updating task ${taskId} with updates:`,updates)
             const response=await axios.patch(`http://localhost:5000/api/tasks/${taskId}`,
                 updates,
+                {
+                    headers:{
+                        'Authorization':`Bearer ${token}`,
+                        'Content-Type':'application/json'
+                    }
+                }
+            )
+            console.log("Update task response:",response.data)
+            return response.data.task;
+        } catch (error) {
+            console.error(`Error updating task ${taskId}:`,error)
+            return rejectWithValue(handleReject(error))
+        }
+    }
+)
+
+export const addTaskAttachments=createAsyncThunk(
+    'tasks/addAttachments',
+    async({taskId,formData},{rejectWithValue,getState})=>{
+        try {
+            const token=getState().auth.token || localStorage.getItem('token');
+            if(!token){
+                return rejectWithValue('No auth token found')
+            }
+            if(!taskId){
+                return rejectWithValue('Task ID is required')
+            }
+            console.log(`Adding attachments to task ${taskId}`)
+            const response=await axios.post(`http://localhost:5000/api/tasks/${taskId}/attachments`,
+                formData,
                 {
                     headers:{
                         'Authorization':`Bearer ${token}`
                     }
                 }
             )
+            console.log("Add attachments response:",response.data)
             return response.data.task;
         } catch (error) {
-            return rejectWithValue(error.response?.data?.message || 'Failed to update task')
+            console.error(`Error adding attachments to task ${taskId}:`,error)
+            return rejectWithValue(handleReject(error))
         }
     }
 )
@@ -84,6 +144,13 @@ export const deleteTask = createAsyncThunk(
     async ({ taskId }, { rejectWithValue, getState }) => {
         try {
             const token=getState().auth.token || localStorage.getItem('token')
+            if(!token){
+                return rejectWithValue('No auth token found')
+            }
+            if(!taskId){
+                return rejectWithValue('Task ID is required')
+            }
+            console.log(`Deleting task ${taskId}`)
             await axios.delete(`http://localhost:5000/api/tasks/${taskId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
@@ -91,6 +158,7 @@ export const deleteTask = createAsyncThunk(
             })
             return taskId
         } catch (error) {
+            console.error(`Error deleting task ${taskId}:`,error)
             return rejectWithValue(error.response?.data?.message || 'Failed to delete task')
         }
     }
@@ -102,6 +170,9 @@ const taskSlice = createSlice({
     reducers: {
         setCurrentTask: (state, action) => {
             state.currentTask = action.payload
+        },
+        clearTaskError:(state)=>{
+            state.error=null;
         }
     },
     extraReducers: (builder) => {
@@ -124,44 +195,67 @@ const taskSlice = createSlice({
                 state.error = null
             })
             .addCase(createTask.fulfilled, (state, action) => {
+                if(!Array.isArray(state.tasks)){
+                    state.tasks=[]
+                }
                 state.tasks.push(action.payload)
                 state.isLoading=false
-                state.error=null
             })
             .addCase(createTask.rejected, (state, action) => {
                 state.isLoading = false
                 state.error = action.payload
             })
             .addCase(updateTask.pending, (state) => {
-                state.isLoading = true
                 state.error = null
             })
             .addCase(updateTask.fulfilled, (state, action) => {
                 const updatedTask = action.payload
-                state.tasks=state.tasks.map(task=>
-                    task._id===updatedTask._id?updatedTask:task
-                )
-                state.isLoading=false
+                if(!Array.isArray(state.tasks)){
+                    state.tasks=[]
+                }
+                const index=state.tasks.findIndex(task=>task._id===updatedTask._id)
+                if(index!==-1){
+                    state.tasks[index]=updatedTask
+                }
             })
             .addCase(updateTask.rejected, (state, action) => {
+                state.error = action.payload
+            })
+            .addCase(addTaskAttachments.pending, (state) => {
+                state.isLoading = true
+                state.error = null
+            })
+            .addCase(addTaskAttachments.fulfilled, (state, action) => {
+                const updatedTask = action.payload
+                if(!Array.isArray(state.tasks)){
+                    state.tasks=[]
+                }
+                const index=state.tasks.findIndex(task=>task._id===updatedTask._id)
+                if(index!==-1){
+                    state.tasks[index]=updatedTask
+                }
+                state.isLoading=false
+            })
+            .addCase(addTaskAttachments.rejected, (state, action) => {
                 state.isLoading = false
                 state.error = action.payload
             })
             .addCase(deleteTask.pending,(state)=>{
-                state.isLoading=true
                 state.error=null
             })
             .addCase(deleteTask.fulfilled, (state, action) => {
-                state.tasks=state.tasks.filter(task=>task._id!==action.payload)
-                state.isLoading=false
+                const deletedTaskId=action.payload
+                if(!Array.isArray(state.tasks)){
+                    state.tasks=[]
+                }
+                state.tasks=state.tasks.filter(task=>task._id!==deletedTaskId)
             })
             .addCase(deleteTask.rejected, (state, action) => {
-                state.isLoading = false
                 state.error = action.payload
             })
 
     }
 })
 
-export const { setCurrentTask } = taskSlice.actions
+export const { setCurrentTask,clearTaskError } = taskSlice.actions
 export default taskSlice.reducer

@@ -6,6 +6,7 @@ import taskReducer from "./slices/taskSlice.js"
 import chatReducer from "./slices/chatSlice.js"
 import notificationReducer from "./slices/notificationSlice.js"
 import usersReducer from "./slices/usersSlice.js"
+import fileReducer from "./slices/fileSlice.js"
 
 const store=configureStore({
     reducer:{
@@ -15,13 +16,20 @@ const store=configureStore({
         task:taskReducer,
         chat:chatReducer,
         notifications:notificationReducer,
-        users:usersReducer
+        users:usersReducer,
+        files:fileReducer
     },
     middleware:(getDefaultMiddleware)=>
         getDefaultMiddleware({
             serializableCheck:{
-                ignoredActions:['socket/connect','socket/disconnected'],
-                ignoredActionPaths:['payload.file','payload.socket'],
+                ignoredActions: [
+                    'socket/connect', 'socket/disconnected',
+                    'files/uploadWorkspace/pending', 'files/uploadProject/pending',
+                    'files/uploadWorkspace/rejected', 'files/uploadProject/rejected',
+                    'tasks/create/pending', 'tasks/create/rejected', // If tasks also upload files
+                    'tasks/addAttachments/pending', 'tasks/addAttachments/rejected' // If tasks also upload files
+                ],
+                ignoredActionPaths:['payload.file','payload.socket','meta.arg.formData'],
                 ignoredPaths:['socket.instance']
             }
         })

@@ -241,10 +241,10 @@ const WorkspaceDetail = () => {
                                 <Outlet/>
                             </TabsContent>
                             <TabsContent value="members">
-                                <MembersList members={workspaceDetail.members || []} />
+                                <MembersList workspace={workspaceDetail} />
                             </TabsContent>
                             <TabsContent value="files">
-                                <FilesList workspaceId={workspaceId} />
+                                <FilesList contextType="workspace" contextId={workspaceId} />
                             </TabsContent>
                             <TabsContent value="chat">
                                 <ChatTab type="workspace" id={workspaceId} />
@@ -257,7 +257,7 @@ const WorkspaceDetail = () => {
                         <Outlet />
                     )}
                 </div>
-            </div>
+            </div> 
 
             <CreateProjectModal
                 workspaceId={workspaceId}

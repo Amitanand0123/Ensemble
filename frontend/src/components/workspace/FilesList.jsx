@@ -1,14 +1,270 @@
-import React from 'react';
-import { Card, CardContent } from '../ui/card';
-import { FileText } from 'lucide-react';
+// components/workspace/FilesList.jsx OR components/project/FilesList.jsx
+// (Make it reusable or have slightly different versions)
 
-const FilesList = ({ workspaceId }) => {
+import React, { useEffect, useState, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import {
+    fetchWorkspaceFiles,
+    fetchProjectFiles,
+    uploadWorkspaceFiles,
+    uploadProjectFiles,
+    deleteFile,
+    clearFiles,
+    getFileSummary,
+    clearSummary // Action to clear files when switching context
+} from '../../redux/slices/fileSlice.js'; // Adjust path
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { FileText, UploadCloud, Trash2, Download, Loader2, AlertCircle,Sparkles,X } from 'lucide-react';
+import { format } from 'date-fns';
+import { toast } from 'react-hot-toast';
+// Import confirmation dialog if you have one, e.g., from Shadcn UI
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
+
+
+const FilesList = ({ contextType, contextId }) => { // e.g., contextType='workspace', contextId='xyz123'
+    const dispatch = useDispatch();
+    const { files = [], isLoading, error } = useSelector((state) => state.files);
+    const summaries=useSelector((state)=> state.files.summaries)
+    const [selectedFiles, setSelectedFiles] = useState([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef(null);
+
+    useEffect(() => {
+        // Clear previous files when context changes
+        dispatch(clearFiles());
+
+        if (contextId) {
+            if (contextType === 'workspace') {
+                dispatch(fetchWorkspaceFiles(contextId));
+            } else if (contextType === 'project') {
+                dispatch(fetchProjectFiles(contextId));
+            }
+        }
+        // Cleanup function to clear files when component unmounts or context changes
+        return () => {
+            dispatch(clearFiles());
+        };
+    }, [dispatch, contextType, contextId]);
+
+    const handleFileSelect = (event) => {
+        setSelectedFiles(Array.from(event.target.files || []));
+    };
+
+    const handleUpload = async () => {
+        if (selectedFiles.length === 0) {
+            toast.error("Please select files to upload.");
+            return;
+        }
+
+        const formData = new FormData();
+        selectedFiles.forEach(file => {
+            // Use field name based on context
+            const fieldName = contextType === 'workspace' ? 'workspaceFiles' : 'projectFiles';
+            formData.append(fieldName, file);
+        });
+
+        setIsUploading(true);
+        try {
+            if (contextType === 'workspace') {
+                await dispatch(uploadWorkspaceFiles({ workspaceId: contextId, formData })).unwrap();
+            } else if (contextType === 'project') {
+                 await dispatch(uploadProjectFiles({ projectId: contextId, formData })).unwrap();
+            }
+            toast.success("File(s) uploaded successfully!");
+            setSelectedFiles([]); // Clear selection
+            if(fileInputRef.current) fileInputRef.current.value = null; // Reset file input
+        } catch (uploadError) {
+            console.error("Upload failed:", uploadError);
+            toast.error(`Upload failed: ${uploadError || 'Unknown error'}`);
+        } finally {
+            setIsUploading(false);
+        }
+    };
+
+    const handleDelete = async (fileId) => {
+         try {
+            await dispatch(deleteFile(fileId)).unwrap();
+            toast.success("File deleted successfully!");
+        } catch (deleteError) {
+             console.error("Delete failed:", deleteError);
+            toast.error(`Delete failed: ${deleteError || 'Unknown error'}`);
+        }
+    };
+
+    // Helper to format file size
+    const formatFileSize = (bytes) => {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    };
+
+    const handleSummarize=(fileId)=>{
+        if(!summaries[fileId]?.isLoading && !summaries[fileId]?.summary && !summaries[fileId]?.error){
+            dispatch(getFileSummary(fileId))
+        }
+    }
+
+    const handleClearSummary=(fileId)=>{
+        dispatch(clearSummary(fileId))
+    }
+
     return (
-        <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white animate-fade-in-up">
-            <CardContent className="p-8 flex flex-col items-center justify-center"> {/* Added padding and flex centering */}
-                <FileText className="w-12 h-12 text-gray-500 mb-4" /> {/* Larger icon, gray color, margin-bottom */}
-                <p className="text-gray-400 text-center text-lg">Files feature coming soon...</p> {/* Centered text, larger font */}
-                <p className="text-gray-500 text-center text-sm mt-2">Stay tuned for updates!</p> {/* Smaller text, hint for updates */}
+        <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white animate-fade-in-up mt-4">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-lg font-medium">Files</CardTitle>
+                {/* Upload Button Trigger */}
+                <Button size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
+                    <UploadCloud className="mr-2 h-4 w-4" /> Upload Files
+                </Button>
+            </CardHeader>
+            <CardContent>
+                {/* Hidden File Input */}
+                <input
+                    type="file"
+                    multiple
+                    ref={fileInputRef}
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    disabled={isUploading}
+                />
+
+                {/* Files selected for upload */}
+                {selectedFiles.length > 0 && (
+                    <div className="my-4 p-3 border border-dashed border-gray-600 rounded-lg bg-gray-700/50">
+                        <h4 className="text-sm font-semibold mb-2 text-gray-300">Ready to upload:</h4>
+                        <ul className="space-y-1 list-disc list-inside">
+                            {selectedFiles.map((file, index) => (
+                                <li key={index} className="text-xs text-gray-400">{file.name}</li>
+                            ))}
+                        </ul>
+                        <Button
+                            size="sm"
+                            className="mt-3 w-full"
+                            onClick={handleUpload}
+                            disabled={isUploading}
+                        >
+                            {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            {isUploading ? 'Uploading...' : `Upload ${selectedFiles.length} File(s)`}
+                        </Button>
+                    </div>
+                )}
+
+                {/* Loading and Error States */}
+                {isLoading && !isUploading && ( // Show general loading only if not specifically uploading
+                    <div className="text-center py-6 text-gray-400">
+                        <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                        Loading files...
+                    </div>
+                )}
+                {error && (
+                    <div className="text-center py-6 text-red-400 flex items-center justify-center">
+                        <AlertCircle className="mr-2 h-5 w-5" /> Error: {error}
+                    </div>
+                )}
+
+                {/* File List Table/Grid */}
+                {!isLoading && !error && files.length === 0 && (
+                     <div className="text-center py-10 text-gray-500">
+                        <FileText className="mx-auto h-10 w-10 mb-3" />
+                        No files uploaded to this {contextType} yet.
+                     </div>
+                )}
+
+                {!isLoading && !error && files.length > 0 && (
+                    <div className="mt-4 space-y-3"> {/* Increased space */}
+                        {files.map((file) => {
+                            const fileSummaryData = summaries[file._id]; // Get summary state for this file
+                            const isSummarizing = fileSummaryData?.isLoading;
+                            const summaryText = fileSummaryData?.summary;
+                            const summaryError = fileSummaryData?.error;
+
+                            // Determine if summarization is possible (basic check)
+                            const canSummarize = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.mimetype);
+
+                            return (
+                                <div key={file._id} className="p-3 bg-gray-700/60 rounded-md transition-colors border border-transparent hover:border-gray-600">
+                                    {/* File Info Row */}
+                                    <div className="flex items-center justify-between">
+                                        {/* ... (File icon, name link, metadata - same as before) ... */}
+                                         <div className="flex items-center space-x-3 overflow-hidden">
+                                            <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                            <div className="overflow-hidden">
+                                                <a href={file.url} /* ... */ >{file.filename}</a>
+                                                <p className="text-xs text-gray-500 mt-0.5">
+                                                    {/* ... metadata ... */}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        {/* Action Buttons */}
+                                        <div className="flex items-center space-x-1 flex-shrink-0">
+                                            {/* Summarize Button */}
+                                            {canSummarize && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleSummarize(file._id)}
+                                                    disabled={isSummarizing || !!summaryText || !!summaryError} // Disable if loading, has summary, or has error
+                                                    className="text-purple-400 hover:text-purple-300 h-7 w-7"
+                                                    aria-label="Summarize file"
+                                                    title={summaryText ? "Summary generated" : summaryError ? `Error: ${summaryError}`: "Summarize file"}
+                                                >
+                                                    {isSummarizing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                                                </Button>
+                                            )}
+                                            {/* ... (Download and Delete buttons remain the same) ... */}
+                                             <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white h-7 w-7">
+                                                 <a href={file.url} /* ... */><Download className="h-4 w-4" /></a>
+                                             </Button>
+                                             <AlertDialog>
+                                                 <AlertDialogTrigger asChild><Button variant="ghost" /* ... */><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                                 <AlertDialogContent /* ... */>
+                                                     {/* ... confirmation ... */}
+                                                     <AlertDialogAction onClick={() => handleDelete(file._id)} /* ... */>Yes, delete</AlertDialogAction>
+                                                 </AlertDialogContent>
+                                             </AlertDialog>
+                                        </div>
+                                    </div>
+
+                                    {/* Summary Display Area */}
+                                    {(isSummarizing || summaryText || summaryError) && (
+                                        <div className="mt-2 pt-2 border-t border-gray-600/50 text-xs pl-8 relative"> {/* Indent summary */}
+                                             {/* Clear Summary Button */}
+                                             {(summaryText || summaryError) && !isSummarizing && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleClearSummary(file._id)}
+                                                    className="absolute top-1 right-0 text-gray-500 hover:text-gray-300 h-5 w-5 p-0"
+                                                    aria-label="Clear summary"
+                                                    title="Clear summary"
+                                                >
+                                                    <X className="h-3 w-3"/>
+                                                </Button>
+                                             )}
+                                            {isSummarizing && <p className="text-gray-400 italic animate-pulse">Generating summary...</p>}
+                                            {summaryError && <p className="text-red-400">Summarization Error: {summaryError}</p>}
+                                            {summaryText && <p className="text-gray-300 whitespace-pre-wrap">{summaryText}</p>}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );

@@ -67,20 +67,30 @@ export const setupSocketIO=(server)=>{
             })
         })
 
-        socket.on('sendPersonalMessage',async(data)=>{
+        socket.on('sendPersonalMessage',async(data,callback)=>{
             const userId=socket.user._id
             try {
                 const {receiverId,content,attachments=[]}=data;
+                const validAttachments=attachments.map(att=>({
+                    filename:att.filename,
+                    url:att.url,
+                    public_id:att.public_id,
+                    mimetype:att.mimetype,
+                    size:att.size,
+                    uploadedBy:userId,
+                    uploadedAt:new Date()
+                }))
                 const message=new Chat({
                     sender:userId,
                     receiver:receiverId,
                     content,
                     type:'personal',
-                    attachments,
+                    attachments:validAttachments,
                     readBy:[{user:userId,readAt:new Date()}]
                 })
                 await message.save()
                 await message.populate('sender','name avatar')
+                await message.populate('attachments.uploadedBy','name avatar')
                 io.to(receiverId.toString()).emit('newPersonalMessage',message)
                 if(callback){
                     callback({
@@ -109,7 +119,7 @@ export const setupSocketIO=(server)=>{
                 const project=await Project.findById(projectId)
                 if(!project || !project.isMember(userId)){
                     if(callback){
-                        callback({
+                        return callback({
                             success:false,
                             error:'Not authorized'
                         })
@@ -118,12 +128,22 @@ export const setupSocketIO=(server)=>{
                     // return socket.emit('chatError',{message:'Not authorized'})
                 }
 
+                const validAttachments=attachments.map(att=>({
+                    filename:att.filename,
+                    url:att.url,
+                    public_id:att.public_id,
+                    mimetype:att.mimetype,
+                    size:att.size,
+                    uploadedBy:userId,
+                    uploadedAt:new Date()
+                }))
+
                 const message=new Chat({
                     sender:userId,
                     project:projectId,
                     content,
                     type:'project',
-                    attachments,
+                    attachments:validAttachments,
                     readBy:[{user:userId,readAt:new Date()}]
                 })
 
@@ -141,7 +161,7 @@ export const setupSocketIO=(server)=>{
                 if(callback){
                     callback({
                         success:false,
-                        error:'Could not send project message'
+                        error:'Could not send project message due to server error'
                     })
                 }
                 // socket.emit('chatError',{message:'Could not send message'})
@@ -155,10 +175,10 @@ export const setupSocketIO=(server)=>{
                 console.log(`[Socket Event: sendWorkspaceMessage] Received for workspace ${workspaceId} from user ${userId}`)
                 console.log(workspaceId,content,attachments)
                 const workspace=await Workspace.findById(workspaceId)
-                if(!workspace){
+                if(!workspace || !workspace.isMember(userId)){
                     console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
                     if(callback){
-                        callback({
+                        return callback({
                             success:false,
                             error:'Not authorized to send message in this workspace'
                         })
@@ -166,29 +186,39 @@ export const setupSocketIO=(server)=>{
                     return;
                     // return socket.emit('chatError',{message:'Not authorized'})
                 }
-                const isuserMember=workspace.isMember(userId)
-                console.log(`[Socket Event: sendWorkspaceMessage] user ${userId} isMember of workspace ${workspaceId}? ${isuserMember}`)
-                if(!isuserMember){
-                    console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
-                    if(callback){
-                        callback({
-                            success:false,
-                            error:'Not authorized to send message in this workspace'
-                        })
-                    }
-                    return;
-                    // return socket.emit('chatError',{message:'Not authorized'})
-                }
+                const validAttachments=attachments.map(att=>({
+                    filename:att.filename,
+                    url:att.url,
+                    public_id:att.public_id,
+                    mimetype:att.mimetype,
+                    size:att.size,
+                    uploadedBy:userId,
+                    uploadedAt:new Date()
+                }))
+                // const isuserMember=workspace.isMember(userId)
+                // console.log(`[Socket Event: sendWorkspaceMessage] user ${userId} isMember of workspace ${workspaceId}? ${isuserMember}`)
+                // if(!isuserMember){
+                //     console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
+                //     if(callback){
+                //         callback({
+                //             success:false,
+                //             error:'Not authorized to send message in this workspace'
+                //         })
+                //     }
+                //     return;
+                //     // return socket.emit('chatError',{message:'Not authorized'})
+                // }
                 const message=new Chat({
                     sender:userId,
                     workspace:workspaceId,
                     content,
                     type:'workspace',
-                    attachments,
+                    attachments:validAttachments,
                     readBy:[{user:userId,readAt:new Date()}]
                 })
                 await message.save()
                 await message.populate('sender','name avatar')
+                await message.populate('attachments.uploadedBy','name avatar')
                 io.to(`workspace:${workspaceId}`).emit('newWorkspaceMessage',message)
                 console.log(`[Socket Event: sendWorkspaceMessage] Message sent to workspace room: ${workspaceId}`)
                 if(callback){
@@ -205,36 +235,7 @@ export const setupSocketIO=(server)=>{
                         error:'Could not send message due to server error'
                     })
                 }
-                socket.emit('chatError',{message:'Could not send message'})
-            }
-        })
-
-        socket.on('uploadChatFile',async(data)=>{
-            try {
-                const {file,type,receiverId,projectId}=data;
-                const uploadResult=await uploadToCloud(file)
-
-                const attachment={
-                    filename:file.originalname,
-                    url:uploadResult.url,
-                    type:file.mimetype
-                }
-
-                socket.emit('fileUploadSuccess',{
-                    attachment,
-                    receiverId:type==='personal'?receiverId:undefined,
-                    projectId:type==='project'?projectId:undefined,
-                    workspaceId:type==='workspace'?workspaceId:undefined
-                })
-                // if(type=='personal'){
-                //     socket.emit('fileUploadSucess',{attachment,receiverId})
-                // }
-                // else if(type==='project'){
-                //     socket.emit('fileUploadSuccess',{attachment,projectId})
-                // }
-
-            } catch (error) {
-                socket.emit('chatError',{message:'File upload failed'})
+                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 

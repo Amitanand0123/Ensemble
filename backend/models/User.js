@@ -24,6 +24,11 @@ const NotificationSchema = new mongoose.Schema({
 
 const UserSchema = new mongoose.Schema(
   {
+    googleId:{
+      type:String,
+      unique:true,
+      sparse:true
+    },
     name: { 
       first: { type: String, required: true, trim: true },
       last: { type: String, required: true, trim: true } 
@@ -40,8 +45,7 @@ const UserSchema = new mongoose.Schema(
     },
 
     password: { 
-      type: String, 
-      required: true, 
+      type: String,  
       minlength: [8, 'Password must be at least 8 characters'],
       select: false
   },
@@ -168,12 +172,12 @@ UserSchema.virtual('fullName').get(function() { //virtuals are fields that do no
 
 // Pre-save middleware for password hashing
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next(); // To prevent unnecessary re-hashing every time a user updates other fields (like name or email).Without this check, the password would be re-hashed on every update, making the user unable to log in.
+  if (!this.isModified('password') || !this.password) return next(); // To prevent unnecessary re-hashing every time a user updates other fields (like name or email).Without this check, the password would be re-hashed on every update, making the user unable to log in.
   
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
-    if (this.isModified('password') && !this.isNew) {
+    if (!this.isNew) {
       this.security.lastPasswordChange = Date.now();
     }
     next();

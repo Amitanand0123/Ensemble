@@ -11,6 +11,8 @@ import TaskList from './TaskList';
 import ProjectSettings from './ProjectSettings';
 import ChatTab from '../chat/ChatTab';
 import { Progress } from '@/components/ui/progress';
+import FilesList from '../workspace/FilesList';
+import ProjectMembers from './ProjectMembers';
 
 const ProjectDetail = () => {
     const { workspaceId, projectId } = useParams();
@@ -34,7 +36,7 @@ const ProjectDetail = () => {
         return totalTasks ? (completedTasks / totalTasks) * 100 : 0;
     };
 
-    if (isLoading) {
+    if (isLoading || !currentProject) {
         return (
             <div className="flex justify-center items-center h-screen">
                 <div className="animate-pulse text-gray-400">Loading project details...</div>
@@ -134,6 +136,7 @@ const ProjectDetail = () => {
                     <Tabs defaultValue="tasks" className="animate-fade-in-up">
                         <TabsList className="bg-gray-800/50 backdrop-blur-sm border border-gray-700">
                             <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                            <TabsTrigger value="members">Members</TabsTrigger>
                             <TabsTrigger value="files">Files</TabsTrigger>
                             <TabsTrigger value="settings">Settings</TabsTrigger>
                             <TabsTrigger value="chat">Chat</TabsTrigger>
@@ -142,10 +145,13 @@ const ProjectDetail = () => {
                         <TabsContent value="tasks">
                             <TaskList projectId={projectId} workspaceId={workspaceId} />
                         </TabsContent>
+                        <TabsContent value="members">
+                            <ProjectMembers project={currentProject} />
+                        </TabsContent>
 
-                        {/* <TabsContent value="files">
-                            <FilesList projectId={projectId} />
-                        </TabsContent> */}
+                        <TabsContent value="files">
+                            <FilesList contextType="project" contextId={projectId} />
+                        </TabsContent>
 
                         <TabsContent value="settings">
                             <ProjectSettings project={currentProject} />
@@ -155,7 +161,7 @@ const ProjectDetail = () => {
                             <ChatTab type="project" id={projectId} />
                         </TabsContent>
                     </Tabs>
-                </div>
+                </div> 
             </div>
         </div>
     );

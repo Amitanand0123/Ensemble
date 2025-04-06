@@ -4,6 +4,7 @@ import Features from "./Features";
 import Footer from "./Footer";
 import HowItWorks from "./HowItWorks";
 import Testimonials from "./Testimonials";
+import Pricing from './Pricing';
 
 const LandingPage = () => {
     return (
@@ -11,6 +12,7 @@ const LandingPage = () => {
         <Hero />
         <Features />
         <HowItWorks />
+        <Pricing/>
         <Testimonials />
       </div>
     );

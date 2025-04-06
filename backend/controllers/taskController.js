@@ -3,7 +3,7 @@ import Project from "../models/Project.js";
 import Workspace from "../models/Workspace.js";
 import User from "../models/User.js";
 import { setupSocketIO } from "../utils/socket.js"; // Correct named import
-
+import { uploadToCloud } from "../utils/fileUpload.js";
 
 export const createTask=async(req,res)=>{
     try {
@@ -12,7 +12,7 @@ export const createTask=async(req,res)=>{
         if(!title || !project || !workspace){
             return res.status(400).json({
                 success:false,
-                message:'All fields are required'
+                message:'Title, project and workspace are required fields.'
             })
         }
 
@@ -23,34 +23,105 @@ export const createTask=async(req,res)=>{
                 message:'Project not found'
             })
         }
+        if(!projectDoc.isMember(req.user._id)){
+            return res.status(403).json({
+                success:false,
+                message:'Not authorized to create task in this project'
+            })
+        }
+        let uploadedAttachments=[];
+        if(req.files && req.files.length>0){
+            console.log(`Received ${req.files.length} files for task creation.`)
+            uploadedAttachments=await Promise.all(
+                req.files.map(async(file)=>{
+                    try {
+                        const result=await uploadToCloud(file.buffer,file.originalname);
+                        return{
+                            filename:file.originalname,
+                            url:result.url,
+                            public_id:result.public_id,
+                            mimetype:file.mimetype,
+                            size:file.size,
+                            uploadedBy:req.user._id,
+                            uploadedAt:new Date()
+                        }
+                    } catch (error) {
+                        console.error(`Failed to upload attachment ${file.originalname}:`,error)
+                        return null;
+                    }
+                })
+            )
+            uploadedAttachments=uploadedAttachments.filter(att=>att!==null);
+            console.log(`Successfully uplaoded ${uploadedAttachments.length} attachments.`)
+        }
+        let parsedAssignedTo=[];
+        if(assignedTo){
+            try {
+                if(typeof assignedTo==='string' && assignedTo.startsWith('[')){
+                    parsedAssignedTo=JSON.parse(assignedTo);
+                }
+                else if(Array.isArray(assignedTo)){
+                    parsedAssignedTo=assignedTo;
+                }
+                else if(typeof assignedTo==='string'){
+                    parsedAssignedTo=[assignedTo];
+                }
+            } catch (error) {
+                console.error('Error parsing assignedTo:',error);
+            }
+        }
+        let parsedTags=[];
+        if(tags){
+            try {
+                if(typeof tags==='string' && tags.startsWith('[')){
+                    parsedTags=JSON.parse(tags);
+                }
+                else if(Array.isArray(tags)){
+                    parsedTags=tags;
+                }
+                else if(typeof tags==='string'){
+                    parsedTags=tags.split(',').map(t=>t.trim()).filter(t=>t);
+                }
+            } catch (error) {
+                console.error('Error parsing tags:',error);
+            }
+        }
 
         const task=new Task({
             title,
             description:description || '',
             project,
             workspace,
-            assignedTo:assignedTo || [],
+            assignedTo:parsedAssignedTo,
+            tags:parsedTags,
             status:status || 'todo',
             priority:priority || 'medium',
             dueDate:dueDate || null,
-            tags:tags || [],
             estimatedHours:estimatedHours || 0,
             createdBy:req.user._id,
+            attachments:uploadedAttachments
         })
 
         await task.save();
         const savedTask=await Task.findById(task._id)
-            .populate('assignedTo','name email')
-            .populate('createdBy','name email')
+            .populate('assignedTo','name email avatar')
+            .populate('createdBy','name email avatar')
+            .populate('attachments.uploadedBy','name email avatar')
             
         res.status(201).json({
             success:true,
-            task
+            task:savedTask
         })
 
 
     } catch (error) {
         console.error('Create task error:',error);
+        if(error.name==='ValidationError'){
+            return res.status(400).json({
+                success:false,
+                message:error.message
+            })
+        }
         res.status(500).json({
             success:false,
             message:'Could not create task',
@@ -148,6 +219,12 @@ export const updateTask=async(req,res)=>{
         }
 
         const project=await Project.findById(task.project);
+        if(!project){
+            return res.status(404).json({
+                success:false,
+                message:'Associated Project not found'
+            })
+        }
         if(!project.isMember(req.user._id)){
             return res.status(403).json({
                 success:false,
@@ -155,22 +232,43 @@ export const updateTask=async(req,res)=>{
             })
         }
 
-        const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags','project']
+        const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags','estimatedHours'];
         const updates=Object.keys(req.body);
         console.log('Request Body:', req.body);
         const isValidOperation=updates.every(update=> allowedUpdates.includes(update))
         if(!isValidOperation){
+            const invalidFields=updates.filter(update=> !allowedUpdates.includes(update))
             return res.status(400).json({
                 success:false,
-                message:'Invalid updates'
+                message:`Invalid updates! Cannot update fields: ${invalidFields.join(', ')}`
             })
         }
 
-        updates.forEach(update=>task[update]=req.body[update]);
+        updates.forEach(update=>{
+            let value=req.body[update]
+            if((update==='assignedTo' || update==='tags') && typeof value==='string'){
+                try {
+                    value=JSON.parse(value)
+                } catch (error) {
+                    if(update==='tags'){
+                        value=value.split(',').map(t=>t.trim()).filter(t=>t)
+                    }
+                    else value=[value]
+                }
+            }
+            else if(update==='assignedTo' && !Array.isArray(value) && value){
+                value=[value]
+            }
+            task[update]=value
+        })
         await task.save();
+        const updatedPopulatedTask=await Task.findById(task._id)
+            .populate('assignedTo','name email avatar')
+            .populate('createdBy','name email avatar')
+            .populate('attachments.uploadedBy','name email avatar')
         res.json({
             success:true,
-            task
+            task:updatedPopulatedTask
         })
 
     } catch (error) {
@@ -215,30 +313,145 @@ export const deleteTask=async(req,res)=>{
     }
 }
 
-export const addTaskComment=async(req,res)=>{
+export const addTaskAttachment=async(req,res)=>{
     try {
-        const task=await Task.findById(req.params.id);
+        const taskId=req.params.id;
+        const task=await Task.findById(taskId)
         if(!task){
             return res.status(404).json({
                 success:false,
                 message:'Task not found'
             })
         }
+        const project=await Project.findById(task.project);
+        if(!project){
+            return res.status(404).json({
+                success:false,
+                message:'Associated Project not found'
+            })
+        }
+        if(!project.isMember(req.user._id)){
+            return res.status(403).json({
+                success:false,
+                message:'Not authorized to add attachments to this task'
+            })
+        }
+        if(!req.files || req.files.length===0){
+            return res.status(400).json({
+                success:false,
+                message:'No files uploaded'
+            })
+        }
+        console.log(`Received ${req.files.length} files to attach to task ${taskId}`)
+        const newAttachments=await Promise.all(
+            req.files.map(async (file)=>{
+                try {
+                    const result=await uploadToCloud(file.buffer,file.originalname);
+                    return{
+                        filename:file.originalname,
+                        url:result.url,
+                        public_id:result.public_id,
+                        mimetype:file.mimetype,
+                        size:file.size,
+                        uploadedBy:req.user._id,
+                        uploadedAt:new Date()
+                    }
+                } catch (error) {
+                    console.error(`Failed to upload attachment ${file.originalname} for task ${taskId}:`,error)
+                    return null;
+                }
+            })
+        )
+        const successfullyUploaded=newAttachments.filter(att=>att!==null);
+        console.log(`Successfully uploaded ${successfullyUploaded.length} new attachments for task ${taskId}`)
+        if(successfullyUploaded.length==0){
+            return res.status(500).json({
+                success:false,
+                message:'Failed to upload any files.'
+            })
+        }
+        task.attachments.push(...successfullyUploaded)
+        await task.save();
+        const updatedPopulatedTask=await Task.findById(taskId)
+            .populate('assignedTo','name email avatar')
+            .populate('createdBy','name email avatar')
+            .populate('attachments.uploadedBy','name email avatar')
+        
+        res.status(200).json({
+            success:true,
+            message:`${successfullyUploaded.length} file(s) added successfully.`,
+            task:updatedTask
+        })
+
+    } catch (error) {
+        console.error('Add task attachments error:',error)
+        if(error.name==='ValidaionError'){
+            return res.status(400).json({
+                success:false,
+                message:error.message
+            })
+        }
+        res.status(500).json({
+            success:false,
+            message:'Could not add attachments',
+            error:process.env.NODE_ENV==='development'?error.message:undefined
+        })
+    }
+}
+export const addTaskComment=async(req,res)=>{
+    try {
+        const taskId=req.params.id;
+        const task=await Task.findById(taskId);
+        if(!task){
+            return res.status(404).json({
+                success:false,
+                message:'Task not found'
+            })
+        }
+        const project=await Project.findById(task.project);
+        if(!project){
+            return res.status(404).json({
+                success:false,
+                message:'Associated Project not found'
+            })
+        }
+        if(!project.isMember(req.user._id)){
+            return res.status(403).json({
+                success:false,
+                message:'Not authorized to add comments to this task'
+            })
+        }
+        const {content}=req.body;
+        if(!content || !content.trim()){
+            return res.status(400).json({
+                success:false,
+                message:'Comment content cannot be empty'
+            })
+        }
 
         const comment={
             user:req.user._id,
-            content:req.body.content
+            content:content.trim(),
+            createdAt:new Date()
         }
         task.comments.unshift(comment);
         await task.save();
+        await task.populate('comments.user','name email avatar')
+        const newComment=task.comments[0];
 
         res.status(201).json({
             success:true,
-            comment:task.comments[0]
+            comment:newComment
         })
 
     } catch (error) {
         console.error('Add comment error:',error)
+        if(error.name==='ValidaionError'){
+            return res.status(400).json({
+                success:false,
+                message:error.message
+            })
+        }
         res.status(500).json({
             success:false,
             message:'Could not add comment',

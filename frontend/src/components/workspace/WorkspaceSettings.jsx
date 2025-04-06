@@ -1,154 +1,265 @@
+// src/components/workspace/WorkspaceSettings.jsx
+
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWorkspaceDetail, deleteWorkspace } from '../../redux/slices/workspaceSlice'; // Import deleteWorkspace
-import axios from 'axios';
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Textarea } from '../ui/textarea';
-import { Switch } from '../ui/switch';
-import { Alert, AlertDescription } from '../ui/alert';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useForm } from 'react-hook-form'; // Import useForm
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+// Import Shadcn Form components
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+import {
+    fetchWorkspaceDetail,
+    deleteWorkspace,
+    updateWorkspaceSettings
+} from '../../redux/slices/workspaceSlice';
+
+// Optional: Zod schema for validation
+// import { zodResolver } from '@hookform/resolvers/zod';
+// import * as z from 'zod';
+// const workspaceSettingsSchema = z.object({
+//     name: z.string().min(3, "Name must be at least 3 characters.").max(50),
+//     description: z.string().max(500).optional(),
+//     isPrivate: z.boolean(),
+//     joinByCode: z.boolean(),
+//     theme: z.string().optional(), // Adjust as needed
+// });
+
 
 const WorkspaceSettings = ({ workspaceId }) => {
     const dispatch = useDispatch();
-    const navigate = useNavigate(); // Initialize useNavigate for redirection
+    const navigate = useNavigate();
 
     const workspace = useSelector(state => state.workspaces.workspaceDetail);
+    const { isLoading: isDeleting, error: deleteErrorMsg } = useSelector(state => state.workspaces);
 
-    const [settings, setSettings] = useState({
-        name: workspace?.name || '',
-        description: workspace?.description || '',
-        isPrivate: workspace?.settings?.isPrivate || false,
-        joinByCode: workspace?.settings?.joinByCode || true,
-        theme: workspace?.settings?.theme || 'light'
+    const [localUpdateError, setLocalUpdateError] = useState('');
+    const [updateSuccess, setUpdateSuccess] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false); // Local submitting state for update
+
+    // --- Initialize react-hook-form ---
+    const form = useForm({
+        // resolver: zodResolver(workspaceSettingsSchema), // Optional
+        defaultValues: { // Set initial values
+            name: '',
+            description: '',
+            isPrivate: false,
+            joinByCode: true,
+            theme: 'light',
+        }
     });
 
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const [deleteError, setDeleteError] = useState(''); // Error state for delete
-
+    // Effect to reset form when workspace data loads or changes
     useEffect(() => {
-        if (workspace) {
-            setSettings({
+        if (workspace && workspace._id === workspaceId) {
+            form.reset({ // Update form values using form.reset
                 name: workspace.name || '',
                 description: workspace.description || '',
                 isPrivate: workspace.settings?.isPrivate || false,
-                joinByCode: workspace.settings?.joinByCode || true,
+                joinByCode: workspace.settings?.joinByCode === undefined ? true : workspace.settings.joinByCode,
                 theme: workspace.settings?.theme || 'light'
             });
+            setLocalUpdateError('');
+            setUpdateSuccess('');
+        } else if (workspaceId) {
+            dispatch(fetchWorkspaceDetail(workspaceId));
         }
-    }, [workspace]);
+    }, [workspace, workspaceId, dispatch, form]); // Add form dependency
 
+    // Handle form submission for updating settings
+    const onSubmit = async (data) => { // Receive validated data from RHF
+        setLocalUpdateError('');
+        setUpdateSuccess('');
+        setIsSubmitting(true);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+        // Data is already validated if using resolver
+        // Prepare payload (ensure it matches backend expectation)
+        const updateData = {
+            name: data.name,
+            description: data.description,
+            isPrivate: data.isPrivate,
+            joinByCode: data.joinByCode,
+            theme: data.theme,
+        };
 
         try {
-            const response = await axios.patch(`/api/workspaces/${workspaceId}`, settings);
-            if (response.data.success) {
-                setSuccess('Workspace settings updated successfully');
-                dispatch(fetchWorkspaceDetail(workspaceId));
-            }
-        } catch (error) {
-            setError(error.response?.data?.message || 'Failed to update settings');
+            await dispatch(updateWorkspaceSettings({ workspaceId, settings: updateData })).unwrap();
+            setUpdateSuccess('Workspace settings updated successfully!');
+            toast.success('Settings updated!');
+        } catch (updateErr) {
+            setLocalUpdateError(updateErr || 'Failed to update settings');
+            toast.error(`Update failed: ${updateErr || 'Unknown error'}`);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
+    // Handle workspace deletion (remains the same)
     const handleDeleteWorkspace = async () => {
-        setDeleteError(''); // Clear delete error
-        if (window.confirm("Are you sure you want to delete this workspace? This action is irreversible!")) { // Confirmation
+        const confirmMessage = `Are you absolutely sure you want to delete the workspace "${workspace?.name || 'this workspace'}"? \n\nThis action is IRREVERSIBLE and will permanently delete all associated projects, tasks, and files.`;
+        if (window.confirm(confirmMessage)) {
             try {
                 await dispatch(deleteWorkspace(workspaceId)).unwrap();
-                alert('Workspace deleted successfully.'); // Success alert
-                navigate('/dashboard'); // Redirect to dashboard after deletion
+                toast.success('Workspace deleted successfully.');
+                navigate('/dashboard');
             } catch (deleteErr) {
-                setDeleteError(deleteErr.message || 'Failed to delete workspace.'); // Set delete error
+                toast.error(`Delete failed: ${deleteErr || 'Unknown error'}`);
             }
         }
     };
 
-
-    if (!workspace) {
-        return <div className="text-white">Loading Settings...</div>; // Keep text white for loading
+    // Render loading state
+    if (!workspace || workspace._id !== workspaceId) {
+        return <div className="text-white p-6 animate-pulse">Loading Settings...</div>;
     }
 
     return (
-        <div className="text-white"> {/* Ensure text is white in settings too */}
-            <Card className='bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up'> {/* Card styling to match */}
+        <div className="text-white space-y-6">
+            {/* Settings Update Card */}
+            <Card className='bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up'>
                 <CardHeader>
                     <CardTitle>Workspace Settings</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <form onSubmit={handleSubmit} className='space-y-4'>
-                        {error && (
-                            <Alert variant="destructive">
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        )}
-                        {success && (
-                            <Alert>
-                                <AlertDescription>{success}</AlertDescription>
-                            </Alert>
-                        )}
-                        <div className="grid gap-4">
-                            <div className="space-y-2">
-                                <label htmlFor="name" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Name
-                                </label>
-                                <Input className="bg-gray-900 text-white" id="name" placeholder="Workspace name" value={settings.name} onChange={(e) => setSettings({ ...settings, name: e.target.value })} /> {/* Input style */}
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="description" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Description
-                                </label>
-                                <Textarea className="bg-gray-900 text-white" id="description" placeholder="Workspace description" value={settings.description} onChange={(e) => setSettings({ ...settings, description: e.target.value })} /> {/* Textarea style */}
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <label htmlFor="isPrivate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Private Workspace
-                                </label>
-                                <Switch id="isPrivate" checked={settings.isPrivate} onCheckedChange={(checked) => setSettings({ ...settings, isPrivate: checked })} />
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <label htmlFor="joinByCode" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Join by Code
-                                </label>
-                                <Switch id="joinByCode" checked={settings.joinByCode} onCheckedChange={(checked) => setSettings({ ...settings, joinByCode: checked })} />
-                            </div>
-                            <div className="space-y-2">
-                                <label htmlFor="theme" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                                    Theme
-                                </label>
-                                <Input className="bg-gray-900 text-white" id="theme" placeholder="Theme" value={settings.theme} onChange={(e) => setSettings({ ...settings, theme: e.target.value })} /> {/* Input style */}
-                            </div>
-                        </div>
+                    {/* --- Wrap with Shadcn Form Provider --- */}
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
+                            {localUpdateError && (
+                                <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300">
+                                    <AlertDescription>{localUpdateError}</AlertDescription>
+                                </Alert>
+                            )}
+                            {updateSuccess && (
+                                <Alert variant="success" className="bg-green-900/30 border-green-700 text-green-300">
+                                    <AlertDescription>{updateSuccess}</AlertDescription>
+                                </Alert>
+                            )}
 
+                            {/* --- Name (Using FormField) --- */}
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Name</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Workspace name" {...field} className="bg-gray-700 border-gray-600" />
+                                        </FormControl>
+                                        <FormMessage className="text-red-400" />
+                                    </FormItem>
+                                )}
+                            />
 
-                        <Button type="submit">Save Changes</Button>
-                    </form>
+                            {/* --- Description (Using FormField) --- */}
+                             <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="Workspace description" {...field} className="bg-gray-700 border-gray-600 min-h-[80px]" />
+                                        </FormControl>
+                                        <FormMessage className="text-red-400" />
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* --- Is Private Switch (Using FormField) --- */}
+                            <FormField
+                                control={form.control}
+                                name="isPrivate"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
+                                         <div className="space-y-0.5">
+                                             <FormLabel className="text-base">Private Workspace</FormLabel>
+                                             <p className="text-sm text-gray-400">Only invited members can join.</p>
+                                         </div>
+                                         <FormControl>
+                                             <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                             />
+                                         </FormControl>
+                                     </FormItem>
+                                )}
+                            />
+
+                            {/* --- Join By Code Switch (Using FormField) --- */}
+                            <FormField
+                                control={form.control}
+                                name="joinByCode"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
+                                        <div className="space-y-0.5">
+                                            <FormLabel className="text-base">Allow Join via Code</FormLabel>
+                                            <p className="text-sm text-gray-400">Allow users to join using the invite code.</p>
+                                        </div>
+                                        <FormControl>
+                                            <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+
+                            {/* --- Theme Input (Example - Using FormField) --- */}
+                            {/* <FormField
+                                control={form.control}
+                                name="theme"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Theme</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="Theme (e.g., light, dark)" {...field} className="bg-gray-700 border-gray-600"/>
+                                        </FormControl>
+                                        <FormMessage className="text-red-400" />
+                                    </FormItem>
+                                )}
+                            /> */}
+
+                            {/* --- Submit Button --- */}
+                            <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
+                                {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>) : 'Save Changes'}
+                            </Button>
+                        </form>
+                    </Form> {/* --- End Shadcn Form Provider --- */}
                 </CardContent>
             </Card>
 
-            <Card className="mt-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up"> {/* Card styling to match */}
+            {/* Danger Zone Card (remains the same logic using Redux state for delete) */}
+            <Card className="mt-6 bg-red-900/20 backdrop-blur-sm rounded-xl border border-red-700/50 animate-fade-in-up">
                 <CardHeader>
-                    <CardTitle className="text-red-500">Danger Zone</CardTitle> {/* Danger Zone title in red */}
+                    <CardTitle className="text-red-400">Danger Zone</CardTitle>
                 </CardHeader>
-                <CardContent>
-                    {deleteError && ( // Display delete error if any
-                        <Alert variant="destructive">
-                            <AlertDescription>{deleteError}</AlertDescription>
+                <CardContent className="space-y-4">
+                    {deleteErrorMsg && (
+                        <Alert variant="destructive" className="bg-red-800/50 border-red-600 text-red-200">
+                            <AlertDescription>{deleteErrorMsg}</AlertDescription>
                         </Alert>
                     )}
-                    <Button variant="destructive" onClick={handleDeleteWorkspace}> {/* Destructive button variant for delete */}
-                        Delete Workspace
+                    <p className="text-sm text-red-200">
+                        Deleting this workspace is permanent and cannot be undone. All associated projects, tasks, and files will be lost.
+                    </p>
+                    <Button variant="destructive" onClick={handleDeleteWorkspace} disabled={isDeleting}>
+                        {isDeleting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Deleting...</>) : 'Delete This Workspace'}
                     </Button>
                 </CardContent>
             </Card>
         </div>
     );
 };
+
+// WorkspaceSettings.propTypes = {
+//     workspaceId: PropTypes.string.isRequired,
+// };
 
 export default WorkspaceSettings;

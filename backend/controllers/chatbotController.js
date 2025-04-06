@@ -20,8 +20,7 @@ export const generateResponse = async (req, res) => {
             // model: 'command-r', // FIX: Use a valid model like 'command-r' or 'command-r-plus'
             model: 'command-light', // Or 'command-r-plus' etc.
             message: message,       // Pass the user's current message here
-            chatHistory: cohereHistory, // Pass the mapped history
-            // Other parameters like temperature can be added if needed
+            chatHistory: cohereHistory,
         });
 
         res.json({ reply: response.text });

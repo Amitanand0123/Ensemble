@@ -1,6 +1,6 @@
 import express from 'express'
 import {protect} from '../middlewares/auth.js'
-import {createTask,getTasks,getTaskById,updateTask,deleteTask, addTaskComment, getTasksbyProject} from '../controllers/taskController.js'
+import {createTask,getTasks,getTaskById,updateTask,deleteTask, addTaskComment, getTasksbyProject,addTaskAttachment} from '../controllers/taskController.js'
 import {check,validationResult} from 'express-validator'
 import multer from 'multer'
 
@@ -9,7 +9,7 @@ const upload=multer({storage:multer.memoryStorage()})
 
 router.use(protect)
 
-const validateTask=[
+const validateTaskOnCreate=[
     check('title')
         .trim()
         .notEmpty()
@@ -35,50 +35,62 @@ const validateTask=[
 ]
 
 router.route('/')
-    .post(upload.array('attachments'),validateTask,createTask)
+    .post(upload.array('attachments'),validateTaskOnCreate,createTask)
     .get(getTasks)
 
 router.route('/:id')
-    .patch(validateTask,updateTask)
+    .patch(updateTask)
     .delete(deleteTask)
     .get(getTaskById)
 
 router.post('/:id/comments',
-    check('content')
-        .trim()
-        .notEmpty()
-        .withMessage('Comment content is required'),
+    [
+        check('comment')
+            .trim()
+            .notEmpty()
+            .withMessage('Comment is required')
+    ],
+    (req,res,next)=>{
+        const errors=validationResult(req)
+        if(!errors.isEmpty()){
+            return res.status(400).json({
+                success:false,
+                message:errors.array()[0].msg
+            })
+        }   
+    },
     addTaskComment
 )
+router.post('/:id/attachments',upload.array('newAttachments',5),addTaskAttachment)
 
 router.get('/project/:projectId/tasks',getTasksbyProject)
 
-router.patch('/bulk-update',protect,async(req,res)=>{
-    try {
-        const {tasks}=req.body;
-        const updatedTasks=await Promise.all(
-            tasks.map(async({taskId,updates})=>{
-                const task=await Task.findById(taskId);
-                if(!task) return null;
+// router.patch('/bulk-update',protect,async(req,res)=>{
+//     try {
+//         const {tasks}=req.body;
+//         const updatedTasks=await Promise.all(
+//             tasks.map(async({taskId,updates})=>{
+//                 const task=await Task.findById(taskId);
+//                 if(!task) return null;
 
-                Object.keys(updates).forEach(key=>{
-                    task[key]=updates[key]
-                })
-                return task.save()
-            })
-        )
+//                 Object.keys(updates).forEach(key=>{
+//                     task[key]=updates[key]
+//                 })
+//                 return task.save()
+//             })
+//         )
 
-        res.json({
-            success:true,
-            tasks:updatedTasks.filter(t=>t!==null)
-        })
-    } catch (error) {
-        res.status(500).json({
-            success:false,
-            message:'Could not update tasks',
-            error:process.env.NODE_ENV==='development'?error.message:undefined
-        })
-    } 
-})
+//         res.json({
+//             success:true,
+//             tasks:updatedTasks.filter(t=>t!==null)
+//         })
+//     } catch (error) {
+//         res.status(500).json({
+//             success:false,
+//             message:'Could not update tasks',
+//             error:process.env.NODE_ENV==='development'?error.message:undefined
+//         })
+//     } 
+// })
 
 export default router;

@@ -1,5 +1,4 @@
 import mongoose, { Schema } from 'mongoose'
-import { type } from 'os'
 
 const TaskSchema = new mongoose.Schema({
     title: {
@@ -60,10 +59,44 @@ const TaskSchema = new mongoose.Schema({
         user:{
             type:Schema.Types.ObjectId,
             ref:'User',
-            required:false
+            required:true
         },
-        text:String,
+        content:String,
         createdAt:{type:Date,default:Date.now}
+    }],
+    createdBy:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'User',
+        required:true
+    },
+    attachments:[{
+        filename:{
+            type:String,
+            required:true
+        },
+        url:{
+            type:String,
+            required:true
+        },
+        public_id:{
+            type:String,
+            required:true
+        },
+        mimetype:{
+            type:String,
+        },
+        size:{
+            type:Number
+        },
+        uploadedBy:{
+            type:mongoose.Schema.Types.ObjectId,
+            ref:'User',
+            required:true
+        },
+        uploadedAt:{
+            type:Date,
+            default:Date.now
+        }
     }]
 }, {
     timestamps: true
