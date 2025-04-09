@@ -149,7 +149,7 @@ const Login = () => {
                     </form>
                     <div className="my-4 text-center text-gray-400">OR</div>
                     <a
-                        href="http://localhost:5000/api/auth/google" // Link directly to the backend route
+                        href="/api/auth/google" // Link directly to the backend route
                         className="w-full py-3 px-4 rounded-lg bg-white text-gray-700 border border-gray-300 font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
                     >
                         {/* You can add a Google Icon here */}

@@ -19,7 +19,7 @@ const AdminUserList = () => {
             setIsLoading(true);
             setError(null);
             try {
-                const response = await axios.get('http://localhost:5000/api/users', {
+                const response = await axios.get('/api/users', {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 setUsers(response.data.users || []);
@@ -44,7 +44,7 @@ const AdminUserList = () => {
          console.log(`Attempting to change role for user ${userId} to ${newRole}`);
         try {
             const response = await axios.patch(
-                `http://localhost:5000/api/users/${userId}/role`,
+                `/api/users/${userId}/role`,
                 { role: newRole },
                 { headers: { Authorization: `Bearer ${token}` } }
             );

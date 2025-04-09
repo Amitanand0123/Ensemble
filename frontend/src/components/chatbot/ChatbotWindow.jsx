@@ -36,7 +36,7 @@ const ChatbotWindow = ({ onClose }) => {
         message: msg.text
       }));
 
-      const response = await axios.post('http://localhost:5000/api/chatbot/generate', 
+      const response = await axios.post('/api/chatbot/generate', 
         { message: input, conversationHistory },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );

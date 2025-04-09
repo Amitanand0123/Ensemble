@@ -75,7 +75,7 @@ const CreateProject = ({ workspaceId, open, onOpenChange }) => {
         };
 
         try {
-            const response = await axios.post('http://localhost:5000/api/projects', projectData, {
+            const response = await axios.post('/api/projects', projectData, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }

@@ -1,4 +1,4 @@
-// --- START OF FILE useAuth.js ---
+// --- START OF FILE frontend/src/hooks/useAuth.js ---
 
 import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -25,13 +25,14 @@ export const useAuth = () => {
     if (storedToken !== token) {
         setToken(storedToken);
     }
-  }, [isAuthenticated]); // Re-run when auth state changes
+  }, [isAuthenticated, token]); // Re-run when auth state or token changes
 
   const handleLogin = async (credentials) => {
     try {
       const result = await dispatch(loginUser(credentials)).unwrap();
       // setToken(result.accessToken); // Redux state handles token now via localStorage sync
-      navigate('/dashboard'); // Or wherever you want to redirect after login
+      // Navigation happens based on effect watching isAuthenticated
+      // navigate('/dashboard'); // Or wherever you want to redirect after login
       return result;
     } catch (err) {
       console.error('Login error in hook:', err);
@@ -40,22 +41,25 @@ export const useAuth = () => {
     }
   };
 
-  const handleLogout = async () => { // <-- This is the function the Navbar calls via 'logout'
+  // This function is called when the Navbar logout button is clicked
+  const handleLogout = async () => {
     try {
-      await dispatch(logoutUser()).unwrap(); // <-- Dispatches the imported action creator
+      await dispatch(logoutUser()).unwrap(); // Dispatches the imported action creator
       setToken(null); // Clear local hook state
-      navigate('/'); // Navigate after successful logout
+      navigate('/'); // Navigate after successful logout (Redux state change will also trigger redirects if needed)
     } catch (err) {
       console.error('Logout error in hook:', err);
+      // Optionally show an error message to the user
       throw err; // Re-throw for the component
     }
   };
+
 
   const handleRegister = async (userData) => {
     try {
       const result = await dispatch(registerUser(userData)).unwrap();
       // setToken(result.accessToken); // Redux state handles token
-      navigate('/dashboard'); // Or maybe '/verify-email-prompt'
+      // navigate('/dashboard'); // Navigation happens based on effect
       return result;
     } catch (err) {
       console.error('Registration error in hook:', err);
@@ -81,11 +85,10 @@ export const useAuth = () => {
       try {
           // Ensure you have forgotPassword imported and dispatched correctly
           // Assuming forgotPassword action takes { email }
-          // import { forgotPassword } from '../redux/slices/authSlice.js';
-          // const result = await dispatch(forgotPassword({ email })).unwrap();
+           // import { forgotPassword } from '../redux/slices/authSlice.js';
+           const result = await dispatch(forgotPassword({ email })).unwrap(); // Dispatch the actual action
           // You might not navigate here, just show a success message from Redux state
-          // return result;
-          console.warn("handleForgotPassword needs to dispatch the actual forgotPassword action");
+          return result;
       } catch (err) {
           console.error('Forgot password error in hook:', err);
           throw err;
@@ -108,4 +111,4 @@ export const useAuth = () => {
     forgotPassword: handleForgotPassword // If implemented
   };
 };
-// --- END OF FILE useAuth.js ---
+// --- END OF FILE frontend/src/hooks/useAuth.js ---

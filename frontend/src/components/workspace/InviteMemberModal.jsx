@@ -42,7 +42,7 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
 
         try {
             const response = await axios.post(
-                `http://localhost:5000/api/${apiPath}/${contextId}/members/invite`,
+                `/api/${apiPath}/${contextId}/members/invite`,
                 { email, role },
                 // Make sure to include the Authorization header
                 { headers: { Authorization: `Bearer ${token}` } }

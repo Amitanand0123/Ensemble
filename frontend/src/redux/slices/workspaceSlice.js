@@ -18,7 +18,7 @@ export const fetchWorkspaces=createAsyncThunk(
     async (_,{getState,rejectWithValue})=>{
         try {
             const token = getToken(getState);
-            const response=await axios.get('http://localhost:5000/api/workspaces',{
+            const response=await axios.get('/api/workspaces',{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -44,7 +44,7 @@ export const createWorkspace = createAsyncThunk(
             axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
             const response = await axios.post(
-                'http://localhost:5000/api/workspaces', 
+                '/api/workspaces', 
                 workspaceData,
                 {
                     headers: {
@@ -66,7 +66,7 @@ export const fetchWorkspaceDetail=createAsyncThunk(
     async(workspaceId,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.get(`http://localhost:5000/api/workspaces/${workspaceId}`,{
+            const response=await axios.get(`/api/workspaces/${workspaceId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -84,7 +84,7 @@ export const joinWorkspace=createAsyncThunk(
         try {
             const token=getToken(getState);
             const response=await axios.post(
-                'http://localhost:5000/api/workspaces/join',
+                '/api/workspaces/join',
                 {inviteCode},
                 {
                     headers:{'Authorization':`Bearer ${token}`}
@@ -103,7 +103,7 @@ export const deleteWorkspace=createAsyncThunk(
     async(workspaceId,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState);
-            await axios.delete(`http://localhost:5000/api/workspaces/${workspaceId}`,{
+            await axios.delete(`/api/workspaces/${workspaceId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -120,7 +120,7 @@ export const updateWorkspaceSettings=createAsyncThunk(
     async({workspaceId,settings},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.patch(`http://localhost:5000/api/workspaces/${workspaceId}`,settings,{
+            const response=await axios.patch(`/api/workspaces/${workspaceId}`,settings,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return response.data.worksapce
@@ -135,7 +135,7 @@ export const inviteWorkspaceMember=createAsyncThunk(
     async({workspaceId,email,role},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.post(`http://localhost:5000/api/workspaces/${workspaceId}/members/invite`,{email,role},{
+            const response=await axios.post(`/api/workspaces/${workspaceId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {workspaceId,message:response.data.message}
@@ -150,7 +150,7 @@ export const updateWorkspaceMemberRole=createAsyncThunk(
     async({workspaceId,memberUserId,role},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.patch(`http://localhost:5000/api/workspaces/${workspaceId}/members/${memberUserId}/role`,{role},{
+            const response=await axios.patch(`/api/workspaces/${workspaceId}/members/${memberUserId}/role`,{role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {workspaceId,message:response.data.message}
@@ -165,7 +165,7 @@ export const removeWorkspaceMember=createAsyncThunk(
     async({workspaceId,memberUserId},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            await axios.delete(`http://localhost:5000/api/workspaces/${workspaceId}/members/${memberUserId}`,{
+            await axios.delete(`/api/workspaces/${workspaceId}/members/${memberUserId}`,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {workspaceId,memberUserId}

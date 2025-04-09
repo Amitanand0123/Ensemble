@@ -10,7 +10,7 @@ export const fetchProjects=createAsyncThunk(
     async (workspaceId,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.get(`http://localhost:5000/api/projects/workspace/${workspaceId}/projects`,{
+            const response=await axios.get(`/api/projects/workspace/${workspaceId}/projects`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -27,7 +27,7 @@ export const createProject=createAsyncThunk(
     async (projectData,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.post('http://localhost:5000/api/projects',projectData,{
+            const response=await axios.post('/api/projects',projectData,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -44,7 +44,7 @@ export const fetchProjectDetail=createAsyncThunk(
     async (projectId,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.get(`http://localhost:5000/api/projects/${projectId}`,{
+            const response=await axios.get(`/api/projects/${projectId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }
@@ -61,7 +61,7 @@ export const inviteProjectMember=createAsyncThunk(
     async ({projectId,email,role},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.post(`http://localhost:5000/api/projects/${projectId}/members/invite`,{email,role},{
+            const response=await axios.post(`/api/projects/${projectId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {projectId,message:response.data.message}
@@ -76,7 +76,7 @@ export const updateProjectMemberRole=createAsyncThunk(
     async ({projectId,memberUserId,role},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            await axios.patch(`http://localhost:5000/api/projects/${projectId}/members/${memberUserId}/role`,{role},{
+            await axios.patch(`/api/projects/${projectId}/members/${memberUserId}/role`,{role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {projectId,memberUserId,role}
@@ -91,7 +91,7 @@ export const removeProjectMember=createAsyncThunk(
     async ({projectId,memberUserId},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            await axios.delete(`http://localhost:5000/api/projects/${projectId}/members/${memberUserId}`,{
+            await axios.delete(`/api/projects/${projectId}/members/${memberUserId}`,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return {projectId,memberUserId}
@@ -106,7 +106,7 @@ export const updateProjectSettings=createAsyncThunk(
     async ({projectId,settings},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.patch(`http://localhost:5000/api/projects/${projectId}`,settings,{
+            const response=await axios.patch(`/api/projects/${projectId}`,settings,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
             return response.data.project

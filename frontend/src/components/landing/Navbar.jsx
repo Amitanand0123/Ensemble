@@ -1,4 +1,4 @@
-// --- START OF FILE Navbar.jsx ---
+// --- START OF FILE frontend/src/components/landing/Navbar.jsx ---
 
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -14,7 +14,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutDashboard, Settings, LogOut } from 'lucide-react'; // Import icons
+import { LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react'; // Import icons, aliased User
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -38,11 +38,11 @@ const Navbar = () => {
     }, []);
 
     // Handler to call the logout function from the useAuth hook
-    const confirmLogout = async () => { // <-- Make async
+    const confirmLogout = async () => {
         try {
             await logout(); // <-- Call the 'logout' function from the hook
             setShowLogoutPopup(false);
-            // navigate('/'); // Navigation is already handled within the useAuth hook's logout function
+            // navigate('/'); // Navigation is now handled within the useAuth hook's logout function or by redirect logic in App.jsx
         } catch (error) {
             console.error("Logout failed in Navbar:", error);
             // Optionally: show an error message to the user
@@ -56,18 +56,14 @@ const Navbar = () => {
         setShowLogoutPopup(true);
     };
 
-    // Function to get user initials
-    const getInitials = (nameString) => {
-        if (!nameString) return '?';
-        // Assuming nameString is "First Last"
-        const nameParts = nameString.split(' ');
-        if (nameParts.length >= 2) {
-            return (nameParts[0][0] + nameParts[1][0]).toUpperCase();
-        } else if (nameParts.length === 1 && nameParts[0].length > 0) {
-            return nameParts[0][0].toUpperCase();
-        }
-        return '?';
+    // Function to get user initials from first and last name
+    const getInitials = (firstName, lastName) => {
+        const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
+        const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
+        return firstInitial + lastInitial || '?';
     };
+
+    const profileName = `${user?.name?.first || ''} ${user?.name?.last || ''}`.trim();
 
 
     return (
@@ -148,10 +144,9 @@ const Navbar = () => {
                                     <DropdownMenuTrigger asChild>
                                         <button className="flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 rounded-full">
                                             <Avatar className="h-9 w-9 md:h-10 md:w-10">
-                                                {/* Use user object which includes full name */}
-                                                <AvatarImage src={user?.avatar?.url} alt={user?.name} />
+                                                <AvatarImage src={user?.avatar?.url} alt={profileName} />
                                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold">
-                                                    {getInitials(user?.name)} {/* Pass the full name */}
+                                                    {getInitials(user?.name?.first, user?.name?.last)} {/* Pass first/last name */}
                                                 </AvatarFallback>
                                             </Avatar>
                                         </button>
@@ -159,11 +154,15 @@ const Navbar = () => {
                                     <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white" align="end">
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none">{user?.name}</p>
+                                                <p className="text-sm font-medium leading-none">{profileName}</p>
                                                 <p className="text-xs leading-none text-gray-400">{user?.email}</p>
                                             </div>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator className="bg-gray-700" />
+                                         {/* Profile Link */}
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
+                                            <Link to="/profile/me"><UserIcon className="mr-2 h-4 w-4" /><span>My Profile</span></Link>
+                                        </DropdownMenuItem>
                                         <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
                                             <Link to="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /><span>Dashboard</span></Link>
                                         </DropdownMenuItem>
@@ -220,6 +219,16 @@ const Navbar = () => {
                             >
                                 About
                             </a>
+                             {/* Added Profile Link for Mobile */}
+                             {isAuthenticated && (
+                                 <Link
+                                     to="/profile/me"
+                                     className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
+                                     onClick={() => setIsMenuOpen(false)}
+                                 >
+                                     My Profile
+                                 </Link>
+                             )}
                             {isAuthenticated ? (
                                 <button
                                     onClick={(e) => { handleLogoutClick(e); setIsMenuOpen(false); }} // Pass event, Use handler & close menu
@@ -269,4 +278,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
-// --- END OF FILE Navbar.jsx ---
+// --- END OF FILE frontend/src/components/landing/Navbar.jsx ---

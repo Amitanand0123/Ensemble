@@ -17,7 +17,7 @@ const AuthCallback=()=>{
                 console.log("Recieved token on frontend:",authToken);
                 localStorage.setItem('token',authToken);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
-                const response=await axios.get('http://localhost:5000/api/auth/me')
+                const response=await axios.get('/api/auth/me')
                 if(response.data && response.data.user){
                     console.log("User data fetched:",response.data.user);
                     dispatch({

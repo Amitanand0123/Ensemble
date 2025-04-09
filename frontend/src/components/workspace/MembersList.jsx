@@ -1,7 +1,8 @@
-// --- START OF FILE MembersList.jsx ---
+// --- START OF FILE frontend/src/components/workspace/MembersList.jsx ---
 
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Link } from 'react-router-dom'; // Import Link
 import { Card, CardContent } from '../ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { Button } from '../ui/button';
@@ -13,7 +14,7 @@ import {
     fetchWorkspaceDetail, // To refresh data
     updateWorkspaceMemberRole,
     removeWorkspaceMember,
-    inviteWorkspaceMember // If using thunk for invite
+    // inviteWorkspaceMember // If using thunk for invite
 } from '../../redux/slices/workspaceSlice';
 import { toast } from 'react-hot-toast';
 import {
@@ -33,7 +34,8 @@ const MembersList = ({ workspace }) => {
     // Ensure workspace and its properties exist
     const members = workspace?.members || [];
     const workspaceId = workspace?._id;
-    const isCurrentUserAdmin = workspace?.members?.find(m => m.user?._id === currentUser?._id)?.role === 'admin';
+     // Check if current user is ADMIN in this specific workspace
+    const isCurrentUserAdmin = members?.find(m => m.user?._id === currentUser?._id)?.role === 'admin';
     const ownerId = workspace?.owner?._id || workspace?.owner; // Handle populated vs unpopulated owner
 
     const workspaceRoles = [
@@ -74,17 +76,19 @@ const MembersList = ({ workspace }) => {
         if (!workspaceId || !memberUserId) return;
         setActionLoading({ type: 'role', id: memberUserId });
         try {
+            // Ensure we are passing the correct role value
             await dispatch(updateWorkspaceMemberRole({ workspaceId, memberUserId, role: newRole })).unwrap();
             toast.success('Member role updated.');
-            // Thunk already updates state, but explicit fetch ensures latest data if needed
-            // dispatch(fetchWorkspaceDetail(workspaceId));
+            // Thunk should update state, consider fetching explicitly if needed after backend confirmation
+             dispatch(fetchWorkspaceDetail(workspaceId)); // Refresh details after action
         } catch (error) {
-            toast.error(error || 'Failed to update role.');
+            toast.error(error?.message || error || 'Failed to update role.');
             console.error("Role change error:", error);
         } finally {
             setActionLoading({ type: null, id: null });
         }
     };
+
 
     const handleRemoveMember = async (memberUserId) => {
         if (!workspaceId || !memberUserId) return;
@@ -92,15 +96,23 @@ const MembersList = ({ workspace }) => {
         try {
             await dispatch(removeWorkspaceMember({ workspaceId, memberUserId })).unwrap();
             toast.success('Member removed.');
-            // Thunk already updates state, but explicit fetch ensures latest data if needed
-            // dispatch(fetchWorkspaceDetail(workspaceId));
+            // Thunk should update state, consider fetching explicitly if needed
+             dispatch(fetchWorkspaceDetail(workspaceId)); // Refresh details after action
         } catch (error) {
-            toast.error(error || 'Failed to remove member.');
+            toast.error(error?.message || error || 'Failed to remove member.');
             console.error("Remove member error:", error);
         } finally {
              setActionLoading({ type: null, id: null });
         }
     };
+
+     // Function to get user initials from first and last name
+     const getInitials = (firstName, lastName) => {
+        const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
+        const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
+        return firstInitial + lastInitial || '?';
+    };
+
 
     return (
         <div className="p-4">
@@ -114,31 +126,40 @@ const MembersList = ({ workspace }) => {
             </div>
             <div className="space-y-3">
                 {members.map((member) => {
-                    if (!member || !member.user) {
-                        console.warn("Skipping rendering member due to missing data:", member);
-                        return null;
+                     // Basic check for required data
+                    if (!member?.user?._id || !member.role) {
+                        console.warn("Skipping rendering member due to missing user ID or role:", member);
+                        return null; // Don't render incomplete members
                     }
-                    const memberUserId = member.user?._id || member.user;
+
+                    const memberUserId = member.user._id; // Assuming user is populated
                     const isOwner = memberUserId === ownerId;
                     const isSelf = memberUserId === currentUser?._id;
-                    const canManageMember = isCurrentUserAdmin && !isOwner && !isSelf;
-                    const memberName = `${member.user?.name?.first || ''} ${member.user?.name?.last || ''}`.trim() || 'No Name';
+                    const canManageMember = isCurrentUserAdmin && !isOwner && !isSelf; // Admin can manage others but not owner or self
+                    const memberName = `${member.user?.name?.first || ''} ${member.user?.name?.last || ''}`.trim() || member.user?.email || 'Unnamed User'; // Fallback name
                     const isLoadingAction = actionLoading.id === memberUserId;
 
                     return (
-                        <Card key={member._id || memberUserId} className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white">
+                        <Card key={memberUserId} className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white">
                             <CardContent className="flex items-center space-x-4 p-3">
-                                <Avatar className="w-10 h-10">
-                                    <AvatarImage src={member.user?.avatar?.url} alt={memberName} />
-                                    <AvatarFallback className="bg-gray-600">{member.user?.name?.first?.charAt(0) || '?'}</AvatarFallback>
-                                </Avatar>
+                                <Link to={`/profile/${memberUserId}`}> {/* Link Avatar */}
+                                    <Avatar className="w-10 h-10 hover:opacity-80 transition-opacity">
+                                        <AvatarImage src={member.user?.avatar?.url} alt={memberName} />
+                                        <AvatarFallback className="bg-gray-600">
+                                            {getInitials(member.user?.name?.first, member.user?.name?.last)}
+                                        </AvatarFallback>
+                                    </Avatar>
+                                </Link>
                                 <div>
-                                    <p className="font-semibold">{memberName}</p>
+                                    <Link to={`/profile/${memberUserId}`} className="font-semibold hover:underline"> {/* Link Name */}
+                                        {memberName}
+                                    </Link>
                                     <p className="text-sm text-gray-400">{member.user?.email || 'No Email'}</p>
                                 </div>
                                 <div className="ml-auto flex items-center space-x-2">
-                                     {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-gray-400" /> }
-                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${isOwner ? 'bg-yellow-600 text-white' :
+                                     {isLoadingAction && actionLoading.type === 'role' && <Loader2 className="h-4 w-4 animate-spin text-gray-400" /> }
+                                     {isLoadingAction && actionLoading.type === 'remove' && <Loader2 className="h-4 w-4 animate-spin text-red-400" /> }
+                                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${isOwner ? 'bg-yellow-600 text-white' :
                                         member.role === 'admin' ? 'bg-purple-600 text-white' :
                                             'bg-gray-600 text-gray-300'
                                         }`}>
@@ -202,7 +223,7 @@ const MembersList = ({ workspace }) => {
                 contextId={workspaceId}
                 isOpen={isInviteModalOpen}
                 onClose={() => setIsInviteModalOpen(false)}
-                onInviteSuccess={() => dispatch(fetchWorkspaceDetail(workspaceId))} // Refresh on success
+                 onInviteSuccess={() => dispatch(fetchWorkspaceDetail(workspaceId))} // Refresh on success
                 availableRoles={workspaceRoles}
             />
         </div>
@@ -210,4 +231,4 @@ const MembersList = ({ workspace }) => {
 };
 
 export default MembersList;
-// --- END OF FILE MembersList.jsx ---
+// --- END OF FILE frontend/src/components/workspace/MembersList.jsx ---

@@ -68,7 +68,7 @@ const WorkspaceDetail = () => {
             };
 
             try {
-                const response = await axios.post('http://localhost:5000/api/projects', formattedData, {
+                const response = await axios.post('/api/projects', formattedData, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

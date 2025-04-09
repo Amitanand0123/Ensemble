@@ -1,3 +1,5 @@
+// --- START OF FILE frontend/src/App.jsx ---
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthCallback from './components/auth/AuthCallback.jsx';
@@ -13,6 +15,8 @@ import ProtectedRoute from './components/routes/ProtectedRoute.jsx';
 import ChatbotButton from './components/chatbot/ChatbotButton.jsx';
 import AdminUserList from './components/admin/AdminUserList.jsx';
 import AdminRoute from './components/routes/AdminRoute.jsx';
+import UserProfile from './components/user/UserProfile.jsx'; // Import UserProfile
+import GlobalChatHandler from './components/layout/GlobalChatHandler.jsx';
 
 const App = () => {
   return (
@@ -28,6 +32,7 @@ const App = () => {
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+
             {/* --- Protected Routes --- */}
 
             {/* Main Dashboard */}
@@ -72,6 +77,17 @@ const App = () => {
                 </ProtectedRoute>
               }
             />
+
+             {/* User Profile Route */}
+             <Route
+                path="/profile/:userId" // Use :userId param, can be 'me' or an actual ID
+                element={
+                    <ProtectedRoute>
+                        <UserProfile />
+                    </ProtectedRoute>
+                }
+             />
+
             <Route
               path="/admin/users"
               element={
@@ -86,6 +102,8 @@ const App = () => {
             {/* --- Redirects & Catch-all --- */}
             {/* Redirect base /workspaces to /dashboard */}
             <Route path="/workspaces" element={<Navigate to="/dashboard" replace />} />
+             {/* Redirect base /profile to /profile/me */}
+             <Route path="/profile" element={<Navigate to="/profile/me" replace />} />
             {/* Catch-all for unmatched routes */}
             <Route path="*" element={<Navigate to="/" replace />} />
 
@@ -93,9 +111,11 @@ const App = () => {
         </main>
         <Footer />
         <ChatbotButton/>
+        <GlobalChatHandler/>
       </div>
     </Router>
   );
 };
 
 export default App;
+// --- END OF FILE frontend/src/App.jsx ---

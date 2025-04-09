@@ -30,7 +30,7 @@ export const fetchTasks = createAsyncThunk(
                 return rejectWithValue('Project ID is required')
             }
             console.log(`Fetching tasks for project ${projectId} with filters:`,filters)
-            const response = await axios.get(`http://localhost:5000/api/tasks/project/${projectId}/tasks`, {
+            const response = await axios.get(`/api/tasks/project/${projectId}/tasks`, {
                 params: filters,
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -51,7 +51,7 @@ export const createTask = createAsyncThunk(
             const token=getState().auth.token || localStorage.getItem('token')
             if(!token) return rejectWithValue('No auth token found')
             console.log("Dispatching createTask with FormData");
-            const response = await axios.post('http://localhost:5000/api/tasks',
+            const response = await axios.post('/api/tasks',
                 formData,
                 {
                     headers:{
@@ -72,7 +72,7 @@ export const bulkUpdateTasks = createAsyncThunk(
     'tasks/bulkUpdate',
     async ({ tasks }, { rejectWithValue }) => {
         try {
-            const response = await axios.patch('http://localhost:5000/api/tasks/bulk-update', { tasks })
+            const response = await axios.patch('/api/tasks/bulk-update', { tasks })
             return response.data.tasks
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to update tasks')
@@ -92,7 +92,7 @@ export const updateTask = createAsyncThunk(
                 return rejectWithValue('Task ID is required')
             }
             console.log(`Updating task ${taskId} with updates:`,updates)
-            const response=await axios.patch(`http://localhost:5000/api/tasks/${taskId}`,
+            const response=await axios.patch(`/api/tasks/${taskId}`,
                 updates,
                 {
                     headers:{
@@ -122,7 +122,7 @@ export const addTaskAttachments=createAsyncThunk(
                 return rejectWithValue('Task ID is required')
             }
             console.log(`Adding attachments to task ${taskId}`)
-            const response=await axios.post(`http://localhost:5000/api/tasks/${taskId}/attachments`,
+            const response=await axios.post(`/api/tasks/${taskId}/attachments`,
                 formData,
                 {
                     headers:{
@@ -151,7 +151,7 @@ export const deleteTask = createAsyncThunk(
                 return rejectWithValue('Task ID is required')
             }
             console.log(`Deleting task ${taskId}`)
-            await axios.delete(`http://localhost:5000/api/tasks/${taskId}`,{
+            await axios.delete(`/api/tasks/${taskId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
                 }

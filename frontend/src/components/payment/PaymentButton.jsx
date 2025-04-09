@@ -35,7 +35,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
             // 1. Create Order on Backend
             console.log(`[PaymentButton] Requesting order creation for planId: ${planId}`);
             const orderResponse = await axios.post(
-                'http://localhost:5000/api/payments/create-order',
+                '/api/payments/create-order',
                 { planId: planId }, // Send only planId
                 { headers: { Authorization: `Bearer ${token}` } }
             );
