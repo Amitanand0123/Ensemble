@@ -5,8 +5,8 @@ import sendEmail from '../utils/sendEmail.js'
 
 export const createWorkspace = async(req,res)=>{
     try{
-        console.log('Request user:', req.user); // Check if user exists
-        console.log('Request body:', req.body); // Check incoming data
+        // console.log('Request user:', req.user); // Check if user exists
+        // console.log('Request body:', req.body); // Check incoming data
         if(req.user.role!=='admin'){
             return res.status(403).json({
                 success:false,
@@ -59,7 +59,7 @@ export const createWorkspace = async(req,res)=>{
             workspace:populatedWorkspace
         });
     } catch(error){
-        console.log('Crete workspace error: ',error);
+        // console.log('Crete workspace error: ',error);
         if(error.code==11000){
             return res.status(400).json({
                 success:false,
@@ -82,7 +82,7 @@ export const getWorkspaces =async(req,res)=>{
                 message:'User not authenticated'
             })
         }
-        console.log('Finding workspaces for user:', req.user._id);
+        // console.log('Finding workspaces for user:', req.user._id);
         const workspaces=await Workspace.find({
             'members.user':req.user._id,
             status:'active'
@@ -91,7 +91,7 @@ export const getWorkspaces =async(req,res)=>{
         .populate('members.user','name email')
         .sort('-createdAt')
 
-        console.log(`Found ${workspaces.length} workspaces for user ${req.user._id}`);
+        // console.log(`Found ${workspaces.length} workspaces for user ${req.user._id}`);
 
         res.json({
             success:true,
@@ -112,7 +112,7 @@ export const getWorkspaces =async(req,res)=>{
 export const getWorkspaceById=async(req,res)=>{
     try{
         const workspaceExists = await Workspace.findById(req.params.id);
-        console.log('Basic workspace check:', workspaceExists);
+        // console.log('Basic workspace check:', workspaceExists);
         const workspace=await Workspace.findOne({
             _id:req.params.id,
             'members.user':req.user._id,

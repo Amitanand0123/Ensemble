@@ -41,7 +41,7 @@ const ChatTab = ({ type, id }) => {
 
   // --- Fetch messages ---
   useEffect(() => {
-    console.log(`[ChatTab ${type}:${id}] Mounting or ID/type changed. Fetching messages.`);
+    // console.log(`[ChatTab ${type}:${id}] Mounting or ID/type changed. Fetching messages.`);
     if (id && type) { // Ensure id and type are present
         if (type === 'workspace') {
             dispatch(fetchWorkspaceMessages(id));
@@ -56,7 +56,7 @@ const ChatTab = ({ type, id }) => {
 
     // Cleanup: clear current chat when unmounting
     return () => {
-        console.log(`[ChatTab ${type}:${id}] Unmounting. Clearing current chat.`);
+        // console.log(`[ChatTab ${type}:${id}] Unmounting. Clearing current chat.`);
         dispatch(setCurrentChat(null));
     };
   }, [dispatch, type, id]); // Dependency array includes things that trigger re-fetch

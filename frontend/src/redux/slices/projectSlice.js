@@ -193,7 +193,7 @@ const projectSlice=createSlice({
                 state.error=action.payload
             })
             .addCase(inviteProjectMember.fulfilled,(state,action)=>{
-                console.log('Project invite success:',action.payload.message)
+                // console.log('Project invite success:',action.payload.message)
             })
             .addCase(inviteProjectMember.rejected,(state,action)=>{
                 state.error=action.payload

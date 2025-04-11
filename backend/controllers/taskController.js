@@ -31,7 +31,7 @@ export const createTask=async(req,res)=>{
         }
         let uploadedAttachments=[];
         if(req.files && req.files.length>0){
-            console.log(`Received ${req.files.length} files for task creation.`)
+            // console.log(`Received ${req.files.length} files for task creation.`)
             uploadedAttachments=await Promise.all(
                 req.files.map(async(file)=>{
                     try {
@@ -52,7 +52,7 @@ export const createTask=async(req,res)=>{
                 })
             )
             uploadedAttachments=uploadedAttachments.filter(att=>att!==null);
-            console.log(`Successfully uplaoded ${uploadedAttachments.length} attachments.`)
+            // console.log(`Successfully uplaoded ${uploadedAttachments.length} attachments.`)
         }
         let parsedAssignedTo=[];
         if(assignedTo){
@@ -150,7 +150,7 @@ export const getTasks=async(req,res)=>{
         if(status) filter.status=status;
         if(assignedTo) filter.assignedTo=assignedTo;
 
-        console.log('Filter:', filter);
+        // console.log('Filter:', filter);
 
         const tasks=await Task.find(filter)
             .populate('project','name')
@@ -158,7 +158,7 @@ export const getTasks=async(req,res)=>{
             .populate('createdBy','name email')
             .sort('-createdAt')
 
-        console.log('Tasks:', tasks);
+        // console.log('Tasks:', tasks);
         
 
         res.json({
@@ -234,7 +234,7 @@ export const updateTask=async(req,res)=>{
 
         const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags','estimatedHours'];
         const updates=Object.keys(req.body);
-        console.log('Request Body:', req.body);
+        // console.log('Request Body:', req.body);
         const isValidOperation=updates.every(update=> allowedUpdates.includes(update))
         if(!isValidOperation){
             const invalidFields=updates.filter(update=> !allowedUpdates.includes(update))
@@ -342,7 +342,7 @@ export const addTaskAttachment=async(req,res)=>{
                 message:'No files uploaded'
             })
         }
-        console.log(`Received ${req.files.length} files to attach to task ${taskId}`)
+        // console.log(`Received ${req.files.length} files to attach to task ${taskId}`)
         const newAttachments=await Promise.all(
             req.files.map(async (file)=>{
                 try {
@@ -363,7 +363,7 @@ export const addTaskAttachment=async(req,res)=>{
             })
         )
         const successfullyUploaded=newAttachments.filter(att=>att!==null);
-        console.log(`Successfully uploaded ${successfullyUploaded.length} new attachments for task ${taskId}`)
+        // console.log(`Successfully uploaded ${successfullyUploaded.length} new attachments for task ${taskId}`)
         if(successfullyUploaded.length==0){
             return res.status(500).json({
                 success:false,

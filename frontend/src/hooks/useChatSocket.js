@@ -16,7 +16,7 @@ export const useChatSocket = (token) => {
 
   useEffect(() => {
     if (!token) {
-        console.log("[useChatSocket] No token, socket not initialized.");
+        // console.log("[useChatSocket] No token, socket not initialized.");
         // Ensure cleanup if token disappears
         if (socket) {
             socket.disconnect();
@@ -28,17 +28,17 @@ export const useChatSocket = (token) => {
 
     // Prevent creating multiple sockets if token hasn't changed
     if (socket?.connected && socket?.auth?.token === token) {
-        console.log("[useChatSocket] Socket already connected with the same token.");
+        // console.log("[useChatSocket] Socket already connected with the same token.");
         return;
     }
 
     // Disconnect previous socket if exists before creating a new one
     if (socket) {
-        console.log("[useChatSocket] Disconnecting previous socket instance.");
+        // console.log("[useChatSocket] Disconnecting previous socket instance.");
         socket.disconnect();
     }
 
-    console.log(`[useChatSocket] Initializing socket connection to ${SOCKET_URL} with token.`);
+    // console.log(`[useChatSocket] Initializing socket connection to ${SOCKET_URL} with token.`);
     const newSocket = io(SOCKET_URL, {
       auth: { token: token }, // Pass token correctly
       transports: ['websocket'],
@@ -49,7 +49,7 @@ export const useChatSocket = (token) => {
     });
 
     newSocket.on('connect', () => {
-      console.log('[useChatSocket] Socket connected successfully. ID:', newSocket.id);
+      // console.log('[useChatSocket] Socket connected successfully. ID:', newSocket.id);
       setIsConnected(true);
       // setConnectionAttempts(0);
     });
@@ -61,11 +61,11 @@ export const useChatSocket = (token) => {
     });
 
     newSocket.on('disconnect', (reason) => {
-      console.log('[useChatSocket] Socket disconnected:', reason);
+      // console.log('[useChatSocket] Socket disconnected:', reason);
       setIsConnected(false);
        // Attempt to reconnect if disconnected unexpectedly
        if (reason !== 'io client disconnect') { // Don't auto-reconnect on manual disconnect
-         console.log('[useChatSocket] Attempting to reconnect after unexpected disconnect...');
+        //  console.log('[useChatSocket] Attempting to reconnect after unexpected disconnect...');
          // setTimeout(() => newSocket.connect(), 5000); // Optional manual reconnect attempt
        }
     });
@@ -74,21 +74,21 @@ export const useChatSocket = (token) => {
     // Note: These listeners dispatch actions based on INCOMING messages from others
 
     newSocket.on('newPersonalMessage', (message) => { // Match backend event name
-      console.log('[useChatSocket] Received personal message:', message);
+      // console.log('[useChatSocket] Received personal message:', message);
       if (message?.sender?._id !== currentUser?._id) { // Don't add own messages again here
         dispatch(addPersonalMessage({ senderId: message.sender._id, message }));
       }
     });
 
     newSocket.on('newWorkspaceMessage', (message) => { // Match backend event name
-      console.log('[useChatSocket] Received workspace message:', message);
+      // console.log('[useChatSocket] Received workspace message:', message);
        if (message?.sender?._id !== currentUser?._id) { // Don't add own messages again here
         dispatch(addWorkspaceMessage({ workspaceId: message.workspace, message }));
       }
     });
 
     newSocket.on('newProjectMessage', (message) => { // Match backend event name
-      console.log('[useChatSocket] Received project message:', message);
+      // console.log('[useChatSocket] Received project message:', message);
       if (message?.sender?._id !== currentUser?._id) { // Don't add own messages again here
         dispatch(addProjectMessage({ projectId: message.project, message }));
       }
@@ -113,7 +113,7 @@ export const useChatSocket = (token) => {
 
     // Cleanup: Disconnect socket when hook unmounts or token changes
     return () => {
-      console.log("[useChatSocket] Cleanup: Disconnecting socket.");
+      // console.log("[useChatSocket] Cleanup: Disconnecting socket.");
       newSocket.disconnect();
       setSocket(null);
       setIsConnected(false);
@@ -129,9 +129,9 @@ export const useChatSocket = (token) => {
     if (!currentUser) return Promise.reject('User not loaded');
 
     return new Promise((resolve, reject) => {
-      console.log('[useChatSocket] Emitting sendPersonalMessage', { receiverId: userId, content, attachments });
+      // console.log('[useChatSocket] Emitting sendPersonalMessage', { receiverId: userId, content, attachments });
       socket.emit('sendPersonalMessage', { receiverId: userId, content, attachments }, (response) => {
-        console.log('[useChatSocket] Callback for sendPersonalMessage:', response);
+        // console.log('[useChatSocket] Callback for sendPersonalMessage:', response);
         if (response && response.success && response.data) {
            // **Dispatch to update local state immediately**
            // Ensure sender details are populated if needed by the reducer/component
@@ -163,9 +163,9 @@ export const useChatSocket = (token) => {
     if (!currentUser) return Promise.reject('User not loaded');
 
     return new Promise((resolve, reject) => {
-        console.log('[useChatSocket] Emitting sendWorkspaceMessage', { workspaceId, content, attachments });
+        // console.log('[useChatSocket] Emitting sendWorkspaceMessage', { workspaceId, content, attachments });
         socket.emit('sendWorkspaceMessage', { workspaceId, content, attachments }, (response) => {
-            console.log('[useChatSocket] Callback for sendWorkspaceMessage:', response);
+            // console.log('[useChatSocket] Callback for sendWorkspaceMessage:', response);
             if (response && response.success && response.data) {
                 // **Dispatch to update local state immediately**
                 const messageWithSender = {
@@ -194,9 +194,9 @@ export const useChatSocket = (token) => {
     if (!currentUser) return Promise.reject('User not loaded');
 
     return new Promise((resolve, reject) => {
-        console.log('[useChatSocket] Emitting sendProjectMessage', { projectId, content, attachments });
+        // console.log('[useChatSocket] Emitting sendProjectMessage', { projectId, content, attachments });
         socket.emit('sendProjectMessage', { projectId, content, attachments }, (response) => {
-            console.log('[useChatSocket] Callback for sendProjectMessage:', response);
+            // console.log('[useChatSocket] Callback for sendProjectMessage:', response);
             if (response && response.success && response.data) {
                  // **Dispatch to update local state immediately**
                  const messageWithSender = {
@@ -223,7 +223,7 @@ export const useChatSocket = (token) => {
   const setTyping = useCallback((chatType, chatId, isTyping) => {
     if (!socket || !isConnected || !currentUser) return;
 
-    console.log(`[useChatSocket] Emitting typing status: ${isTyping} for ${chatType}:${chatId}`);
+    // console.log(`[useChatSocket] Emitting typing status: ${isTyping} for ${chatType}:${chatId}`);
     socket.emit('typing', { // Match backend listener event name 'typing'
         // Determine the correct ID field based on type
         receiverId: chatType === 'personal' ? chatId : null,

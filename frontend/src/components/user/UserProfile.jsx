@@ -34,7 +34,7 @@ const UserProfile = () => {
         
         // First, handle redirects for unauthenticated users trying to access "me"
         if (routeUserId === 'me' && !isAuthenticated && !authIsLoading) {
-            console.log("[UserProfile] Not authenticated, redirecting from 'me' route");
+            //console.log("[UserProfile] Not authenticated, redirecting from 'me' route");
             toast.error("Please log in to view your profile");
             navigate('/login', { replace: true });
             return;
@@ -42,7 +42,7 @@ const UserProfile = () => {
 
         // Don't fetch if auth is still loading its initial state
         if (authIsLoading) {
-            console.log("[UserProfile] Waiting for auth state to load...");
+            //console.log("[UserProfile] Waiting for auth state to load...");
             return;
         }
 
@@ -53,7 +53,7 @@ const UserProfile = () => {
             // Only proceed if we have the logged-in user's ID
             if (loggedInUser?._id) {
                 userIdToFetch = loggedInUser._id;
-                console.log(`[UserProfile] useEffect: Resolved 'me' to ID: ${userIdToFetch}`);
+                //console.log(`[UserProfile] useEffect: Resolved 'me' to ID: ${userIdToFetch}`);
             } else {
                 console.warn("[UserProfile] useEffect: 'me' requested but loggedInUser._id not found.");
                 return; // Don't do anything until we have an ID
@@ -61,7 +61,7 @@ const UserProfile = () => {
         } else {
             // For any other user ID, use it directly
             userIdToFetch = routeUserId;
-            console.log(`[UserProfile] useEffect: Using route param ID: ${userIdToFetch}`);
+            //console.log(`[UserProfile] useEffect: Using route param ID: ${userIdToFetch}`);
         }
 
         // Only dispatch fetch if we have a valid ID
@@ -73,10 +73,10 @@ const UserProfile = () => {
 
     // Log isOwnProfile changes for debugging
     useEffect(() => {
-        console.log(`[UserProfile] isOwnProfile status: ${isOwnProfile}`, { 
-            loggedInUserId: loggedInUser?._id, 
-            profileId: profile?._id 
-        });
+        // console.log(`[UserProfile] isOwnProfile status: ${isOwnProfile}`, { 
+        //     loggedInUserId: loggedInUser?._id, 
+        //     profileId: profile?._id 
+        // });
     }, [isOwnProfile, loggedInUser, profile]);
 
     const triggerFileInput = () => {

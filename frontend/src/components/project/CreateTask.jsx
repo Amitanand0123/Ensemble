@@ -110,7 +110,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                     assignedTo: data.assignedTo || [],
                      tags: data.tags || [],
                  };
-                console.log("Updating task:", task._id, "with data:", updateData);
+                // console.log("Updating task:", task._id, "with data:", updateData);
                  resultAction = await dispatch(updateTask({ taskId: task._id, updates: updateData }));
                 if (updateTask.rejected.match(resultAction)) {
                      throw new Error(resultAction.payload || 'Failed to update task');
@@ -119,7 +119,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
 
             } else {
                 // --- Create Logic ---
-                console.log("Creating task with formData:", Object.fromEntries(formData.entries())); // Log FormData content
+                // console.log("Creating task with formData:", Object.fromEntries(formData.entries())); // Log FormData content
                  resultAction = await dispatch(createTask({ formData }));
                  if (createTask.rejected.match(resultAction)) {
                      throw new Error(resultAction.payload || 'Failed to create task');

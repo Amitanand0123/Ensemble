@@ -24,13 +24,14 @@ dotenv.config();
 const app = express();
 
 const allowedOrigins=[process.env.FRONTEND_URL || 'http://localhost:5173'];
-console.log("Allowed CORS Origins:",allowedOrigins);
+// console.log("Allowed CORS Origins:",allowedOrigins);
+
 
 const corsOptions={
     origin:function(origin,callback){
-        console.log("CORS Check - Request Origin:", origin); 
+        // console.log("CORS Check - Request Origin:", origin); 
         if(!origin || allowedOrigins.indexOf(origin)!==-1){
-            console.log("CORS Check - Allowed:",origin) || 'No Origin'
+            // console.log("CORS Check - Allowed:",origin) || 'No Origin'
             callback(null,true)
         }
         else{
@@ -87,7 +88,7 @@ const server = http.createServer(app);
 const io = setupSocketIO(server);
 
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+    // console.log(`Server running on port ${PORT}`);
     if(!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET){
         console.warn("Reminder: Razorpay API keys are missing or not loaded from .env")
     }

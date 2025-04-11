@@ -59,7 +59,7 @@ export const summarizeText = async (text, filename = "this file") => {
                 Summary:`;
 
     try {
-        console.log(`Requesting summary for ${filename}...`);
+        // console.log(`Requesting summary for ${filename}...`);
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig,
@@ -78,7 +78,7 @@ export const summarizeText = async (text, filename = "this file") => {
             return "Could not generate a summary for this content.";
         }
         
-        console.log(`Summary generated for ${filename}.`);
+        // console.log(`Summary generated for ${filename}.`);
         return summary.trim();
     } catch (error) {
         console.error(`Error generating summary for ${filename}:`, error);
@@ -93,7 +93,7 @@ export const summarizeText = async (text, filename = "this file") => {
 };
 
 export const extractTexFromFile=async(fileUrl,mimetype)=>{
-    console.log(`Attempting to extract text from ${fileUrl} (Type:${mimetype})`);
+    // console.log(`Attempting to extract text from ${fileUrl} (Type:${mimetype})`);
     if(mimetype==='text/plain'){
         try {
             const response=await fetch(fileUrl)
@@ -116,7 +116,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             }
             const buffer=await response.arrayBuffer()
             const data=await pdf(buffer)
-            console.log(`Extracted ${data.numpages} pages from PDF.`)
+            // console.log(`Extracted ${data.numpages} pages from PDF.`)
             return data.text
         } catch (error) {
             console.error("Error parsing PDF:",error)
@@ -134,7 +134,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             
             // Get the buffer
             const arrayBuffer = await response.arrayBuffer();
-            console.log(`[aiService - DOCX] Fetched buffer size: ${arrayBuffer.byteLength} bytes.`);
+            // console.log(`[aiService - DOCX] Fetched buffer size: ${arrayBuffer.byteLength} bytes.`);
             
             if (arrayBuffer.byteLength === 0) {
                 console.error("[aiService - DOCX] Fetched buffer is empty!");
@@ -146,7 +146,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
                 buffer: Buffer.from(arrayBuffer)
             });
             
-            console.log("Extracted text from DOCX.");
+            // console.log("Extracted text from DOCX.");
             return result.value;
         } catch (error) {
             console.error("--- ERROR DURING DOCX PROCESSING ---");

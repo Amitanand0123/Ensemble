@@ -29,12 +29,12 @@ const GlobalChatHandler = () => {
             // For simplicity, we assume if they are on the workspace detail page, they *might* click the chat tab.
              // More precise check: if (path === `/workspaces/${id}/chat`) // Requires defining such routes
              isChatVisibleInMainContent = true;
-             console.log(`[GlobalChatHandler] Preventing render: Workspace chat ${id} likely visible in main content.`);
+            //  console.log(`[GlobalChatHandler] Preventing render: Workspace chat ${id} likely visible in main content.`);
         } else if (type === 'project' && path.includes(`/projects/${id}`)) {
             // Check if the current path includes this project ID
             // More precise check: if (path.endsWith(`/projects/${id}/chat`)) // Requires defining such routes
             isChatVisibleInMainContent = true;
-            console.log(`[GlobalChatHandler] Preventing render: Project chat ${id} likely visible in main content.`);
+            // console.log(`[GlobalChatHandler] Preventing render: Project chat ${id} likely visible in main content.`);
         }
         // Personal chats are generally *only* shown via this global handler (unless you have a dedicated /chat page)
          // So, no check needed for type === 'personal' here unless you change that structure.

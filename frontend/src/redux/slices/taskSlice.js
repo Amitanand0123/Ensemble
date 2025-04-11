@@ -29,7 +29,7 @@ export const fetchTasks = createAsyncThunk(
             if(!projectId){
                 return rejectWithValue('Project ID is required')
             }
-            console.log(`Fetching tasks for project ${projectId} with filters:`,filters)
+            // console.log(`Fetching tasks for project ${projectId} with filters:`,filters)
             const response = await axios.get(`/api/tasks/project/${projectId}/tasks`, {
                 params: filters,
                 headers: {
@@ -50,7 +50,7 @@ export const createTask = createAsyncThunk(
         try {
             const token=getState().auth.token || localStorage.getItem('token')
             if(!token) return rejectWithValue('No auth token found')
-            console.log("Dispatching createTask with FormData");
+            // console.log("Dispatching createTask with FormData");
             const response = await axios.post('/api/tasks',
                 formData,
                 {
@@ -59,7 +59,7 @@ export const createTask = createAsyncThunk(
                     }
                 }
             )
-            console.log("Create task response:",response.data)
+            // console.log("Create task response:",response.data)
             return response.data.task
         } catch (error) {
             console.error("Error creating task:",error)
@@ -91,7 +91,7 @@ export const updateTask = createAsyncThunk(
             if(!taskId){
                 return rejectWithValue('Task ID is required')
             }
-            console.log(`Updating task ${taskId} with updates:`,updates)
+            // console.log(`Updating task ${taskId} with updates:`,updates)
             const response=await axios.patch(`/api/tasks/${taskId}`,
                 updates,
                 {
@@ -101,7 +101,7 @@ export const updateTask = createAsyncThunk(
                     }
                 }
             )
-            console.log("Update task response:",response.data)
+            // console.log("Update task response:",response.data)
             return response.data.task;
         } catch (error) {
             console.error(`Error updating task ${taskId}:`,error)
@@ -121,7 +121,7 @@ export const addTaskAttachments=createAsyncThunk(
             if(!taskId){
                 return rejectWithValue('Task ID is required')
             }
-            console.log(`Adding attachments to task ${taskId}`)
+            // console.log(`Adding attachments to task ${taskId}`)
             const response=await axios.post(`/api/tasks/${taskId}/attachments`,
                 formData,
                 {
@@ -130,7 +130,7 @@ export const addTaskAttachments=createAsyncThunk(
                     }
                 }
             )
-            console.log("Add attachments response:",response.data)
+            // console.log("Add attachments response:",response.data)
             return response.data.task;
         } catch (error) {
             console.error(`Error adding attachments to task ${taskId}:`,error)
@@ -150,7 +150,7 @@ export const deleteTask = createAsyncThunk(
             if(!taskId){
                 return rejectWithValue('Task ID is required')
             }
-            console.log(`Deleting task ${taskId}`)
+            // console.log(`Deleting task ${taskId}`)
             await axios.delete(`/api/tasks/${taskId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`

@@ -21,7 +21,7 @@ export const setupSocketIO=(server)=>{
 
     io.on('connection',async (socket)=>{
         const userId=socket.user._id
-        console.log('User connected:',userId)
+        // console.log('User connected:',userId)
         onlineUsers.set(userId.toString(),socket.id)
         socket.join(userId.toString()) //to join the user's room
 
@@ -172,8 +172,8 @@ export const setupSocketIO=(server)=>{
             const userId=socket.user._id;
             try {
                 const {workspaceId,content,attachments=[]}=data
-                console.log(`[Socket Event: sendWorkspaceMessage] Received for workspace ${workspaceId} from user ${userId}`)
-                console.log(workspaceId,content,attachments)
+                // console.log(`[Socket Event: sendWorkspaceMessage] Received for workspace ${workspaceId} from user ${userId}`)
+                // console.log(workspaceId,content,attachments)
                 const workspace=await Workspace.findById(workspaceId)
                 if(!workspace || !workspace.isMember(userId)){
                     console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
@@ -220,7 +220,7 @@ export const setupSocketIO=(server)=>{
                 await message.populate('sender','name avatar')
                 await message.populate('attachments.uploadedBy','name avatar')
                 io.to(`workspace:${workspaceId}`).emit('newWorkspaceMessage',message)
-                console.log(`[Socket Event: sendWorkspaceMessage] Message sent to workspace room: ${workspaceId}`)
+                // console.log(`[Socket Event: sendWorkspaceMessage] Message sent to workspace room: ${workspaceId}`)
                 if(callback){
                     callback({
                         success:true,
@@ -262,7 +262,7 @@ export const setupSocketIO=(server)=>{
         })
 
         socket.on('disconnect',()=>{
-            console.log(`User disconnected: ${userId}`)
+            // console.log(`User disconnected: ${userId}`)
             onlineUsers.delete(userId.toString())
             socket.broadcast.emit('userStatusChanged',{
                 userId:userId,

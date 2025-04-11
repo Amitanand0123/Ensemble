@@ -21,7 +21,7 @@ const Pricing = () => {
     // const dispatch = useDispatch(); // Get dispatch function
 
     const handlePaymentSuccess = (paymentData) => {
-        console.log("Payment success data from callback:", paymentData);
+        // console.log("Payment success data from callback:", paymentData);
         const newPlan = paymentData?.updatedUser?.plan;
         if (newPlan) {
              // Option 1: Simple Alert (as before)

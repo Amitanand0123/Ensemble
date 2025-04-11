@@ -32,9 +32,13 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "pdf-parse": "^1.1.1",
+    "pino": "^9.6.0",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "pino-pretty": "^13.0.0"
+  }
 }

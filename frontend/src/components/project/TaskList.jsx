@@ -32,7 +32,7 @@ const TaskList = ({ projectId, workspaceId }) => {
     // Initial fetch when projectId changes
     useEffect(() => {
         if (projectId) {
-            console.log(`[TaskList] Fetching tasks for projectId: ${projectId}`);
+            // console.log(`[TaskList] Fetching tasks for projectId: ${projectId}`);
             dispatch(fetchTasks({ projectId }));
         }
     }, [projectId, dispatch]);

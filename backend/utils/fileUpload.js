@@ -46,7 +46,7 @@ export const deleteFromCloud=async(pubic_id)=>{
                 reject(error)
             }
             else{
-                console.log("Cloudinary Deletion Success:",result);
+                // console.log("Cloudinary Deletion Success:",result);
                 resolve(result);
             }
         })

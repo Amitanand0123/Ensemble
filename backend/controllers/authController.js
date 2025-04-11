@@ -316,7 +316,7 @@ export const sendVerificationEmail = async(user) => {
     await user.save();
 
     const verificationUrl=`${process.env.FRONTEND_URL}/verify-email/${verificationToken}`;
-
+    console.log('Verification URL:',verificationUrl);
     await sendEmail({
         email:user.email,
         subject:'Email Verification-CollabStack',

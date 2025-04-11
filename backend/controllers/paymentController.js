@@ -6,7 +6,7 @@ import Payment from '../models/Payment.js';
 import { getPlanById } from '../config/plans.js'; // Assuming this path is correct
 
 export const createOrder = async (req, res) => {
-    console.log("[Payment] Received create-order request. Body:", req.body); // Log incoming request body
+    // console.log("[Payment] Received create-order request. Body:", req.body); // Log incoming request body
     if (!isRazorpayConfigured()) {
         console.warn("[Payment] Create Order attempt failed: Razorpay not configured.");
         return res.status(503).json({
@@ -28,7 +28,7 @@ export const createOrder = async (req, res) => {
      }
 
 
-    console.log(`[Payment] Looking for plan with ID: ${planId}`);
+    // console.log(`[Payment] Looking for plan with ID: ${planId}`);
     const selectedPlan = getPlanById(planId); // Make sure getPlanById handles case sensitivity if needed
 
     if (!selectedPlan) {
@@ -78,7 +78,7 @@ export const createOrder = async (req, res) => {
     };
 
     try {
-        console.log(`[Payment] Attempting to create Razorpay order for User: ${req.user.email}, Plan: ${planId}, Options:`, JSON.stringify(options));
+        // console.log(`[Payment] Attempting to create Razorpay order for User: ${req.user.email}, Plan: ${planId}, Options:`, JSON.stringify(options));
         const order = await razorpayInstance.orders.create(options);
 
         if (!order || !order.id) {
@@ -89,7 +89,7 @@ export const createOrder = async (req, res) => {
             });
         }
 
-        console.log(`[Payment] Razorpay order created successfully: ${order.id}`);
+        // console.log(`[Payment] Razorpay order created successfully: ${order.id}`);
         res.status(200).json({
             success: true,
             orderId: order.id,
@@ -116,7 +116,7 @@ export const createOrder = async (req, res) => {
 
 
 export const verifyPayment = async (req, res) => {
-    console.log("[Payment] Received verify-payment request. Body:", req.body);
+    // console.log("[Payment] Received verify-payment request. Body:", req.body);
     if (!isRazorpayConfigured()) {
          console.warn("[Payment] Verify Payment attempt failed: Razorpay not configured.");
         return res.status(503).json({
@@ -150,7 +150,7 @@ export const verifyPayment = async (req, res) => {
         });
     }
 
-    console.log(`[Payment] Verifying payment for Order ID: ${razorpay_order_id}, Payment ID: ${razorpay_payment_id}`);
+    // console.log(`[Payment] Verifying payment for Order ID: ${razorpay_order_id}, Payment ID: ${razorpay_payment_id}`);
 
     const body = razorpay_order_id + "|" + razorpay_payment_id;
     let isAuthentic = false;
@@ -161,7 +161,7 @@ export const verifyPayment = async (req, res) => {
             .digest('hex');
 
         isAuthentic = expectedSignature === razorpay_signature;
-        console.log(`[Payment] Signature verification result: ${isAuthentic ? 'Success' : 'Failed'}`);
+        // console.log(`[Payment] Signature verification result: ${isAuthentic ? 'Success' : 'Failed'}`);
     } catch (error) {
         console.error("[Payment] Error generating HMAC signature:", error);
         return res.status(500).json({
@@ -199,7 +199,7 @@ export const verifyPayment = async (req, res) => {
                 if (orderDetails) {
                     paymentAmount = orderDetails.amount; // Amount in smallest unit
                     paymentCurrency = orderDetails.currency;
-                    console.log(`[Payment] Fetched order details. Amount: ${paymentAmount} ${paymentCurrency}, Receipt: ${orderDetails.receipt}`);
+                    // console.log(`[Payment] Fetched order details. Amount: ${paymentAmount} ${paymentCurrency}, Receipt: ${orderDetails.receipt}`);
 
                     // Optional: Verify amount/currency against plan if needed
                     // const verifiedPlan = getPlanById(planId);
@@ -243,7 +243,7 @@ export const verifyPayment = async (req, res) => {
                 // Consider adding method if available from webhook or fetch
             });
             await paymentRecord.save();
-            console.log(`[Payment] Payment record saved to DB: ${paymentRecord._id} for User: ${userId}`);
+            // console.log(`[Payment] Payment record saved to DB: ${paymentRecord._id} for User: ${userId}`);
 
             // --- Update User Plan ---
             // Ensure the planId from the request is actually valid before updating
@@ -253,7 +253,7 @@ export const verifyPayment = async (req, res) => {
                 user.preferences = user.preferences || {}; // Ensure preferences object exists
                 user.preferences.plan = validPlan.id; // Use the canonical ID from your plans config
                 await user.save({ validateBeforeSave: false }); // Save updated user, skip validation if only updating plan
-                console.log(`[Payment] User ${userId} record updated with Plan: ${validPlan.id}`);
+                // console.log(`[Payment] User ${userId} record updated with Plan: ${validPlan.id}`);
 
                  // --- Send Success Response ---
                  res.status(200).json({

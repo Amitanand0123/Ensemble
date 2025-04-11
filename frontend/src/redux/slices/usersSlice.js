@@ -46,7 +46,7 @@ export const fetchUserById = createAsyncThunk(
     }
     // --------------------------------------
 
-    console.log(`[fetchUserById] Attempting to fetch profile for ID: ${actualUserId}`);
+    // console.log(`[fetchUserById] Attempting to fetch profile for ID: ${actualUserId}`);
     try {
       const token = state.auth.token; // Get token again within try block
       if (!token) {
@@ -55,7 +55,7 @@ export const fetchUserById = createAsyncThunk(
       const response = await axios.get(`/api/users/${actualUserId}`, { // Use actualUserId
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("[fetchUserById] Profile data received:", response.data.user);
+      // console.log("[fetchUserById] Profile data received:", response.data.user);
       return response.data.user;
     } catch (error) {
       console.error(`[fetchUserById] Error fetching profile for ID ${actualUserId}:`, error);

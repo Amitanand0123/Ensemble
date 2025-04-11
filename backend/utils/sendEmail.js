@@ -2,16 +2,16 @@ import nodemailer from 'nodemailer';
 
 const sendEmail = async (options)=>{
     try {
-        console.log('Attempting to send email with options:', {
-            to: options.email,
-            subject: options.subject
-        });
+        // console.log('Attempting to send email with options:', {
+        //     to: options.email,
+        //     subject: options.subject
+        // });
         
-        console.log('Using SMTP config:', {
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            user: process.env.SMTP_USER
-        });
+        // console.log('Using SMTP config:', {
+        //     host: process.env.SMTP_HOST,
+        //     port: process.env.SMTP_PORT,
+        //     user: process.env.SMTP_USER
+        // });
 
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
@@ -31,10 +31,10 @@ const sendEmail = async (options)=>{
             html: options.html
         };
 
-        console.log('Sending email with message:', message);
+        // console.log('Sending email with message:', message);
 
         const info = await transporter.sendMail(message);
-        console.log('Email sent successfully:', info);
+        // console.log('Email sent successfully:', info);
         
         return info;
     } catch (error) {

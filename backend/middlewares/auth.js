@@ -10,12 +10,12 @@ export const protect = async (req, res, next) => {
                 message: 'Access denied. No token provided'
             });
         }
-        console.log('Received token:', token);
-        console.log('JWT_SECRET:', process.env.JWT_SECRET);
+        // console.log('Received token:', token);
+        // console.log('JWT_SECRET:', process.env.JWT_SECRET);
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('Decoded token:', decoded);
+        // console.log('Decoded token:', decoded);
         const user = await User.findById(decoded.userId).select('-password');
-        console.log('Found user:', user);
+        // console.log('Found user:', user);
 
         if (!user) {
             return res.status(401).json({

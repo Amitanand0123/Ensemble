@@ -33,7 +33,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
 
         try {
             // 1. Create Order on Backend
-            console.log(`[PaymentButton] Requesting order creation for planId: ${planId}`);
+            // console.log(`[PaymentButton] Requesting order creation for planId: ${planId}`);
             const orderResponse = await axios.post(
                 '/api/payments/create-order',
                 { planId: planId }, // Send only planId
@@ -47,7 +47,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
                 throw new Error("Failed to get complete order details from server.");
             }
 
-            console.log(`[PaymentButton] Order received: ${orderId}, Amount: ${orderAmount} ${currency}`);
+            // console.log(`[PaymentButton] Order received: ${orderId}, Amount: ${orderAmount} ${currency}`);
             toast.dismiss(loadingToastId); // Dismiss initial toast
             loadingToastId = null; // Reset toast ID
 
@@ -62,12 +62,12 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
                 // image: "/ensemble-logo-1.svg", // Your logo URL
                 order_id: orderId,
                 handler: async function (response) {
-                    console.log("[PaymentButton] Razorpay Success Response:", response);
+                    // console.log("[PaymentButton] Razorpay Success Response:", response);
                     loadingToastId = toast.loading('Verifying payment...');
 
                     // 3. Verify Payment on Backend
                     try {
-                        console.log(`[PaymentButton] Sending verification request for order: ${response.razorpay_order_id}`);
+                        // console.log(`[PaymentButton] Sending verification request for order: ${response.razorpay_order_id}`);
                         const verifyResponse = await axios.post(
                             '/api/payments/verify-payment',
                             {
@@ -79,7 +79,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
                             { headers: { Authorization: `Bearer ${token}` } }
                         );
 
-                        console.log("[PaymentButton] Verification Response:", verifyResponse.data);
+                        // console.log("[PaymentButton] Verification Response:", verifyResponse.data);
                         toast.dismiss(loadingToastId);
 
                         if (verifyResponse.data.success) {
@@ -113,7 +113,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
                  // Enhance modal closing behavior
                  modal: {
                     ondismiss: function() {
-                        console.log('[PaymentButton] Checkout form closed by user.');
+                        // console.log('[PaymentButton] Checkout form closed by user.');
                         if (loadingToastId) toast.dismiss(loadingToastId); // Dismiss loading toast if modal is closed
                         setIsLoading(false); // Re-enable button if modal is closed without payment attempt
                         // Optionally show a message like "Payment cancelled"
@@ -123,7 +123,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
             };
 
             // 4. Open Razorpay Checkout Modal
-             console.log("[PaymentButton] Opening Razorpay checkout...");
+            // console.log("[PaymentButton] Opening Razorpay checkout...");
             const paymentObject = new window.Razorpay(options);
 
             paymentObject.on('payment.failed', function (response) {

@@ -41,7 +41,7 @@ const AdminUserList = () => {
     const handleRoleChange = async (userId, newRole) => {
         // Find the specific user and show a local loading state maybe?
         // Or disable the select while processing
-         console.log(`Attempting to change role for user ${userId} to ${newRole}`);
+        // console.log(`Attempting to change role for user ${userId} to ${newRole}`);
         try {
             const response = await axios.patch(
                 `/api/users/${userId}/role`,

@@ -140,7 +140,7 @@ export const updateMyAvatar = async (req, res) => {
         if (user.avatar?.public_id && user.avatar.url !== 'default-avatar.png') {
             try {
                 await deleteFromCloud(user.avatar.public_id);
-                console.log(`Deleted old avatar: ${user.avatar.public_id}`);
+                // console.log(`Deleted old avatar: ${user.avatar.public_id}`);
             } catch (deleteError) {
                 // Log error but continue, maybe the old file was already deleted
                 console.warn(`Could not delete old avatar (${user.avatar.public_id}):`, deleteError.message);

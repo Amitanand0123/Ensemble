@@ -23,7 +23,7 @@ const ProjectList = ({ workspaceId }) => {
     const handleProjectClick = (projectId) => {
         if (workspaceId && projectId) { // Ensure both IDs are present
             const url = `/workspaces/${workspaceId}/projects/${projectId}`;
-            console.log('Navigating to project:', url);
+            // console.log('Navigating to project:', url);
             navigate(url);
         } else {
             console.error("Cannot navigate: Missing workspaceId or projectId");
