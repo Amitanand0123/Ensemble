@@ -48,9 +48,8 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Set lowercase owner name
-          id: owner_info
-          run: |
-            echo "LOWERCASE_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+        id: owner_info
+        run: echo "LOWERCASE_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
       - name: Build and Push Docker image
         id: build-push 
