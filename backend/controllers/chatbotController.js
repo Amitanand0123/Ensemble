@@ -1,6 +1,5 @@
 // backend/src/controllers/chatbotController.js
 import { CohereClient } from 'cohere-ai'; // Use CohereClient
-
 const cohere = new CohereClient({ // Use CohereClient
     token: process.env.COHERE_API_KEY,
 });
