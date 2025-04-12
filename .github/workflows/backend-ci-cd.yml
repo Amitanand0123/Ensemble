@@ -55,8 +55,8 @@ jobs:
         id: build-push 
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          dockerfile: backend/Dockerfile
+          context: .
+          file: ./backend/Dockerfile
           push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
           tags: |
             ghcr.io/${{ env.LOWERCASE_OWNER }}/ensemble-backend:latest
