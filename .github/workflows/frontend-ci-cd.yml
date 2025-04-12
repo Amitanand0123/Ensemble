@@ -48,6 +48,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set lowercase owner name
+              id: owner_info
+              run: echo "LOWERCASE_OWNER=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build and Push Docker image
         id: build-push 
         uses: docker/build-push-action@v5
@@ -60,8 +64,8 @@ jobs:
             VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL_PROD }}
             VITE_RAZORPAY_KEY_ID=${{ secrets.VITE_RAZORPAY_KEY_ID_PROD }}
           tags: |
-            ghcr.io/${{ github.repository_owner }}/ensemble-frontend:latest
-            ghcr.io/${{ github.repository_owner }}/ensemble-frontend:${{ github.sha }}
+            ghcr.io/${{ env.LOWERCASE_OWNER }}/ensemble-frontend:latest
+            ghcr.io/${{ env.LOWERCASE_OWNER }}/ensemble-frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
