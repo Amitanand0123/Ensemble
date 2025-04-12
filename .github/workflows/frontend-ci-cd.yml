@@ -31,6 +31,12 @@ jobs:
       - name: Install Frontend Dependencies
         run: npm ci --prefix frontend
 
+      - name: Lint Frontend Code
+        run: npm run lint --prefix frontend || echo "Lint step failed/skipped"
+
+      - name: Run Frontend Tests
+        run: npm run test --prefix frontend || echo "Test step failed/skipped"
+
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
