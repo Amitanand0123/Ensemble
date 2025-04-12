@@ -12,6 +12,10 @@ on:
       - 'frontend/**'
       - '.github/workflows/frontend-ci-cd.yml'
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   lint_test_build:
     name: Lint, Test & Build Frontend
