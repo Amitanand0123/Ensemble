@@ -1,85 +1,63 @@
-// --- START OF FILE frontend/src/components/project/TaskList.jsx ---
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTasks } from '../../redux/slices/taskSlice'; // Only need fetchTasks if not using hook for initial load
+import { fetchTasks, deleteTask as deleteTaskAction } from '../../redux/slices/taskSlice';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input'; // Import Input
-import { PlusCircle, MoreVertical, Edit2, Trash2, Paperclip, Search, ListTodo } from 'lucide-react'; // Import Search icon
+import { Input } from '@/components/ui/input';
+import { PlusCircle, MoreVertical, Edit2, Trash2, Paperclip, Search, ListTodo } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import CreateTask from './CreateTask'; // Assuming CreateTask handles edit too
-import { useTasks } from '../../hooks/useTasks'; // Using the hook for delete/refresh
+import CreateTask from './CreateTask';
 import { Card, CardContent } from '@/components/ui/card';
-import { toast } from 'react-hot-toast'; // Import toast
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"; // For delete confirmation
-
+import { toast } from 'react-hot-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import PropTypes from 'prop-types';
 
 const TaskList = ({ projectId, workspaceId }) => {
     const dispatch = useDispatch();
-    // Get full task list from Redux state
-    const allTasks = useSelector((state) => state.task.tasks || []);
-    const isLoading = useSelector((state) => state.task.isLoading);
-    const error = useSelector((state) => state.task.error);
+    const { tasks: allTasks = [], isLoading, error } = useSelector((state) => state.task);
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [editingTask, setEditingTask] = useState(null); // Task object to edit
-    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const [editingTask, setEditingTask] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
 
-    // Use the hook for actions like delete and potentially refresh
-    const { deleteTask: deleteTaskHook, refreshTasks } = useTasks(projectId, workspaceId);
-
-    // Initial fetch when projectId changes
     useEffect(() => {
         if (projectId) {
-            // console.log(`[TaskList] Fetching tasks for projectId: ${projectId}`);
             dispatch(fetchTasks({ projectId }));
         }
     }, [projectId, dispatch]);
 
-    // Handle opening the modal for editing
     const handleEditTask = (task) => {
         setEditingTask(task);
-        setShowCreateModal(true); // Open the same modal for editing
+        setShowCreateModal(true);
     };
 
-    // Handle closing the modal (for both create and edit)
     const handleCloseModal = () => {
         setShowCreateModal(false);
-        setEditingTask(null); // Clear editing state
-        // Optionally refresh tasks after create/edit
-        // dispatch(fetchTasks({ projectId })); // Or rely on thunk to update state
+        setEditingTask(null);
     };
 
-
-    // Handle deleting a task
     const handleDeleteTask = async (taskId) => {
         if (!taskId) return;
         const loadingToast = toast.loading('Deleting task...');
         try {
-            await deleteTaskHook(taskId); // Use the hook's delete function
+            await dispatch(deleteTaskAction({ taskId })).unwrap();
             toast.success('Task deleted successfully.', { id: loadingToast });
-            // Refresh list after delete - Redux state should update, but explicit fetch ensures consistency
-            dispatch(fetchTasks({ projectId }));
-        } catch (error) {
-            console.error("Failed to delete task:", error);
-            toast.error(`Failed to delete task: ${error.message || 'Unknown error'}`, { id: loadingToast });
+        } catch (err) {
+            console.error("Failed to delete task:", err);
+            toast.error(`Failed to delete task: ${err || 'Unknown error'}`, { id: loadingToast });
         }
     };
 
-    // Filter tasks based on search query (title or description)
-    const filteredTasks = (allTasks || []).filter(task =>
+    const filteredTasks = allTasks.filter(task =>
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-
 
     return (
         <Card className="w-full bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white mt-4 animate-fade-in-up">
             <CardContent className="p-6">
                 <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
                     <h2 className="text-xl font-semibold">Tasks</h2>
-                    {/* Search Input for Tasks */}
                     <div className="relative flex-grow max-w-xs">
                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                          <Input
@@ -91,7 +69,7 @@ const TaskList = ({ projectId, workspaceId }) => {
                          />
                     </div>
                     <Button
-                        onClick={() => { setEditingTask(null); setShowCreateModal(true); }} // Ensure editingTask is null for create
+                        onClick={() => { setEditingTask(null); setShowCreateModal(true); }}
                         className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
                         size="sm"
                     >
@@ -100,25 +78,22 @@ const TaskList = ({ projectId, workspaceId }) => {
                     </Button>
                 </div>
 
-                {/* Create/Edit Task Modal */}
-                {/* Pass handleCloseModal to the CreateTask component */}
                 {(showCreateModal || editingTask) && (
                     <CreateTask
                         projectId={projectId}
                         workspaceId={workspaceId}
-                        open={showCreateModal || !!editingTask} // Modal is open if creating or editing
-                        task={editingTask} // Pass the task to edit, or null for create
-                        onClose={handleCloseModal} // Use the closing handler
+                        open={showCreateModal || !!editingTask}
+                        task={editingTask}
+                        onClose={handleCloseModal}
                     />
                 )}
 
-                {/* Task Table */}
                 {isLoading ? (
                     <div className="p-4 text-center text-gray-400">Loading tasks...</div>
                 ) : error ? (
                     <div className="p-4 text-red-500 text-center">Error loading tasks: {error}</div>
                 ) : filteredTasks.length > 0 ? (
-                    <div className="overflow-x-auto"> {/* Make table responsive */}
+                    <div className="overflow-x-auto">
                         <Table>
                             <TableHeader>
                                 <TableRow className="border-gray-700 hover:bg-transparent">
@@ -149,9 +124,8 @@ const TaskList = ({ projectId, workspaceId }) => {
                                             {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : '–'}
                                         </TableCell>
                                         <TableCell>
-                                            {/* Display multiple assignees if assignedTo is an array */}
                                             {task.assignedTo && task.assignedTo.length > 0
-                                                ? task.assignedTo.map(assignee => assignee?.name || 'Unassigned').join(', ')
+                                                ? task.assignedTo.map(assignee => (assignee?.name?.first || 'Unassigned')).join(', ')
                                                 : 'Unassigned'}
                                         </TableCell>
                                          <TableCell>
@@ -175,7 +149,6 @@ const TaskList = ({ projectId, workspaceId }) => {
                                                         Edit
                                                     </DropdownMenuItem>
 
-                                                    {/* Delete Confirmation */}
                                                     <AlertDialog>
                                                         <AlertDialogTrigger asChild>
                                                             <DropdownMenuItem onSelect={(e)=>e.preventDefault()} className="cursor-pointer text-red-400 hover:bg-red-900/50 focus:bg-red-900/50 focus:text-red-300">
@@ -186,7 +159,7 @@ const TaskList = ({ projectId, workspaceId }) => {
                                                             <AlertDialogHeader>
                                                                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                                                 <AlertDialogDescription className="text-gray-300">
-                                                                    This action cannot be undone. This will permanently delete the task "{task.title}".
+                                                                    This action cannot be undone. This will permanently delete the task `{task.title}``.
                                                                 </AlertDialogDescription>
                                                             </AlertDialogHeader>
                                                             <AlertDialogFooter>
@@ -216,5 +189,9 @@ const TaskList = ({ projectId, workspaceId }) => {
     );
 };
 
+TaskList.propTypes={
+    projectId:PropTypes.string.isRequired,
+    workspaceId:PropTypes.string.isRequired
+}
+
 export default TaskList;
-// --- END OF FILE frontend/src/components/project/TaskList.jsx ---

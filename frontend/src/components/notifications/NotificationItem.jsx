@@ -1,7 +1,7 @@
-import React from 'react'
 import { useNotification } from '../../hooks/useNotification.js'
 import {formatDistanceToNow} from 'date-fns'
 import {Link} from 'react-router-dom'
+import PropTypes from 'prop-types';
 
 const NotificationItem=({notification})=>{
     const {markAsRead}=useNotification()
@@ -44,6 +44,10 @@ const NotificationItem=({notification})=>{
             </div>
         </Link>
     )
+}
+
+NotificationItem.propTypes={
+    notification:PropTypes.object.isRequired
 }
 
 export default NotificationItem

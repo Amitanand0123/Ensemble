@@ -1,7 +1,4 @@
-// components/workspace/FilesList.jsx OR components/project/FilesList.jsx
-// (Make it reusable or have slightly different versions)
-
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchWorkspaceFiles,
@@ -11,29 +8,22 @@ import {
     deleteFile,
     clearFiles,
     getFileSummary,
-    clearSummary // Action to clear files when switching context
-} from '../../redux/slices/fileSlice.js'; // Adjust path
+    clearSummary
+} from '../../redux/slices/fileSlice.js';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import { FileText, UploadCloud, Trash2, Download, Loader2, AlertCircle,Sparkles,X } from 'lucide-react';
-import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
-// Import confirmation dialog if you have one, e.g., from Shadcn UI
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import PropTypes from 'prop-types';
 
 
-const FilesList = ({ contextType, contextId }) => { // e.g., contextType='workspace', contextId='xyz123'
+const FilesList = ({ contextType, contextId }) => {
     const dispatch = useDispatch();
     const { files = [], isLoading, error } = useSelector((state) => state.files);
     const summaries=useSelector((state)=> state.files.summaries)
@@ -42,7 +32,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
     const fileInputRef = useRef(null);
 
     useEffect(() => {
-        // Clear previous files when context changes
         dispatch(clearFiles());
 
         if (contextId) {
@@ -52,7 +41,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                 dispatch(fetchProjectFiles(contextId));
             }
         }
-        // Cleanup function to clear files when component unmounts or context changes
         return () => {
             dispatch(clearFiles());
         };
@@ -70,7 +58,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
 
         const formData = new FormData();
         selectedFiles.forEach(file => {
-            // Use field name based on context
             const fieldName = contextType === 'workspace' ? 'workspaceFiles' : 'projectFiles';
             formData.append(fieldName, file);
         });
@@ -83,8 +70,8 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                  await dispatch(uploadProjectFiles({ projectId: contextId, formData })).unwrap();
             }
             toast.success("File(s) uploaded successfully!");
-            setSelectedFiles([]); // Clear selection
-            if(fileInputRef.current) fileInputRef.current.value = null; // Reset file input
+            setSelectedFiles([]);
+            if(fileInputRef.current) fileInputRef.current.value = null;
         } catch (uploadError) {
             console.error("Upload failed:", uploadError);
             toast.error(`Upload failed: ${uploadError || 'Unknown error'}`);
@@ -103,14 +90,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
         }
     };
 
-    // Helper to format file size
-    const formatFileSize = (bytes) => {
-        if (bytes === 0) return '0 Bytes';
-        const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
 
     const handleSummarize=(fileId)=>{
         if(!summaries[fileId]?.isLoading && !summaries[fileId]?.summary && !summaries[fileId]?.error){
@@ -126,13 +105,11 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
         <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white animate-fade-in-up mt-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">Files</CardTitle>
-                {/* Upload Button Trigger */}
                 <Button size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
                     <UploadCloud className="mr-2 h-4 w-4" /> Upload Files
                 </Button>
             </CardHeader>
             <CardContent>
-                {/* Hidden File Input */}
                 <input
                     type="file"
                     multiple
@@ -141,8 +118,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                     className="hidden"
                     disabled={isUploading}
                 />
-
-                {/* Files selected for upload */}
                 {selectedFiles.length > 0 && (
                     <div className="my-4 p-3 border border-dashed border-gray-600 rounded-lg bg-gray-700/50">
                         <h4 className="text-sm font-semibold mb-2 text-gray-300">Ready to upload:</h4>
@@ -162,9 +137,7 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                         </Button>
                     </div>
                 )}
-
-                {/* Loading and Error States */}
-                {isLoading && !isUploading && ( // Show general loading only if not specifically uploading
+                {isLoading && !isUploading && (
                     <div className="text-center py-6 text-gray-400">
                         <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                         Loading files...
@@ -176,7 +149,6 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                     </div>
                 )}
 
-                {/* File List Table/Grid */}
                 {!isLoading && !error && files.length === 0 && (
                      <div className="text-center py-10 text-gray-500">
                         <FileText className="mx-auto h-10 w-10 mb-3" />
@@ -185,27 +157,22 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
                 )}
 
                 {!isLoading && !error && files.length > 0 && (
-                    <div className="mt-4 space-y-3"> {/* Increased space */}
+                    <div className="mt-4 space-y-3">
                         {files.map((file) => {
-                            const fileSummaryData = summaries[file._id]; // Get summary state for this file
+                            const fileSummaryData = summaries[file._id];
                             const isSummarizing = fileSummaryData?.isLoading;
                             const summaryText = fileSummaryData?.summary;
                             const summaryError = fileSummaryData?.error;
-
-                            // Determine if summarization is possible (basic check)
                             const canSummarize = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.mimetype);
 
                             return (
                                 <div key={file._id} className="p-3 bg-gray-700/60 rounded-md transition-colors border border-transparent hover:border-gray-600">
-                                    {/* File Info Row */}
                                     <div className="flex items-center justify-between">
-                                        {/* ... (File icon, name link, metadata - same as before) ... */}
                                          <div className="flex items-center space-x-3 overflow-hidden">
                                             <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
                                             <div className="overflow-hidden">
                                                 <a href={file.url} /* ... */ >{file.filename}</a>
                                                 <p className="text-xs text-gray-500 mt-0.5">
-                                                    {/* ... metadata ... */}
                                                 </p>
                                             </div>
                                         </div>
@@ -269,5 +236,10 @@ const FilesList = ({ contextType, contextId }) => { // e.g., contextType='worksp
         </Card>
     );
 };
+
+FilesList.propTypes={
+    contextType:PropTypes.string,
+    contextId:PropTypes.string
+}
 
 export default FilesList;

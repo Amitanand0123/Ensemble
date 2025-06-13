@@ -1,22 +1,22 @@
-// redux/slices/fileSlice.js
+
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 const initialState = {
-    files: [], // Files for the currently viewed context (workspace or project)
+    files: [], 
     isLoading: false,
     error: null,
     summaries:{}
 };
 
-// Helper to handle errors
+
 const handleReject = (error) => {
     const message = error.response?.data?.message || error.message || 'An unknown file operation error occurred';
     console.error("File Slice Error:", error.response?.data || error);
     return message;
 };
 
-// Thunk to fetch files for a specific workspace
+
 export const fetchWorkspaceFiles = createAsyncThunk(
     'files/fetchWorkspace',
     async (workspaceId, { getState, rejectWithValue }) => {
@@ -32,7 +32,7 @@ export const fetchWorkspaceFiles = createAsyncThunk(
     }
 );
 
-// Thunk to fetch files for a specific project
+
 export const fetchProjectFiles = createAsyncThunk(
     'files/fetchProject',
     async (projectId, { getState, rejectWithValue }) => {
@@ -48,7 +48,7 @@ export const fetchProjectFiles = createAsyncThunk(
     }
 );
 
-// Thunk to upload file(s) to a workspace
+
 export const uploadWorkspaceFiles = createAsyncThunk(
     'files/uploadWorkspace',
     async ({ workspaceId, formData }, { getState, rejectWithValue }) => {
@@ -57,18 +57,18 @@ export const uploadWorkspaceFiles = createAsyncThunk(
             const response = await axios.post(`/api/workspaces/${workspaceId}/files`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    // Content-Type is set automatically by Axios for FormData
+                    
                 },
-                // Optional: Add progress tracking here if needed
+                
             });
-            return response.data.files; // Returns array of newly uploaded file objects
+            return response.data.files; 
         } catch (error) {
             return rejectWithValue(handleReject(error));
         }
     }
 );
 
- // Thunk to upload file(s) to a project
+ 
 export const uploadProjectFiles = createAsyncThunk(
     'files/uploadProject',
     async ({ projectId, formData }, { getState, rejectWithValue }) => {
@@ -85,7 +85,7 @@ export const uploadProjectFiles = createAsyncThunk(
 );
 
 
-// Thunk to delete a file
+
 export const deleteFile = createAsyncThunk(
     'files/delete',
     async (fileId, { getState, rejectWithValue }) => {
@@ -94,7 +94,7 @@ export const deleteFile = createAsyncThunk(
             await axios.delete(`/api/files/${fileId}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            return fileId; // Return the ID of the deleted file
+            return fileId; 
         } catch (error) {
             return rejectWithValue(handleReject(error));
         }
@@ -137,7 +137,7 @@ const fileSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Fetching (Workspace or Project)
+            
             .addCase(fetchWorkspaceFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(fetchProjectFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(fetchWorkspaceFiles.fulfilled, (state, action) => {
@@ -151,12 +151,12 @@ const fileSlice = createSlice({
             .addCase(fetchWorkspaceFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; state.files = []; })
             .addCase(fetchProjectFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; state.files = []; })
 
-            // Uploading (Workspace or Project)
+            
             .addCase(uploadWorkspaceFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(uploadProjectFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(uploadWorkspaceFiles.fulfilled, (state, action) => {
                 state.isLoading = false;
-                state.files.unshift(...action.payload); // Add new files to the beginning
+                state.files.unshift(...action.payload); 
             })
              .addCase(uploadProjectFiles.fulfilled, (state, action) => {
                 state.isLoading = false;
@@ -166,16 +166,16 @@ const fileSlice = createSlice({
             .addCase(uploadProjectFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; })
 
 
-            // Deleting
+            
             .addCase(deleteFile.pending, (state) => {
-                // Optional: Mark file as deleting locally?
-                state.error = null; // Clear error before attempting delete
+                
+                state.error = null; 
             })
             .addCase(deleteFile.fulfilled, (state, action) => {
                 state.files = state.files.filter((file) => file._id !== action.payload);
             })
             .addCase(deleteFile.rejected, (state, action) => {
-                state.error = action.payload; // Set error on delete failure
+                state.error = action.payload; 
             })
             .addCase(getFileSummary.pending,(state,action)=>{
                 const fileId=action.meta.arg;

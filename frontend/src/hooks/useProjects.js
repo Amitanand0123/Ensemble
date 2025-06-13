@@ -16,9 +16,9 @@ export const useProjects=(workspaceId)=>{
         try {
             await dispatch(createProject(projectData)).unwrap()
             return true
-        } catch (error) {
-            console.error('Failed to create project:',error)
-            return false
+        } catch (err) {
+            console.error('Failed to create project:',err)
+            throw err;
         }
     }
 

@@ -1,5 +1,5 @@
-// frontend/src/components/workspace/InviteMemberModal.jsx
-import React, { useState, useEffect } from 'react'; // Added useEffect
+
+import { useState, useEffect } from 'react'; 
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
@@ -10,15 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from 'react-hot-toast';
 import { X } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSuccess, availableRoles }) => {
-    // Ensure availableRoles is an array and has at least one item before accessing it
+    
     const defaultRole = (availableRoles && availableRoles.length > 0) ? availableRoles[0].value : '';
     const [email, setEmail] = useState('');
     const [role, setRole] = useState(defaultRole);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
-    const token = useSelector((state) => state.auth.token); // Get token from auth state
+    const token = useSelector((state) => state.auth.token); 
 
     const apiPath = contextType === 'workspace' ? 'workspaces' : 'projects';
 
@@ -32,7 +33,7 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
             setIsLoading(false);
             return;
         }
-         // Basic email format validation (optional but recommended)
+         
         if (!/\S+@\S+\.\S+/.test(email)) {
              setError('Please enter a valid email address.');
              setIsLoading(false);
@@ -44,7 +45,7 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
             const response = await axios.post(
                 `/api/${apiPath}/${contextId}/members/invite`,
                 { email, role },
-                // Make sure to include the Authorization header
+                
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
@@ -52,12 +53,12 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                 toast.success(response.data.message || 'Invitation sent successfully!');
                 setEmail('');
                 setRole(defaultRole);
-                if (onInviteSuccess) { // Check if callback exists
-                   onInviteSuccess(); // Callback to refresh parent list
+                if (onInviteSuccess) { 
+                   onInviteSuccess(); 
                 }
-                onClose(); // Close modal
+                onClose(); 
             } else {
-                // Use error message from backend if available
+                
                 throw new Error(response.data.message || 'Failed to send invitation.');
             }
         } catch (err) {
@@ -69,7 +70,7 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
         }
     };
 
-    // Reset state when modal opens or dependency changes
+    
     useEffect(() => {
         if (isOpen) {
             const newDefaultRole = (availableRoles && availableRoles.length > 0) ? availableRoles[0].value : '';
@@ -105,12 +106,12 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                             Email
                         </Label>
                         <Input
-                            id="email-invite" // Changed ID
+                            id="email-invite" 
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="member@example.com"
-                            className="col-span-3 bg-gray-700 border-gray-600 focus:border-purple-500" // Added focus style
+                            className="col-span-3 bg-gray-700 border-gray-600 focus:border-purple-500" 
                             required
                         />
                     </div>
@@ -131,7 +132,7 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                                 </SelectContent>
                             </Select>
                          ) : (
-                            <p className="col-span-3 text-sm text-gray-500">No roles available</p> // Fallback if roles aren't loaded
+                            <p className="col-span-3 text-sm text-gray-500">No roles available</p> 
                          )}
                     </div>
                      <DialogFooter className="mt-4"> {/* Added margin-top */}
@@ -145,5 +146,14 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
         </Dialog>
     );
 };
+
+InviteMemberModal.propTypes={
+    isOpen:PropTypes.bool,
+    onClose:PropTypes.func,
+    contextType:PropTypes.string,
+    contextId:PropTypes.string,
+    availableRoles:PropTypes.array,
+    onInviteSuccess:PropTypes.func
+}
 
 export default InviteMemberModal;

@@ -1,43 +1,13 @@
-import React, { useState } from 'react'
-import { useDispatch,useSelector } from 'react-redux';
+import { useState } from 'react'
+import { useSelector } from 'react-redux';
 import { forgotPassword } from '../../redux/slices/authSlice'
 import Alert from './Alert';
 import InputField from './InputField';
 import { Loader, Mail } from 'lucide-react';
 
 const ForgotPassword=()=>{
-    // const [email,setEmail]=useState('');
-    // const [isLoading,setIsLoading]=useState(false);
-    // const [alert,setAlert]=useState(null)
-
-    // const handleSubmit=async(e)=>{
-    //     e.preventDefault();
-    //     setIsLoading(true);
-    //     setAlert(null);
-
-    //     try {
-    //         const response=await fetch('/api/auth/forgot-password',{
-    //             method:'POST',
-    //             headers:{'Content-Type':'application/json'},
-    //             body:JSON.stringify({email})
-    //         })
-    //         const data=await response.json();
-    //         if(!response.ok){
-    //             throw new Error(DataTransfer.message || 'Failed to send reset link');
-    //         }
-    //         setAlert({
-    //             type:'success',
-    //             message:'Password reset link has been sent to your email.'
-    //         })
-    //     } catch (error) {
-    //         setAlert({type:'error',message:error.message})
-    //     } finally{
-    //         setIsLoading(false);
-    //     }
-    // }
-
+    
     const [email,setEmail]=useState('');
-    const dispatch=useDispatch();
     const {isLoading,error,message}=useSelector(state=>state.auth)
 
     const handleSubmit=async(e)=>{

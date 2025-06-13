@@ -1,32 +1,28 @@
-// src/components/workspace/WorkspaceDashboard.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchWorkspaces, createWorkspace, joinWorkspace } from '../../redux/slices/workspaceSlice.js'; // Adjust path
-import { Plus, Settings, Users, ArrowRight, Search, Lock, Globe, LogIn } from 'lucide-react'; // Add LogIn icon
-// Import UI components (Button, Card, Input, Modal/Dialog etc.)
+import { fetchWorkspaces, joinWorkspace } from '../../redux/slices/workspaceSlice.js';
+import { Plus, Users, ArrowRight, Search, Lock, Globe, LogIn } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const WorkspaceDashboard = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { workspaces = [], isLoading, error } = useSelector(state => state.workspaces);
-    const { user, isAdmin } = useSelector(state => state.auth); // Get user role
+    const { isAdmin } = useSelector(state => state.auth);
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isJoinModalOpen, setIsJoinModalOpen] = useState(false); // State for join modal
+    const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
 
-    // Fetch workspaces on mount
     useEffect(() => {
         dispatch(fetchWorkspaces());
     }, [dispatch]);
 
     const filteredWorkspaces = workspaces?.filter(ws =>
         ws.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || []; // Ensure it's always an array
+    ) || [];
 
-
-    // Render loading state
     if (isLoading && workspaces.length === 0) {
          return (
              <div className="flex justify-center items-center h-screen text-white">
@@ -35,7 +31,6 @@ const WorkspaceDashboard = () => {
          );
     }
 
-    // Render error state
     if (error) {
          return (
              <div className="flex justify-center items-center h-screen text-red-500">
@@ -138,10 +133,8 @@ const WorkspaceDashboard = () => {
     );
 };
 
-// Separate Modal Components (or define inline like before)
 
 const CreateWorkspaceModal = ({ isOpen, onClose }) => {
-    const dispatch = useDispatch();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
@@ -153,12 +146,10 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
         setLoading(true);
         setModalError('');
         try {
-            const result = await dispatch(createWorkspace({ name, description, isPrivate })).unwrap();
-            // unwrap() throws error on rejection automatically
             setName('');
             setDescription('');
             setIsPrivate(false);
-            onClose(); // Close modal on success
+            onClose();
         } catch (err) {
             setModalError(err.message || 'Failed to create workspace.');
             console.error("Create Workspace Error:", err);
@@ -293,6 +284,16 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
             </div>
         </div>
     );
+};
+
+CreateWorkspaceModal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+};
+
+JoinWorkspaceModal.propTypes = {
+    isOpen: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
 };
 
 

@@ -2,7 +2,6 @@ import { useEffect } from "react";
 import { useLocation,useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import axios from "axios";
-import { loginUser } from "../../redux/slices/authSlice";
 
 const AuthCallback=()=>{
     const location = useLocation();
@@ -13,13 +12,13 @@ const AuthCallback=()=>{
         const token=queryParams.get('token');
         const error=queryParams.get('error');
         const handleAuth=async(authToken)=>{
-            try {
-                // console.log("Recieved token on frontend:",authToken);
+            try { 
+                
                 localStorage.setItem('token',authToken);
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
                 const response=await axios.get('/api/auth/me')
                 if(response.data && response.data.user){
-                    // console.log("User data fetched:",response.data.user);
+                    
                     dispatch({
                         type:'auth/login/fulfilled',
                         payload:{

@@ -1,10 +1,7 @@
-// --- START OF FILE frontend/src/components/landing/Navbar.jsx ---
-
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useNavigate, Link } from 'react-router-dom'; // Import Link
-import { useAuth } from '../../hooks/useAuth'; // Corrected path assuming structure
-// Import Shadcn UI components
+import { useState, useEffect } from 'react';
+import {  useDispatch } from 'react-redux';
+import {  Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,49 +11,67 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react'; // Import icons, aliased User
+import { LayoutDashboard, LogOut, User as UserIcon } from 'lucide-react';
+import axios from 'axios';
+import { updateUser } from '../../redux/slices/authSlice';
 
 const Navbar = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+    
+    const { isAuthenticated, user, logout } = useAuth();
+    const dispatch = useDispatch();
+    const [currentAvatarUrl, setCurrentAvatarUrl] = useState(user?.avatar?.url || '');
 
-    // Use the custom hook to get auth state and handler functions
-    const { isAuthenticated, user, logout } = useAuth(); // <-- Destructure 'logout' and 'user'
-    const navigate = useNavigate();
+    useEffect(() => {
+        setCurrentAvatarUrl(user?.avatar?.url || '');
 
+        const fetchFreshAvatar = async () => {
+            if (isAuthenticated && user?.id) {
+                try {
+                    const response = await axios.get('/api/users/me/avatar-url', {
+                        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    });
+                    if (response.data.success && response.data.avatarUrl) {
+                        setCurrentAvatarUrl(response.data.avatarUrl);
+                        if (user.avatar?.url !== response.data.avatarUrl) {
+                            dispatch(updateUser({ avatar: { url: response.data.avatarUrl } }));
+                        }
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch fresh avatar URL:", error);
+                }
+            }
+        };
 
-    // Handle scroll effect
+        fetchFreshAvatar();
+    }, [isAuthenticated, user?.id, user?.avatar?.url, dispatch]);
+
     useEffect(() => {
         const handleScroll = () => {
             const offset = window.scrollY;
             setScrolled(offset > 50);
         };
-
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Handler to call the logout function from the useAuth hook
     const confirmLogout = async () => {
         try {
-            await logout(); // <-- Call the 'logout' function from the hook
+            await logout();
             setShowLogoutPopup(false);
-            // navigate('/'); // Navigation is now handled within the useAuth hook's logout function or by redirect logic in App.jsx
         } catch (error) {
             console.error("Logout failed in Navbar:", error);
-            // Optionally: show an error message to the user
-            setShowLogoutPopup(false); // Close popup even on error
+            setShowLogoutPopup(false);
         }
     };
 
-    // Handler for the logout button/link click
     const handleLogoutClick = (e) => {
-        e.preventDefault(); // Prevent default link behavior if it's an <a> tag
+        e.preventDefault();
         setShowLogoutPopup(true);
     };
 
-    // Function to get user initials from first and last name
     const getInitials = (firstName, lastName) => {
         const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
         const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
@@ -64,7 +79,7 @@ const Navbar = () => {
     };
 
     const profileName = `${user?.name?.first || ''} ${user?.name?.last || ''}`.trim();
-
+    const avatarDisplayUrl = currentAvatarUrl || user?.avatar?.url;
 
     return (
         <>
@@ -80,7 +95,6 @@ const Navbar = () => {
             >
                 <div className="px-4 md:px-6 py-2 md:py-3">
                     <div className="flex items-center justify-between h-14 md:h-16">
-                        {/* Logo and Brand Section */}
                         <div className="flex items-center space-x-2 md:space-x-3">
                             <div className="flex items-center">
                                 <img
@@ -97,7 +111,6 @@ const Navbar = () => {
                             </a>
                         </div>
 
-                        {/* Hamburger Menu */}
                         <button
                             className="md:hidden p-2 rounded-lg bg-gray-800/80 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
                             aria-label="Toggle Menu"
@@ -119,7 +132,6 @@ const Navbar = () => {
                             </svg>
                         </button>
 
-                        {/* Desktop Navigation */}
                         <div className="hidden md:flex items-center space-x-6 lg:space-x-8 gap-4">
                             <a
                                 href="/explore"
@@ -139,14 +151,18 @@ const Navbar = () => {
                             >
                                 About
                             </a>
-                            {isAuthenticated ? (
+                            {isAuthenticated && user ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <button className="flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 rounded-full">
                                             <Avatar className="h-9 w-9 md:h-10 md:w-10">
-                                                <AvatarImage src={user?.avatar?.url} alt={profileName} />
+                                                <AvatarImage 
+                                                    src={avatarDisplayUrl} 
+                                                    alt={profileName} 
+                                                    key={avatarDisplayUrl}
+                                                />
                                                 <AvatarFallback className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold">
-                                                    {getInitials(user?.name?.first, user?.name?.last)} {/* Pass first/last name */}
+                                                    {getInitials(user.name?.first, user.name?.last)}
                                                 </AvatarFallback>
                                             </Avatar>
                                         </button>
@@ -155,18 +171,16 @@ const Navbar = () => {
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col space-y-1">
                                                 <p className="text-sm font-medium leading-none">{profileName}</p>
-                                                <p className="text-xs leading-none text-gray-400">{user?.email}</p>
+                                                <p className="text-xs leading-none text-gray-400">{user.email}</p>
                                             </div>
                                         </DropdownMenuLabel>
                                         <DropdownMenuSeparator className="bg-gray-700" />
-                                         {/* Profile Link */}
                                         <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
-                                            <Link to="/profile/me"><UserIcon className="mr-2 h-4 w-4" /><span>My Profile</span></Link>
+                                            <Link to={`/profile/${user.id || 'me'}`}><UserIcon className="mr-2 h-4 w-4" /><span>My Profile</span></Link>
                                         </DropdownMenuItem>
                                         <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
                                             <Link to="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /><span>Dashboard</span></Link>
                                         </DropdownMenuItem>
-                                        {/* <DropdownMenuItem className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700"><Settings className="mr-2 h-4 w-4" /><span>Settings</span></DropdownMenuItem> */}
                                         <DropdownMenuSeparator className="bg-gray-700" />
                                         <DropdownMenuItem onClick={handleLogoutClick} className="cursor-pointer text-red-400 hover:bg-red-900/50 hover:text-red-300 focus:bg-red-900/50 focus:text-red-300">
                                             <LogOut className="mr-2 h-4 w-4" /><span>Log out</span>
@@ -184,7 +198,6 @@ const Navbar = () => {
                         </div>
                     </div>
 
-                    {/* Mobile Dropdown Menu */}
                     <div
                         className={`
               md:hidden
@@ -201,28 +214,27 @@ const Navbar = () => {
                             <a
                                 href="/explore"
                                 className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
-                                onClick={() => setIsMenuOpen(false)} // Close menu on click
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 Explore
                             </a>
                             <a
                                 href="/pricing"
                                 className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
-                                onClick={() => setIsMenuOpen(false)} // Close menu on click
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 Pricing
                             </a>
                             <a
                                 href="/about"
                                 className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
-                                onClick={() => setIsMenuOpen(false)} // Close menu on click
+                                onClick={() => setIsMenuOpen(false)}
                             >
                                 About
                             </a>
-                             {/* Added Profile Link for Mobile */}
-                             {isAuthenticated && (
+                             {isAuthenticated && user && (
                                  <Link
-                                     to="/profile/me"
+                                     to={`/profile/${user.id || 'me'}`}
                                      className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
                                      onClick={() => setIsMenuOpen(false)}
                                  >
@@ -231,7 +243,7 @@ const Navbar = () => {
                              )}
                             {isAuthenticated ? (
                                 <button
-                                    onClick={(e) => { handleLogoutClick(e); setIsMenuOpen(false); }} // Pass event, Use handler & close menu
+                                    onClick={(e) => { handleLogoutClick(e); setIsMenuOpen(false); }}
                                     className="block w-full text-lg text-center px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-500 transition-colors"
                                 >
                                     Logout
@@ -240,7 +252,7 @@ const Navbar = () => {
                                 <a
                                     href="/login"
                                     className="block text-lg text-center px-4 py-2 rounded-full bg-white text-black hover:bg-gray-200 transition-colors"
-                                    onClick={() => setIsMenuOpen(false)} // Close menu on click
+                                    onClick={() => setIsMenuOpen(false)}
                                 >
                                     Log in
                                 </a>
@@ -250,7 +262,6 @@ const Navbar = () => {
                 </div>
             </nav>
 
-            {/* Logout Confirmation Popup (remains the same) */}
             {showLogoutPopup && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                     <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm text-center">
@@ -258,7 +269,7 @@ const Navbar = () => {
                         <p className="mt-2 text-gray-300">Are you sure you want to log out?</p>
                         <div className="flex justify-center gap-4 mt-4">
                             <button
-                                onClick={confirmLogout} // <-- Calls the correct async handler
+                                onClick={confirmLogout}
                                 className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md"
                             >
                                 Yes, Logout
@@ -278,4 +289,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-// --- END OF FILE frontend/src/components/landing/Navbar.jsx ---

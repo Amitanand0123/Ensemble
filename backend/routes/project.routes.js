@@ -42,13 +42,17 @@ router.route('/:id')
     .patch(protect,validateProject,updateProject)
     .delete(protect,deleteProject);
 
+
+
 router.get('/workspace/:workspaceId/projects',protect,getProjectByWorkspaceId)
 
 router.route('/:projectId/files')
     .get(protect,getProjectFiles)
     .post(protect,upload.array('projectFiles',10),uploadProjectFile)
 
-router.post('/:projectId/members/:memberUserId/role',protect,updateMemberRoleInProject)
+
+router.post('/:projectId/members/invite', protect, inviteToProject);
+router.patch('/:projectId/members/:memberUserId/role',protect,updateMemberRoleInProject)
 router.delete('/:projectId/members/:memberUserId',protect,removeMemberFromProject)
 
-export default router; 
+export default router;

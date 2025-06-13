@@ -1,19 +1,17 @@
-// components/admin/AdminUserList.jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'; // Assuming Shadcn UI select
-import { Button } from '../ui/button'; // Assuming Shadcn UI button
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'; // Assuming Shadcn UI table
-import { toast } from 'react-hot-toast'; // For notifications
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'; 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'; 
+import { toast } from 'react-hot-toast'; 
 
 const AdminUserList = () => {
     const [users, setUsers] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState(null);
-    const token = useSelector((state) => state.auth.token); // Get token for auth headers
+    const token = useSelector((state) => state.auth.token); 
 
-    // --- Fetch Users ---
+    
     useEffect(() => {
         const fetchUsers = async () => {
             setIsLoading(true);
@@ -37,11 +35,11 @@ const AdminUserList = () => {
         }
     }, [token]);
 
-    // --- Handle Role Change ---
+    
     const handleRoleChange = async (userId, newRole) => {
-        // Find the specific user and show a local loading state maybe?
-        // Or disable the select while processing
-        // console.log(`Attempting to change role for user ${userId} to ${newRole}`);
+        
+        
+        
         try {
             const response = await axios.patch(
                 `/api/users/${userId}/role`,
@@ -50,7 +48,7 @@ const AdminUserList = () => {
             );
 
             if (response.data.success) {
-                // Update the user's role in the local state
+                
                 setUsers(prevUsers =>
                     prevUsers.map(user =>
                         user._id === userId ? { ...user, role: newRole } : user
@@ -63,7 +61,7 @@ const AdminUserList = () => {
         } catch (err) {
             console.error("Failed to update role:", err);
             toast.error(err.message || 'Could not update role.');
-             // Optionally revert local state change if needed
+             
         }
     };
 

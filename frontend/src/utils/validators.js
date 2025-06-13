@@ -9,7 +9,7 @@ export const validatePassword=(password)=>{
         hasUpperCase:/[A-Z]/.test(password),
         hasLowerCase:/[a-z]/.test(password),
         hasNumber:/[0-9]/.test(password),
-        hasSpecialChar:/[!@#$%^&*(),.?":{}|<>]/.test(password),//test.password,
+        hasSpecialChar:/[!@#$%^&*(),.?":{}|<>]/.test(password),
     }
 }
 
@@ -30,6 +30,7 @@ export const validateURL=(url)=>{
         new URL(url)
         return true
     } catch (error) {
+        console.log(error)
         console.error('Invalid URL:',url)
     }
 }

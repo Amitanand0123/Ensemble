@@ -1,9 +1,9 @@
-import React ,{useState} from 'react'
+import {useState} from 'react'
 import { useDispatch,useSelector } from 'react-redux'
 import { resetPassword } from '../../redux/slices/authSlice'
 import Alert from './Alert';
 import InputField from './InputField';
-import { Loader, Lock, Mail } from 'lucide-react';
+import { Loader, Lock} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 const ResetPassword=()=>{

@@ -1,4 +1,3 @@
-import React from 'react';
 import {ArrowRight,Users,Calendar,CheckCircle} from 'lucide-react';
 
 const Hero=()=>{
@@ -31,7 +30,7 @@ const Hero=()=>{
                         </h1>
                         {/* Subheadline */}
                         <p className='text-lg md:text-xl text-gray-300 max-w-2xl animate-fade-in-up delay-200'>
-                            Empower your team with Ensemble's intuitive project management platform. 
+                            Empower your team with Ensembles intuitive project management platform. 
                             Organize, collaborate, and achieve more together.
                         </p>
                         {/* Buttons */}

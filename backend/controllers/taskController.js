@@ -2,7 +2,7 @@ import Task from "../models/Task.js";
 import Project from "../models/Project.js";
 import Workspace from "../models/Workspace.js";
 import User from "../models/User.js";
-import { setupSocketIO } from "../utils/socket.js"; // Correct named import
+import { setupSocketIO } from "../utils/socket.js"; 
 import { uploadToCloud } from "../utils/fileUpload.js";
 
 export const createTask=async(req,res)=>{
@@ -31,7 +31,6 @@ export const createTask=async(req,res)=>{
         }
         let uploadedAttachments=[];
         if(req.files && req.files.length>0){
-            // console.log(`Received ${req.files.length} files for task creation.`)
             uploadedAttachments=await Promise.all(
                 req.files.map(async(file)=>{
                     try {
@@ -52,7 +51,6 @@ export const createTask=async(req,res)=>{
                 })
             )
             uploadedAttachments=uploadedAttachments.filter(att=>att!==null);
-            // console.log(`Successfully uplaoded ${uploadedAttachments.length} attachments.`)
         }
         let parsedAssignedTo=[];
         if(assignedTo){
@@ -150,17 +148,13 @@ export const getTasks=async(req,res)=>{
         if(status) filter.status=status;
         if(assignedTo) filter.assignedTo=assignedTo;
 
-        // console.log('Filter:', filter);
 
         const tasks=await Task.find(filter)
             .populate('project','name')
             .populate('assignedTo','name email')
             .populate('createdBy','name email')
             .sort('-createdAt')
-
-        // console.log('Tasks:', tasks);
         
-
         res.json({
             success:true,
             count:tasks.length,
@@ -234,7 +228,6 @@ export const updateTask=async(req,res)=>{
 
         const allowedUpdates=['title','description','status','priority','assignedTo','dueDate','tags','estimatedHours'];
         const updates=Object.keys(req.body);
-        // console.log('Request Body:', req.body);
         const isValidOperation=updates.every(update=> allowedUpdates.includes(update))
         if(!isValidOperation){
             const invalidFields=updates.filter(update=> !allowedUpdates.includes(update))
@@ -342,7 +335,6 @@ export const addTaskAttachment=async(req,res)=>{
                 message:'No files uploaded'
             })
         }
-        // console.log(`Received ${req.files.length} files to attach to task ${taskId}`)
         const newAttachments=await Promise.all(
             req.files.map(async (file)=>{
                 try {
@@ -363,8 +355,7 @@ export const addTaskAttachment=async(req,res)=>{
             })
         )
         const successfullyUploaded=newAttachments.filter(att=>att!==null);
-        // console.log(`Successfully uploaded ${successfullyUploaded.length} new attachments for task ${taskId}`)
-        if(successfullyUploaded.length==0){
+        if(successfullyUploaded.length===0){
             return res.status(500).json({
                 success:false,
                 message:'Failed to upload any files.'
@@ -380,7 +371,7 @@ export const addTaskAttachment=async(req,res)=>{
         res.status(200).json({
             success:true,
             message:`${successfullyUploaded.length} file(s) added successfully.`,
-            task:updatedTask
+            task:updatedPopulatedTask
         })
 
     } catch (error) {

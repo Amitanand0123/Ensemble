@@ -1,5 +1,4 @@
-// frontend/src/components/chatbot/ChatbotButton.jsx
-import React, { useState } from 'react';
+import { useState } from 'react';
 import ChatbotWindow from './ChatbotWindow';
 
 const ChatbotButton = () => {

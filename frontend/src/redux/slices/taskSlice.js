@@ -20,16 +20,11 @@ const handleReject=(error)=>{
 export const fetchTasks = createAsyncThunk(
     'tasks/fetchAll',
     async ({ projectId, filters }, { rejectWithValue, getState }) => {
-        
         try {
             const token=getState().auth.token || localStorage.getItem('token');
-            if(!token){
-                return rejectWithValue('No auth token found')
-            }
-            if(!projectId){
-                return rejectWithValue('Project ID is required')
-            }
-            // console.log(`Fetching tasks for project ${projectId} with filters:`,filters)
+            if(!token) return rejectWithValue('No auth token found');
+            if(!projectId) return rejectWithValue('Project ID is required');
+
             const response = await axios.get(`/api/tasks/project/${projectId}/tasks`, {
                 params: filters,
                 headers: {
@@ -50,16 +45,16 @@ export const createTask = createAsyncThunk(
         try {
             const token=getState().auth.token || localStorage.getItem('token')
             if(!token) return rejectWithValue('No auth token found')
-            // console.log("Dispatching createTask with FormData");
+            
             const response = await axios.post('/api/tasks',
                 formData,
                 {
                     headers:{
                         'Authorization':`Bearer ${token}`
+                        // 'Content-Type': 'multipart/form-data' is set automatically by axios for FormData
                     }
                 }
             )
-            // console.log("Create task response:",response.data)
             return response.data.task
         } catch (error) {
             console.error("Error creating task:",error)
@@ -70,9 +65,12 @@ export const createTask = createAsyncThunk(
 
 export const bulkUpdateTasks = createAsyncThunk(
     'tasks/bulkUpdate',
-    async ({ tasks }, { rejectWithValue }) => {
+    async ({ tasks }, { rejectWithValue, getState }) => {
         try {
-            const response = await axios.patch('/api/tasks/bulk-update', { tasks })
+            const token = getState().auth.token;
+            const response = await axios.patch('/api/tasks/bulk-update', { tasks }, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             return response.data.tasks
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to update tasks')
@@ -85,13 +83,9 @@ export const updateTask = createAsyncThunk(
     async ({taskId,updates},{rejectWithValue,getState})=>{
         try {
             const token=getState().auth.token || localStorage.getItem('token')
-            if(!token){
-                return rejectWithValue('No auth token found')
-            }
-            if(!taskId){
-                return rejectWithValue('Task ID is required')
-            }
-            // console.log(`Updating task ${taskId} with updates:`,updates)
+            if(!token) return rejectWithValue('No auth token found');
+            if(!taskId) return rejectWithValue('Task ID is required');
+
             const response=await axios.patch(`/api/tasks/${taskId}`,
                 updates,
                 {
@@ -101,7 +95,6 @@ export const updateTask = createAsyncThunk(
                     }
                 }
             )
-            // console.log("Update task response:",response.data)
             return response.data.task;
         } catch (error) {
             console.error(`Error updating task ${taskId}:`,error)
@@ -115,13 +108,9 @@ export const addTaskAttachments=createAsyncThunk(
     async({taskId,formData},{rejectWithValue,getState})=>{
         try {
             const token=getState().auth.token || localStorage.getItem('token');
-            if(!token){
-                return rejectWithValue('No auth token found')
-            }
-            if(!taskId){
-                return rejectWithValue('Task ID is required')
-            }
-            // console.log(`Adding attachments to task ${taskId}`)
+            if(!token) return rejectWithValue('No auth token found');
+            if(!taskId) return rejectWithValue('Task ID is required');
+
             const response=await axios.post(`/api/tasks/${taskId}/attachments`,
                 formData,
                 {
@@ -130,7 +119,6 @@ export const addTaskAttachments=createAsyncThunk(
                     }
                 }
             )
-            // console.log("Add attachments response:",response.data)
             return response.data.task;
         } catch (error) {
             console.error(`Error adding attachments to task ${taskId}:`,error)
@@ -144,13 +132,9 @@ export const deleteTask = createAsyncThunk(
     async ({ taskId }, { rejectWithValue, getState }) => {
         try {
             const token=getState().auth.token || localStorage.getItem('token')
-            if(!token){
-                return rejectWithValue('No auth token found')
-            }
-            if(!taskId){
-                return rejectWithValue('Task ID is required')
-            }
-            // console.log(`Deleting task ${taskId}`)
+            if(!token) return rejectWithValue('No auth token found');
+            if(!taskId) return rejectWithValue('Task ID is required');
+
             await axios.delete(`/api/tasks/${taskId}`,{
                 headers:{
                     'Authorization':`Bearer ${token}`
@@ -253,7 +237,6 @@ const taskSlice = createSlice({
             .addCase(deleteTask.rejected, (state, action) => {
                 state.error = action.payload
             })
-
     }
 })
 

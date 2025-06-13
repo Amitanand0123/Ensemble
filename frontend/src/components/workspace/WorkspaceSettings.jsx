@@ -1,15 +1,12 @@
-// src/components/workspace/WorkspaceSettings.jsx
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useForm } from 'react-hook-form'; // Import useForm
+import { useForm } from 'react-hook-form';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-// Import Shadcn Form components
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -19,17 +16,8 @@ import {
     deleteWorkspace,
     updateWorkspaceSettings
 } from '../../redux/slices/workspaceSlice';
+import PropTypes from 'prop-types';
 
-// Optional: Zod schema for validation
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import * as z from 'zod';
-// const workspaceSettingsSchema = z.object({
-//     name: z.string().min(3, "Name must be at least 3 characters.").max(50),
-//     description: z.string().max(500).optional(),
-//     isPrivate: z.boolean(),
-//     joinByCode: z.boolean(),
-//     theme: z.string().optional(), // Adjust as needed
-// });
 
 
 const WorkspaceSettings = ({ workspaceId }) => {
@@ -258,8 +246,8 @@ const WorkspaceSettings = ({ workspaceId }) => {
     );
 };
 
-// WorkspaceSettings.propTypes = {
-//     workspaceId: PropTypes.string.isRequired,
-// };
+WorkspaceSettings.propTypes={
+    workspaceId:PropTypes.string.isRequired
+}
 
 export default WorkspaceSettings;

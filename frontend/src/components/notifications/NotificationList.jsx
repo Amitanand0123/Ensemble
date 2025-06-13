@@ -1,4 +1,3 @@
-import React from 'react'
 import { useNotification } from '../../hooks/useNotification.js'
 import NotificationItem from './NotificationItem.jsx'
 import { Button } from '../ui/button'

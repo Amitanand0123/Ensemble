@@ -1,7 +1,7 @@
-import React from 'react'
 import {Card,CardContent} from '../ui/card'
 import {Calendar,Users,Clock,BarChart2} from 'lucide-react'
 import {Progress} from '../ui/progress'
+import PropTypes from 'prop-types';
 
 
 const ProjectHeader=({project})=>{
@@ -63,6 +63,10 @@ const ProjectHeader=({project})=>{
             </div>
         </div>
     )
+}
+
+ProjectHeader.propTypes={
+    project:PropTypes.object.isRequired,
 }
 
 export default ProjectHeader

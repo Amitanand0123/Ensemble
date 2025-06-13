@@ -18,11 +18,11 @@ export const summarizeText = async (text, filename = "this file") => {
         return "Cannot summarize empty or invalid content.";
     }
 
-    // Updated model name - check if you need to use a different model name
-    // See https://ai.google.dev/models/gemini for the latest model names
+    
+    
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
-    // Updated safety settings format
+    
     const generationConfig = {
         temperature: 0.7,
         topK: 40,
@@ -59,7 +59,7 @@ export const summarizeText = async (text, filename = "this file") => {
                 Summary:`;
 
     try {
-        // console.log(`Requesting summary for ${filename}...`);
+        
         const result = await model.generateContent({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig,
@@ -78,7 +78,7 @@ export const summarizeText = async (text, filename = "this file") => {
             return "Could not generate a summary for this content.";
         }
         
-        // console.log(`Summary generated for ${filename}.`);
+        
         return summary.trim();
     } catch (error) {
         console.error(`Error generating summary for ${filename}:`, error);
@@ -93,7 +93,7 @@ export const summarizeText = async (text, filename = "this file") => {
 };
 
 export const extractTexFromFile=async(fileUrl,mimetype)=>{
-    // console.log(`Attempting to extract text from ${fileUrl} (Type:${mimetype})`);
+    
     if(mimetype==='text/plain'){
         try {
             const response=await fetch(fileUrl)
@@ -116,7 +116,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             }
             const buffer=await response.arrayBuffer()
             const data=await pdf(buffer)
-            // console.log(`Extracted ${data.numpages} pages from PDF.`)
+            
             return data.text
         } catch (error) {
             console.error("Error parsing PDF:",error)
@@ -132,21 +132,21 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
                 throw new Error(`Failed to fetch DOCX: ${response.statusText}`);
             }
             
-            // Get the buffer
+            
             const arrayBuffer = await response.arrayBuffer();
-            // console.log(`[aiService - DOCX] Fetched buffer size: ${arrayBuffer.byteLength} bytes.`);
+            
             
             if (arrayBuffer.byteLength === 0) {
                 console.error("[aiService - DOCX] Fetched buffer is empty!");
                 throw new Error("Fetched DOCX file content is empty.");
             }
             
-            // This is the key change - use the buffer property correctly
+            
             const result = await mammoth.extractRawText({
                 buffer: Buffer.from(arrayBuffer)
             });
             
-            // console.log("Extracted text from DOCX.");
+            
             return result.value;
         } catch (error) {
             console.error("--- ERROR DURING DOCX PROCESSING ---");

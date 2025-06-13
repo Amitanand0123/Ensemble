@@ -1,36 +1,33 @@
-// --- START OF FILE frontend/src/components/workspace/ProjectList.jsx ---
-
-import React, { useEffect, useState } from 'react'; // Added useState
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import {  useNavigate} from 'react-router-dom';
 import { fetchProjects } from '../../redux/slices/projectSlice.js';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
-import { Input } from '../ui/input'; // Import Input
-import { Calendar, AlertCircle, Search, Briefcase } from 'lucide-react'; // Import Search icon
+import { Input } from '../ui/input';
+import { Calendar, AlertCircle, Search, Briefcase } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const ProjectList = ({ workspaceId }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const { projects = [], isLoading } = useSelector((state) => state.projects); // Default projects to []
-    const [searchQuery, setSearchQuery] = useState(''); // State for search query
+    const { projects = [], isLoading } = useSelector((state) => state.projects);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        if (workspaceId) { // Ensure workspaceId is present
+        if (workspaceId) {
              dispatch(fetchProjects(workspaceId));
         }
     }, [dispatch, workspaceId]);
 
     const handleProjectClick = (projectId) => {
-        if (workspaceId && projectId) { // Ensure both IDs are present
+        if (workspaceId && projectId) {
             const url = `/workspaces/${workspaceId}/projects/${projectId}`;
-            // console.log('Navigating to project:', url);
             navigate(url);
         } else {
             console.error("Cannot navigate: Missing workspaceId or projectId");
         }
     };
 
-    // Filter projects based on search query (name or description)
     const filteredProjects = (projects || []).filter(project =>
         project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()))
@@ -93,5 +90,8 @@ const ProjectList = ({ workspaceId }) => {
     );
 };
 
+ProjectList.propTypes = {
+    workspaceId: PropTypes.string.isRequired,
+};
+
 export default ProjectList;
-// --- END OF FILE frontend/src/components/workspace/ProjectList.jsx ---

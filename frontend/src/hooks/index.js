@@ -1,6 +1,7 @@
-export {useAuth} from './useAuth.js'
-export {useChat} from './useChat.js'
-export {useNotification} from './useNotification.js'
-export {useWorkspace} from './useWorkspace.js'
-export {useProject} from './useProject.js'
-export {useTask} from './useTask.js'
+export { useAuth } from './useAuth.js';
+export { useChatbot } from './useChatbot.js';
+export { useChatSocket } from './useChatSocket.js';
+export { useNotification } from './useNotification.js';
+export { useProjects } from './useProjects.js';
+export { useTasks } from './useTasks.js';
+export { useWorkspaces } from './useWorkspaces.js';

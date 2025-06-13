@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from 'lucide-react';
-import React, { useState } from 'react'
+import { useState } from 'react'
+import PropTypes from 'prop-types';
 
 const InputField=({icon:Icon,type:initialType,placeholder,value,onChange,name,error})=>{
     const [showPassword,setShowPassword]=useState(false);
@@ -34,5 +35,16 @@ const InputField=({icon:Icon,type:initialType,placeholder,value,onChange,name,er
         </div>
     )
 }
+
+InputField.propTypes={
+    icon:PropTypes.element.isRequired,
+    type:PropTypes.string.isRequired,
+    placeholder:PropTypes.string.isRequired,
+    value:PropTypes.string.isRequired,
+    onChange:PropTypes.func.isRequired,
+    name:PropTypes.string.isRequired,
+    error:PropTypes.string,
+}
+
 
 export default InputField;

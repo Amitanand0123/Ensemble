@@ -1,4 +1,4 @@
-// frontend/src/hooks/useChatbot.js
+
 import { useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -7,7 +7,6 @@ export const useChatbot = () => {
   const [conversationHistory, setConversationHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const token = useSelector(state => state.auth.token);
-
   const sendMessage = async (message) => {
     setIsLoading(true);
     try {
@@ -16,7 +15,6 @@ export const useChatbot = () => {
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
       
-      // Update conversation history
       const updatedHistory = [
         ...conversationHistory,
         { role: 'USER', message },

@@ -1,5 +1,5 @@
-import React from 'react';
 import { XCircle, CheckCircle, AlertCircle } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const Alert = ({ type, message }) => {
     if (!message) return null;
@@ -23,6 +23,11 @@ const Alert = ({ type, message }) => {
             </div>
         </div>
     );
+};
+
+Alert.propTypes = {
+    type: PropTypes.oneOf(['success', 'error', 'warning', 'info']).isRequired,
+    message: PropTypes.string.isRequired
 };
 
 export default Alert;

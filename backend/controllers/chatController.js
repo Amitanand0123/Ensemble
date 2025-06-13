@@ -17,7 +17,7 @@ export const getPersonalMessages=async(req,res)=>{
         })
         .populate('sender','name avatar')
         .populate('receiver','name avatar')
-        .sort({createdAt:1}) //sorts the retrived messages in ascending order // for descending cratedAt:-1
+        .sort({createdAt:1}) 
 
         res.json({
             success:true,
@@ -130,7 +130,7 @@ export const uploadChatAttachment=async(req,res)=>{
                 message:'No file uploaded'
             })
         }
-        // console.log(`Received chat file uplaod: ${req.file.originalname},Size: ${req.file.size}`);
+        
         const result=await uploadToCloud(
             req.file.buffer,
             req.file.originalname,
@@ -143,7 +143,7 @@ export const uploadChatAttachment=async(req,res)=>{
             mimetype:req.file.mimetype,
             size:req.file.size
         }
-        // console.log("Chat file uploaded successfully to Cloudinary:",attachmentMetadata.url)
+        
         res.status(200).json({
             success:true,
             message:'File uploaded successfully,ready to attach to message',

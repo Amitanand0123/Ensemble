@@ -4,7 +4,6 @@ import Task from '../models/Task.js'
 import Project from '../models/Project.js'
 import Workspace from '../models/Workspace.js'
 import Chat from '../models/Chat.js'
-import {uploadToCloud} from './fileUpload.js'
 
 export const setupSocketIO=(server)=>{
     const io=new Server(server,{
@@ -16,24 +15,24 @@ export const setupSocketIO=(server)=>{
     })
 
     const onlineUsers=new Map()
- 
+    console.log("[Socket Setup] Applying 'verifySocketToken' middleware to all incoming connections.");
     io.use(verifySocketToken)
 
     io.on('connection',async (socket)=>{
         const userId=socket.user._id
-        // console.log('User connected:',userId)
+        console.log(`[Socket Connection] ✅ User connected: ${socket.user.email} (ID: ${userId})`);
         onlineUsers.set(userId.toString(),socket.id)
-        socket.join(userId.toString()) //to join the user's room
+        socket.join(userId.toString())
 
-        const userProjects=await Project.find({'members.user':userId})
-        userProjects.forEach(project=>{
-            socket.join(`project:${project._id}`)
-        })
-
-        const userWorkspaces=await Workspace.find({'members.user':userId})
-        userWorkspaces.forEach(workspace=>{
-            socket.join(`workspace:${workspace._id}`)
-        })
+        const userWorkspaces = await Workspace.find({ 'members.user': userId });
+        userWorkspaces.forEach(workspace => {
+            socket.join(`workspace:${workspace._id}`);
+            console.log(`[Socket Connection] User ${socket.user.email} joined workspace room: ${workspace._id}`);
+        });
+        const userProjects = await Project.find({ 'members.user': userId });
+        userProjects.forEach(project => {
+            socket.join(`project:${project._id}`);
+        });
 
         socket.broadcast.emit('userStatusChanged',{
             userId:userId,
@@ -77,8 +76,6 @@ export const setupSocketIO=(server)=>{
                     public_id:att.public_id,
                     mimetype:att.mimetype,
                     size:att.size,
-                    uploadedBy:userId,
-                    uploadedAt:new Date()
                 }))
                 const message=new Chat({
                     sender:userId,
@@ -90,7 +87,7 @@ export const setupSocketIO=(server)=>{
                 })
                 await message.save()
                 await message.populate('sender','name avatar')
-                await message.populate('attachments.uploadedBy','name avatar')
+
                 io.to(receiverId.toString()).emit('newPersonalMessage',message)
                 if(callback){
                     callback({
@@ -98,8 +95,6 @@ export const setupSocketIO=(server)=>{
                         data:message
                     })
                 }
-                // socket.emit('messageSent',message);
-                // const receiverSocketId=onlineUsers.get(receiverId.toString())
             } catch (error) {
                 console.error('[Socket Event: sendPersonalMessage] Error:',error)
                 if(callback){
@@ -108,7 +103,6 @@ export const setupSocketIO=(server)=>{
                         error:'Could not send personal message'
                     })
                 }
-                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 
@@ -124,8 +118,7 @@ export const setupSocketIO=(server)=>{
                             error:'Not authorized'
                         })
                     }
-                    return ;
-                    // return socket.emit('chatError',{message:'Not authorized'})
+                    return;
                 }
 
                 const validAttachments=attachments.map(att=>({
@@ -134,8 +127,6 @@ export const setupSocketIO=(server)=>{
                     public_id:att.public_id,
                     mimetype:att.mimetype,
                     size:att.size,
-                    uploadedBy:userId,
-                    uploadedAt:new Date()
                 }))
 
                 const message=new Chat({
@@ -164,7 +155,6 @@ export const setupSocketIO=(server)=>{
                         error:'Could not send project message due to server error'
                     })
                 }
-                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 
@@ -172,8 +162,6 @@ export const setupSocketIO=(server)=>{
             const userId=socket.user._id;
             try {
                 const {workspaceId,content,attachments=[]}=data
-                // console.log(`[Socket Event: sendWorkspaceMessage] Received for workspace ${workspaceId} from user ${userId}`)
-                // console.log(workspaceId,content,attachments)
                 const workspace=await Workspace.findById(workspaceId)
                 if(!workspace || !workspace.isMember(userId)){
                     console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
@@ -184,7 +172,6 @@ export const setupSocketIO=(server)=>{
                         })
                     }
                     return;
-                    // return socket.emit('chatError',{message:'Not authorized'})
                 }
                 const validAttachments=attachments.map(att=>({
                     filename:att.filename,
@@ -192,22 +179,8 @@ export const setupSocketIO=(server)=>{
                     public_id:att.public_id,
                     mimetype:att.mimetype,
                     size:att.size,
-                    uploadedBy:userId,
-                    uploadedAt:new Date()
                 }))
-                // const isuserMember=workspace.isMember(userId)
-                // console.log(`[Socket Event: sendWorkspaceMessage] user ${userId} isMember of workspace ${workspaceId}? ${isuserMember}`)
-                // if(!isuserMember){
-                //     console.error(`[Socket Event: sendWorkspaceMessage] Unauthorized attempt by user ${userId} for workspace ${workspaceId}`)
-                //     if(callback){
-                //         callback({
-                //             success:false,
-                //             error:'Not authorized to send message in this workspace'
-                //         })
-                //     }
-                //     return;
-                //     // return socket.emit('chatError',{message:'Not authorized'})
-                // }
+
                 const message=new Chat({
                     sender:userId,
                     workspace:workspaceId,
@@ -218,9 +191,7 @@ export const setupSocketIO=(server)=>{
                 })
                 await message.save()
                 await message.populate('sender','name avatar')
-                await message.populate('attachments.uploadedBy','name avatar')
                 io.to(`workspace:${workspaceId}`).emit('newWorkspaceMessage',message)
-                // console.log(`[Socket Event: sendWorkspaceMessage] Message sent to workspace room: ${workspaceId}`)
                 if(callback){
                     callback({
                         success:true,
@@ -235,34 +206,26 @@ export const setupSocketIO=(server)=>{
                         error:'Could not send message due to server error'
                     })
                 }
-                // socket.emit('chatError',{message:'Could not send message'})
             }
         })
 
         socket.on('typing',(data)=>{
-            const {receiverId,projectId,workspaceId,isTyping}=data
+            const {receiverId,projectId,workspaceId,isTyping}=data;
+            const typingData = { userId: socket.user._id, userName: socket.user.name.first, isTyping };
+
             if(workspaceId){
-                io.to(`workspace:${workspaceId}`).emit('userTyping',{
-                    userId,
-                    isTyping
-                })
+                socket.to(`workspace:${workspaceId}`).emit('userTyping', { ...typingData, workspaceId });
             }
             else if(projectId){
-                io.to(`project:${projectId}`).emit('userTyping',{
-                    userId,
-                    isTyping
-                })
+                socket.to(`project:${projectId}`).emit('userTyping', { ...typingData, projectId });
             }
             else if(receiverId){
-                socket.to(receiverId.toString()).emit('userTyping',{
-                    userId,
-                    isTyping
-                })
+                socket.to(receiverId.toString()).emit('userTyping', { ...typingData, receiverId });
             }
         })
 
         socket.on('disconnect',()=>{
-            // console.log(`User disconnected: ${userId}`)
+            console.log(`[Socket Disconnect] User disconnected: ${socket.user.email}`);
             onlineUsers.delete(userId.toString())
             socket.broadcast.emit('userStatusChanged',{
                 userId:userId,

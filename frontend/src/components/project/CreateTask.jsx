@@ -1,7 +1,5 @@
-// components/project/CreateTask.jsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
-// Removed useTasks hook import, assuming thunk handles API call
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,20 +9,19 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
-import { useDispatch, useSelector } from 'react-redux'; // Added useSelector
-import { createTask, updateTask, fetchTasks } from '../../redux/slices/taskSlice'; // Import updateTask
-import { CalendarIcon, Paperclip, XCircle } from 'lucide-react'; // Import icons
-import { toast } from 'react-hot-toast'; // For notifications
+import { useDispatch, useSelector } from 'react-redux';
+import { createTask, updateTask, fetchTasks } from '../../redux/slices/taskSlice';
+import { CalendarIcon,XCircle } from 'lucide-react';
+import { toast } from 'react-hot-toast';
+import PropTypes from 'prop-types';
 
 const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
     const dispatch = useDispatch();
-    // Use Redux state for loading/error related to task slice actions
     const { isLoading, error: taskSliceError } = useSelector(state => state.task);
     const [localError, setLocalError] = useState(null);
-    const [selectedFiles, setSelectedFiles] = useState([]); // State for files to upload
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
     const form = useForm({
-        // Default values setup remains the same
          defaultValues: {
             title: '',
             description: '',
@@ -32,12 +29,12 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
             priority: 'medium',
             dueDate: null,
             estimatedHours: 0,
-            assignedTo: [], // Should be array of IDs
-            tags: [] // Should be array of strings
+            assignedTo: [], 
+            tags: [] 
         }
     });
 
-     // --- Effect to Reset Form ---
+     
     useEffect(() => {
         if (open) {
             form.reset({
@@ -47,59 +44,59 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                 priority: task?.priority || 'medium',
                 dueDate: task?.dueDate ? new Date(task.dueDate) : null,
                 estimatedHours: task?.estimatedHours || 0,
-                // Ensure assignedTo is an array of IDs
+                
                 assignedTo: task?.assignedTo?.map(u => typeof u === 'object' ? u._id : u) || [],
-                // Ensure tags is an array of strings
+                
                 tags: task?.tags || []
             });
-            setSelectedFiles([]); // Clear selected files when opening
-            setLocalError(null); // Clear local errors
+            setSelectedFiles([]); 
+            setLocalError(null); 
         }
-    }, [open, task, form]); // form is dependency for form.reset
+    }, [open, task, form]); 
 
-     // --- Handle File Selection ---
+     
      const handleFileChange = (event) => {
         setSelectedFiles(Array.from(event.target.files || []));
      };
 
-     // --- Remove Selected File ---
+     
      const removeSelectedFile = (indexToRemove) => {
         setSelectedFiles(prevFiles => prevFiles.filter((_, index) => index !== indexToRemove));
      };
 
 
     const onSubmit = async (data) => {
-        setLocalError(null); // Clear previous errors
+        setLocalError(null); 
 
         const formData = new FormData();
 
-        // Append text/select fields
+        
         formData.append('title', data.title.trim());
         formData.append('description', data.description?.trim() || '');
         formData.append('status', data.status);
         formData.append('priority', data.priority);
         if (data.dueDate) formData.append('dueDate', data.dueDate.toISOString());
         formData.append('estimatedHours', Number(data.estimatedHours) || 0);
-        formData.append('project', projectId); // Add required fields
-        formData.append('workspace', workspaceId); // Add required fields
+        formData.append('project', projectId); 
+        formData.append('workspace', workspaceId); 
 
-        // Append arrays (important for backend parsing with multer/body-parser)
+        
         (data.assignedTo || []).forEach(id => formData.append('assignedTo[]', id));
         (data.tags || []).forEach(tag => formData.append('tags[]', tag));
 
-        // Append files for upload (only on create)
-        if (!task) { // Only append files if creating a new task
+        
+        if (!task) { 
             selectedFiles.forEach(file => {
-                formData.append('attachments', file); // Match backend multer field name
+                formData.append('attachments', file); 
             });
         }
 
         try {
             let resultAction;
             if (task) {
-                // --- Update Logic ---
-                // Filter out fields not allowed for update or fields that haven't changed?
-                // For simplicity, sending all allowed fields from form.
+                
+                
+                
                  const updateData = {
                     title: data.title.trim(),
                     description: data.description?.trim() || '',
@@ -110,7 +107,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                     assignedTo: data.assignedTo || [],
                      tags: data.tags || [],
                  };
-                // console.log("Updating task:", task._id, "with data:", updateData);
+                
                  resultAction = await dispatch(updateTask({ taskId: task._id, updates: updateData }));
                 if (updateTask.rejected.match(resultAction)) {
                      throw new Error(resultAction.payload || 'Failed to update task');
@@ -118,8 +115,8 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                 toast.success('Task updated successfully!');
 
             } else {
-                // --- Create Logic ---
-                // console.log("Creating task with formData:", Object.fromEntries(formData.entries())); // Log FormData content
+                
+                
                  resultAction = await dispatch(createTask({ formData }));
                  if (createTask.rejected.match(resultAction)) {
                      throw new Error(resultAction.payload || 'Failed to create task');
@@ -127,16 +124,16 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                  toast.success('Task created successfully!');
             }
 
-            // Common success logic
-            dispatch(fetchTasks({ projectId })); // Refresh task list
-            onClose(); // Close modal
+            
+            dispatch(fetchTasks({ projectId })); 
+            onClose(); 
 
         } catch (error) {
             console.error('Failed to save task:', error);
             setLocalError(error.message || 'An unknown error occurred');
              toast.error(error.message || 'Failed to save task.');
         }
-        // isLoading state is handled by Redux slice
+        
     };
 
     return (
@@ -160,7 +157,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                             <FormField
                                 control={form.control}
                                 name="title"
-                                rules={{ required: 'Title is required' }} // Simplified rules for example
+                                rules={{ required: 'Title is required' }} 
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Title *</FormLabel>
@@ -255,7 +252,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                                 <FormControl>
                                                     <Button
                                                         variant={"outline"}
-                                                        className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"} bg-gray-700 border-gray-600 hover:bg-gray-600`} // Style adjustment
+                                                        className={`w-full justify-start text-left font-normal ${!field.value && "text-muted-foreground"} bg-gray-700 border-gray-600 hover:bg-gray-600`} 
                                                     >
                                                         <CalendarIcon className="mr-2 h-4 w-4" />
                                                         {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
@@ -268,7 +265,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                                     selected={field.value}
                                                     onSelect={field.onChange}
                                                     initialFocus
-                                                    className="text-white" // Ensure calendar text is readable
+                                                    className="text-white" 
                                                 />
                                             </PopoverContent>
                                         </Popover>
@@ -353,5 +350,13 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
         </Dialog>
     );
 };
+
+CreateTask.propTypes={
+    workspaceId:PropTypes.string.isRequired,
+    open:PropTypes.bool.isRequired,
+    task:PropTypes.object,
+    projectId:PropTypes.string,
+    onClose:PropTypes.func.isRequired
+}
 
 export default CreateTask;

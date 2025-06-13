@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Users, Briefcase, User } from "lucide-react";
 import { fetchUserById, selectUserById } from "../../redux/slices/usersSlice";
+import PropTypes from 'prop-types';
 
 const ChatHeader = ({ chatType, targetId }) => {
   const dispatch = useDispatch();
@@ -10,7 +11,7 @@ const ChatHeader = ({ chatType, targetId }) => {
   const projects = useSelector(state => state.projects?.projects || {});
   const isLoadingUsers = useSelector(state => state.users.isLoading);
 
-  // Fetch user data if not available and it's a personal chat
+  
   useEffect(() => { 
     if (chatType === 'personal' && !user && targetId) {
       dispatch(fetchUserById(targetId));
@@ -62,6 +63,11 @@ const ChatHeader = ({ chatType, targetId }) => {
       </div>
     </div>
   );
+};
+
+ChatHeader.propTypes = {
+  chatType: PropTypes.oneOf(['personal', 'workspace', 'project']).isRequired,
+  targetId: PropTypes.string.isRequired,
 };
 
 export default ChatHeader;

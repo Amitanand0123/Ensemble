@@ -1,13 +1,13 @@
-// --- START OF FILE backend/controllers/userController.js ---
 
-// backend/controllers/userController.js
+
+
 import User from '../models/User.js';
 import mongoose from 'mongoose';
-import { uploadToCloud, deleteFromCloud } from '../utils/fileUpload.js'; // Import Cloudinary functions
+import { uploadToCloud, deleteFromCloud } from '../utils/fileUpload.js'; 
 
-export const getAllUsers = async (req, res) => { // Changed first param name
+export const getAllUsers = async (req, res) => { 
     try {
-        // Exclude sensitive fields
+        
         const users = await User.find({})
                                 .select('-password -security -email_verification.token -activity.loginHistory');
         res.json({
@@ -43,7 +43,7 @@ export const updateUserRole = async (req, res) => {
         });
     }
 
-    // Prevent admin from changing their own role via this endpoint (safety)
+    
     if (req.user.id === userId) {
         return res.status(400).json({ success: false, message: "Admins cannot change their own role here." });
     }
@@ -57,12 +57,12 @@ export const updateUserRole = async (req, res) => {
             });
         }
 
-        // Optional: Prevent demoting the last admin? (More complex logic needed)
+        
 
         userToUpdate.role = newRole;
         await userToUpdate.save({ validateBeforeSave: true });
 
-        // Return the updated user, excluding sensitive info
+        
         const updatedUserResponse = await User.findById(userId)
                                             .select('-password -security -email_verification.token -activity.loginHistory');
 
@@ -86,7 +86,7 @@ export const updateUserRole = async (req, res) => {
     }
 };
 
-// --- Get User Profile ---
+
 export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
 
@@ -95,22 +95,22 @@ export const getUserProfile = async (req, res) => {
     }
 
     try {
-        // Select fields to EXCLUDE
+        
         const userProfile = await User.findById(userId)
-            .select('-password -security -email_verification.token -activity.loginHistory -notifications._id') // Exclude sensitive/internal fields
-            .populate({ // Populate workspaces the user is part of
+            .select('-password -security -email_verification.token -activity.loginHistory -notifications._id') 
+            .populate({ 
                 path: 'workspaces.workspace',
-                select: 'name settings.isPrivate _id', // Select only needed workspace fields
-                match: { status: 'active' } // Only active workspaces
+                select: 'name settings.isPrivate _id', 
+                match: { status: 'active' } 
             });
 
         if (!userProfile) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
-        // Filter workspaces based on privacy (example: show only public ones or ones the requester is also in)
-        // For simplicity now, we'll return all populated ones. Add filtering later if needed.
-        // userProfile.workspaces = userProfile.workspaces.filter(w => w.workspace && !w.workspace.settings.isPrivate); // Example: only public
+        
+        
+        
 
         res.json({
             success: true,
@@ -123,59 +123,74 @@ export const getUserProfile = async (req, res) => {
     }
 };
 
-// --- Update Logged-in User's Avatar ---
+
 export const updateMyAvatar = async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ success: false, message: 'No avatar image uploaded.' });
     }
 
     try {
-        const user = await User.findById(req.user._id); // Get the logged-in user document
+        const user = await User.findById(req.user._id); 
         if (!user) {
-            // Should not happen if protect middleware works
+            
             return res.status(404).json({ success: false, message: 'User not found.' });
         }
 
-        // Optional: Delete old avatar from Cloudinary if it exists and isn't the default
+        
         if (user.avatar?.public_id && user.avatar.url !== 'default-avatar.png') {
             try {
                 await deleteFromCloud(user.avatar.public_id);
-                // console.log(`Deleted old avatar: ${user.avatar.public_id}`);
+                
             } catch (deleteError) {
-                // Log error but continue, maybe the old file was already deleted
+                
                 console.warn(`Could not delete old avatar (${user.avatar.public_id}):`, deleteError.message);
             }
         }
 
-        // Upload new avatar to Cloudinary
+        
         const result = await uploadToCloud(
             req.file.buffer,
-            `avatar_${user._id}_${Date.now()}`, // Generate a unique filename
-            `user_avatars/${user._id}` // Store in a user-specific folder
+            `avatar_${user._id}_${Date.now()}`, 
+            `user_avatars/${user._id}` 
         );
 
-        // Update user document
+        
         user.avatar = {
             url: result.url,
-            public_id: result.public_id, // Store public_id for future deletion
+            public_id: result.public_id, 
             uploadDate: new Date()
         };
         await user.save();
 
-        // Return success response with new avatar URL
+        
         res.json({
             success: true,
             message: 'Avatar updated successfully.',
-            avatar: user.avatar // Send back the updated avatar object
+            avatar: user.avatar 
         });
 
     } catch (error) {
         console.error('Error updating avatar:', error);
-        // Handle specific errors like file size limit from multer if needed
+        
         if (error.code === 'LIMIT_FILE_SIZE') {
              return res.status(400).json({ success: false, message: 'File size exceeds the 5MB limit.' });
         }
         res.status(500).json({ success: false, message: 'Server error updating avatar.' });
     }
 };
-// --- END OF FILE backend/controllers/userController.js ---
+
+export const getMyAvatarUrl = async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id).select('avatar.url'); 
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        res.json({
+            success: true,
+            avatarUrl: user.avatar?.url || 'default-avatar.png' 
+        });
+    } catch (error) {
+        console.error('Error fetching avatar URL:', error);
+        res.status(500).json({ success: false, message: 'Server error fetching avatar URL' });
+    }
+};

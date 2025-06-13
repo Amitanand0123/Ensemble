@@ -1,5 +1,5 @@
 const errorHandler = (err,req,res,next)=>{
-    // console.log(err.stack);
+    
 
     if(err.name==='ValidationError'){
         const messages=Object.values(err.errors).map(val=>val.message);
@@ -9,7 +9,7 @@ const errorHandler = (err,req,res,next)=>{
         })
     }
 
-    if(err.code===11000){ //Indicates a MongoDB error when attempting to insert a duplicate key
+    if(err.code===11000){ 
         return res.status(400).json({
             success:false,
             error:'Duplicate field value entered'

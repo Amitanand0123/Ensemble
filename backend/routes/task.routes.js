@@ -65,32 +65,4 @@ router.post('/:id/attachments',upload.array('newAttachments',5),addTaskAttachmen
 
 router.get('/project/:projectId/tasks',getTasksbyProject)
 
-// router.patch('/bulk-update',protect,async(req,res)=>{
-//     try {
-//         const {tasks}=req.body;
-//         const updatedTasks=await Promise.all(
-//             tasks.map(async({taskId,updates})=>{
-//                 const task=await Task.findById(taskId);
-//                 if(!task) return null;
-
-//                 Object.keys(updates).forEach(key=>{
-//                     task[key]=updates[key]
-//                 })
-//                 return task.save()
-//             })
-//         )
-
-//         res.json({
-//             success:true,
-//             tasks:updatedTasks.filter(t=>t!==null)
-//         })
-//     } catch (error) {
-//         res.status(500).json({
-//             success:false,
-//             message:'Could not update tasks',
-//             error:process.env.NODE_ENV==='development'?error.message:undefined
-//         })
-//     } 
-// })
-
 export default router;

@@ -1,10 +1,12 @@
-// components/chat/MessageList.jsx
+
 import { useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
-import { Paperclip } from 'lucide-react'; // Import icon
+import { Paperclip } from 'lucide-react'; 
+import { selectTypingUsers, selectCurrentChatInfo } from '../../redux/slices/chatSlice'; 
+import PropTypes from 'prop-types';
 
-// Helper component for individual messages
+
 const ChatMessage = ({ message, isOwnMessage, senderName }) => {
     return (
         <div className={`flex mb-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
@@ -15,7 +17,7 @@ const ChatMessage = ({ message, isOwnMessage, senderName }) => {
                 )}
 
                 {/* Message Bubble */}
-                <div className={`py-2 px-3 rounded-lg shadow-md ${ // Added shadow
+                <div className={`py-2 px-3 rounded-lg shadow-md ${ 
                         isOwnMessage
                             ? 'bg-blue-600 text-white rounded-tr-none'
                             : 'bg-gray-700 text-gray-100 rounded-tl-none'
@@ -26,20 +28,20 @@ const ChatMessage = ({ message, isOwnMessage, senderName }) => {
 
                     {/* --- Attachments --- */}
                     {message.attachments && message.attachments.length > 0 && (
-                        <div className={`mt-2 space-y-1 ${message.content ? 'pt-2 border-t border-white/20' : ''}`}> {/* Add border if content exists */}
+                        <div className={`mt-2 space-y-1 ${message.content ? 'pt-2 border-t border-white/20' : ''}`}>
                             {message.attachments.map((attachment) => (
                                 <a
-                                    key={attachment.public_id || attachment.url} // Use public_id if available
+                                    key={attachment.public_id || attachment.url} 
                                     href={attachment.url}
-                                    className={`flex items-center p-1.5 rounded hover:bg-black/20 transition-colors ${ // Style link
+                                    className={`flex items-center p-1.5 rounded hover:bg-black/20 transition-colors ${ 
                                             isOwnMessage ? 'text-blue-100 hover:text-white' : 'text-blue-300 hover:text-blue-100'
                                         }`}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    title={`Size: ${(attachment.size / 1024).toFixed(1)} KB`} // Show size on hover
+                                    title={`Size: ${attachment.size ? (attachment.size / 1024).toFixed(1) + ' KB' : 'Unknown size'}`}
                                 >
-                                    <Paperclip className="h-4 w-4 mr-1.5 flex-shrink-0" /> {/* Adjust icon style */}
-                                    <span className="text-sm truncate">{attachment.filename}</span> {/* Truncate long names */}
+                                    <Paperclip className="h-4 w-4 mr-1.5 flex-shrink-0" />
+                                    <span className="text-sm truncate">{attachment.filename}</span>
                                 </a>
                             ))}
                         </div>
@@ -60,14 +62,11 @@ const ChatMessage = ({ message, isOwnMessage, senderName }) => {
 
 const MessageList = ({ messages, currentUserId }) => {
     const messagesEndRef = useRef(null);
-    const currentChat = useSelector(state => state.chat.currentChat);
+    const currentChat = useSelector(selectCurrentChatInfo); 
 
-    // Dynamically get typing users based on currentChat
-     const typingUsersMap = useSelector(state => {
-        if (!currentChat) return {};
-        const { type, id } = currentChat;
-        return state.chat.typingUsers?.[type]?.[id] || {};
-    });
+    
+    const typingUsersSelector = currentChat ? selectTypingUsers(currentChat.type, currentChat.id) : () => ({});
+    const typingUsersMap = useSelector(typingUsersSelector);
     const typingUserNames = Object.values(typingUsersMap);
 
 
@@ -77,14 +76,19 @@ const MessageList = ({ messages, currentUserId }) => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [messages, typingUserNames]); 
 
     return (
-        <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar"> {/* Added custom-scrollbar */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
             {messages && messages.length > 0 ? (
                 messages.map((message) => {
+                    if (!message || !message.sender) { 
+                        console.warn("Message or message.sender is undefined", message);
+                        return null; 
+                    }
+                    console.log("message sender id:", message.sender._id);
+                    console.log("current user id:", currentUserId);
                     const isOwnMessage = message.sender?._id === currentUserId;
-                     // If sender is somehow missing, still render but show 'Unknown'
                     const senderName = isOwnMessage ? "You" : message.sender?.name?.first || message.sender?.name || 'Unknown User';
 
                     return (
@@ -102,7 +106,7 @@ const MessageList = ({ messages, currentUserId }) => {
 
              {/* Typing indicators */}
             {typingUserNames.length > 0 && (
-                <div className="text-sm text-gray-400 italic pt-2 pl-2 animate-pulse"> {/* Added pulse animation */}
+                <div className="text-sm text-gray-400 italic pt-2 pl-2 animate-pulse">
                     {typingUserNames.join(', ')} {typingUserNames.length === 1 ? 'is' : 'are'} typing...
                 </div>
             )}
@@ -110,6 +114,17 @@ const MessageList = ({ messages, currentUserId }) => {
             <div ref={messagesEndRef} />
         </div>
     );
+};
+
+MessageList.propTypes = {
+    messages: PropTypes.array.isRequired,
+    currentUserId: PropTypes.string.isRequired,
+};
+
+ChatMessage.propTypes = {
+    message: PropTypes.object.isRequired,
+    isOwnMessage: PropTypes.bool.isRequired,
+    senderName: PropTypes.string.isRequired,
 };
 
 export default MessageList;

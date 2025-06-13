@@ -1,46 +1,36 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-const sendEmail = async (options)=>{
+
+const apikey=process.env.RESEND_API_KEY
+if (!apikey) {
+    console.error("❌ RESEND_API_KEY is missing from environment variables");
+    console.error("Please add RESEND_API_KEY=re_your_key_here to your .env file");
+}
+
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const sendEmail = async (options) => {
+    if (!process.env.RESEND_API_KEY) {
+        console.error("Resend API Key is missing. Cannot send email.");
+        throw new Error("Email service is not configured.");
+    }
+
     try {
-        // console.log('Attempting to send email with options:', {
-        //     to: options.email,
-        //     subject: options.subject
-        // });
-        
-        // console.log('Using SMTP config:', {
-        //     host: process.env.SMTP_HOST,
-        //     port: process.env.SMTP_PORT,
-        //     user: process.env.SMTP_USER
-        // });
-
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: false,
-            auth:{
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        });
-
-        const message = {
-            from: `${process.env.FROM_NAME}<${process.env.FROM_EMAIL}>`,
+        const data = await resend.emails.send({
+            from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
             to: options.email,
             subject: options.subject,
-            text: options.message,
-            html: options.html
-        };
+            
+            html: options.html || `<p>${options.message}</p>`,
+        });
 
-        // console.log('Sending email with message:', message);
-
-        const info = await transporter.sendMail(message);
-        // console.log('Email sent successfully:', info);
-        
-        return info;
+        console.log('Email sent successfully via Resend:', data);
+        return data;
     } catch (error) {
-        console.error('Detailed email sending error:', error);
+        console.error('Detailed Resend email sending error:', error);
         throw error;
     }
-}
+};
 
 export default sendEmail;

@@ -3,7 +3,6 @@ import axios from 'axios'
 
 const initialState={
     workspaces:[],
-    // currentWorkspace:null,
     workspaceDetail:null,
     isLoading:false, 
     error:null
@@ -11,7 +10,7 @@ const initialState={
 
 const getToken = (getState) => {
     return getState().auth.token || localStorage.getItem('token');
-  };
+};
 
 export const fetchWorkspaces=createAsyncThunk(
     'workspaces/fetchAll',
@@ -19,9 +18,7 @@ export const fetchWorkspaces=createAsyncThunk(
         try {
             const token = getToken(getState);
             const response=await axios.get('/api/workspaces',{
-                headers:{
-                    'Authorization':`Bearer ${token}`
-                }
+                headers:{ 'Authorization':`Bearer ${token}` }
             })
             return response.data.workspaces
         } catch (error) {
@@ -38,24 +35,11 @@ export const createWorkspace = createAsyncThunk(
             if (!token) {
                 return rejectWithValue({ message: 'No authentication token found' });
             }
-            console.log('Token from state:', token);
-
-            // Set default Authorization header for all axios requests
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-            const response = await axios.post(
-                '/api/workspaces', 
-                workspaceData,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }
-            );
-
+            const response = await axios.post('/api/workspaces', workspaceData, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
             return response.data.workspace;
         } catch (error) {
-            console.error('Workspace Creation Error:', error.response?.data);
             return rejectWithValue(error.response?.data || { message: 'Unknown error' });
         }
     }
@@ -67,9 +51,7 @@ export const fetchWorkspaceDetail=createAsyncThunk(
         try {
             const token=getToken(getState)
             const response=await axios.get(`/api/workspaces/${workspaceId}`,{
-                headers:{
-                    'Authorization':`Bearer ${token}`
-                }
+                headers:{ 'Authorization':`Bearer ${token}` }
             })
             return response.data.workspace
         } catch (error) {
@@ -83,16 +65,11 @@ export const joinWorkspace=createAsyncThunk(
     async (inviteCode,{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState);
-            const response=await axios.post(
-                '/api/workspaces/join',
-                {inviteCode},
-                {
-                    headers:{'Authorization':`Bearer ${token}`}
-                }
-            )
+            const response=await axios.post('/api/workspaces/join', {inviteCode}, {
+                headers:{'Authorization':`Bearer ${token}`}
+            })
             return response.data.workspace;
         } catch (error) {
-            console.error("Joim workspace API error:",error.response?.data)
             return rejectWithValue(error.response?.data || {message:'Failed to join workspace'})
         }
     }
@@ -104,9 +81,7 @@ export const deleteWorkspace=createAsyncThunk(
         try {
             const token=getToken(getState);
             await axios.delete(`/api/workspaces/${workspaceId}`,{
-                headers:{
-                    'Authorization':`Bearer ${token}`
-                }
+                headers:{ 'Authorization':`Bearer ${token}` }
             })
             return workspaceId;
         } catch (error) {
@@ -123,7 +98,7 @@ export const updateWorkspaceSettings=createAsyncThunk(
             const response=await axios.patch(`/api/workspaces/${workspaceId}`,settings,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return response.data.worksapce
+            return response.data.workspace; // Corrected typo here
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to update settings')
         }
@@ -138,7 +113,7 @@ export const inviteWorkspaceMember=createAsyncThunk(
             const response=await axios.post(`/api/workspaces/${workspaceId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return {workspaceId,message:response.data.message}
+            return response.data.workspace; // Return updated workspace
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to invite member')
         }
@@ -150,10 +125,10 @@ export const updateWorkspaceMemberRole=createAsyncThunk(
     async({workspaceId,memberUserId,role},{getState,rejectWithValue})=>{
         try {
             const token=getToken(getState)
-            const response=await axios.patch(`/api/workspaces/${workspaceId}/members/${memberUserId}/role`,{role},{
+            await axios.patch(`/api/workspaces/${workspaceId}/members/${memberUserId}/role`,{role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return {workspaceId,message:response.data.message}
+            return {workspaceId, memberUserId, role};
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to update member role')
         }
@@ -201,7 +176,6 @@ const workspaceSlice=createSlice({
                 state.isLoading=false
                 state.error=action.payload
             })
-            
             .addCase(fetchWorkspaceDetail.pending,(state)=>{
                 state.isLoading=true
                 state.error=null
@@ -269,7 +243,7 @@ const workspaceSlice=createSlice({
                 state.error=action.payload
             })
             .addCase(inviteWorkspaceMember.fulfilled,(state,action)=>{
-                console.log('Invite success:',action.payload.message)
+                state.workspaceDetail = action.payload;
             })
             .addCase(inviteWorkspaceMember.rejected,(state,action)=>{
                 state.isLoading=false
@@ -277,7 +251,7 @@ const workspaceSlice=createSlice({
             })
             .addCase(updateWorkspaceMemberRole.fulfilled,(state,action)=>{
                 if(state.workspaceDetail?._id===action.payload.workspaceId){
-                    const memberIndex=state.workspaceDetail.members.findIndex(m=>m.user._id===action.payload.memberUserId || m.user===action.payload.memberUserId)
+                    const memberIndex=state.workspaceDetail.members.findIndex(m=> (m.user._id || m.user) === action.payload.memberUserId)
                     if(memberIndex!==-1){
                         state.workspaceDetail.members[memberIndex].role=action.payload.role
                     }

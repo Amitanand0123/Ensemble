@@ -1,4 +1,3 @@
-import React from 'react'
 const Testimonials = () => {
     const testimonials = [
       {
@@ -48,7 +47,7 @@ const Testimonials = () => {
                   ))}
                 </div>
                 <blockquote className="text-gray-300 mb-6">
-                  "{testimonial.quote}"
+                  {testimonial.quote}
                 </blockquote>
                 <div className="flex items-center">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full" />

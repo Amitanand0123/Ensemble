@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser,loginUser,forgotPassword, verifyEmail, logoutUser, resetPassword } from '../controllers/authController.js'
+import { registerUser,loginUser,forgotPassword, verifyEmail, logoutUser, resetPassword, resendVerificationEmail } from '../controllers/authController.js'
 import {protect} from '../middlewares/auth.js'
 import { loginValidation, registerValidation, validateRequest } from '../middlewares/validation.js';
 import passport from 'passport';
@@ -17,7 +17,8 @@ router.get('/me',protect,(req,res)=>{
     res.json({user:req.user})
 });
 
-router.get('/verify-email/:token',verifyEmail);
+router.post('/verify-email',verifyEmail);
+router.post('/resend-verification', resendVerificationEmail);
 
 router.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -37,18 +38,11 @@ router.get('/google/callback',
                 console.error("Google Callback: req.user object is missing required properties",JSON.stringify(req.user))
                 throw new Error("User data from Google authentication is incomplete.")
             }
-            // console.log("Google Callback: Attempting to sign token for user:",JSON.stringify({
-            //     userId:req.user._id,
-            //     role:req.user.role,
-            //     email:req.user.email
-            // }))
-            // console.log("Google Callback:Using JWT_SECRET:",process.env.JWT_SECRET?'******(loaded)':'!!! NOT LOADED or EMPTY !!!')
             const accessToken=jwt.sign(
                 {userId:req.user._id,role:req.user.role,email:req.user.email},
                 process.env.JWT_SECRET,
                 {expiresIn:'1d'}
             )
-            // console.log(`Google Callback: TOken generated successfully for  ${req.user.email} Redirecting to frontend`)
             res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${accessToken}`)
         } catch (error) {
             console.error("Error generating token or redirecting: ",error);

@@ -1,32 +1,29 @@
-// --- START OF FILE frontend/src/components/chat/MessageInput.jsx ---
-
-// components/chat/MessageInput.jsx
-import React, { useState, useRef, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios'; // Import axios
+import { useState, useRef, useEffect } from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios'; 
 import { useChatSocket } from '../../hooks/useChatSocket';
-import { Button } from '@/components/ui/button'; // Assuming Shadcn UI
-import { Input } from '@/components/ui/input'; // Assuming Shadcn UI
-import { Paperclip, XCircle, Loader2, Send } from 'lucide-react'; // Icons, Added Send
-import { toast } from 'react-hot-toast'; // Notifications
+import { Button } from '@/components/ui/button'; 
+import { Input } from '@/components/ui/input'; 
+import { Paperclip, XCircle, Loader2, Send } from 'lucide-react'; 
+import { toast } from 'react-hot-toast'; 
+import PropTypes from 'prop-types';
 
 const MessageInput = ({ chatType, targetId, isConnected }) => {
-    const dispatch = useDispatch(); // Keep dispatch if needed for other actions
     const [message, setMessage] = useState('');
-    const [pendingAttachments, setPendingAttachments] = useState([]); // Store metadata of uploaded files
+    const [pendingAttachments, setPendingAttachments] = useState([]); 
     const [isUploading, setIsUploading] = useState(false);
     const [uploadError, setUploadError] = useState(null);
-    const [sendStatus, setSendStatus] = useState(''); // 'sending', 'error', ''
+    const [sendStatus, setSendStatus] = useState(''); 
 
-    const token = useSelector(state => state.auth.token); // Get token for auth headers
-    // Get socket methods from the hook
+    const token = useSelector(state => state.auth.token); 
+    
     const { sendPersonalMessage, sendWorkspaceMessage, sendProjectMessage, setTyping } = useChatSocket(token);
     const typingTimeoutRef = useRef(null);
-    const fileInputRef = useRef(null); // Ref for file input
+    const fileInputRef = useRef(null); 
 
-    // Typing indicator logic
+    
     const handleTyping = () => {
-        if (!targetId) return; // Don't send typing if target is not set
+        if (!targetId) return; 
         setTyping(chatType, targetId, true);
         if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
         typingTimeoutRef.current = setTimeout(() => {
@@ -36,14 +33,14 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
      useEffect(() => {
          return () => {
             if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-             // Stop typing on unmount or change
+             
              if (targetId) {
                  setTyping(chatType, targetId, false);
              }
          };
-     }, [chatType, targetId, setTyping]); // Ensure dependencies are correct
+     }, [chatType, targetId, setTyping]); 
 
-    // --- File Upload Handler ---
+    
     const handleFileChange = async (event) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -56,9 +53,9 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
         formData.append('chatAttachment', file);
 
         try {
-            // Changed endpoint if needed, ensure backend route exists and works
+            
             const response = await axios.post(
-                '/api/chat/upload', // Verify this endpoint in your backend
+                '/api/chat/upload', 
                 formData,
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
@@ -82,25 +79,25 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
         }
     };
 
-    // --- Remove Pending Attachment ---
+    
     const removePendingAttachment = (indexToRemove) => {
         setPendingAttachments(prev => prev.filter((_, index) => index !== indexToRemove));
     };
 
-    // --- Message Submit Handler ---
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
-        // Basic check
+        
         if ((!message.trim() && pendingAttachments.length === 0) || !targetId || !chatType) return;
-        // Prevent sending while already sending or uploading
+        
         if (isUploading || sendStatus === 'sending') return;
 
         try {
             setSendStatus('sending');
-            setTyping(chatType, targetId, false); // Stop typing indicator
+            setTyping(chatType, targetId, false); 
 
-            // Use the hook's functions
-            const attachmentsToSend = pendingAttachments; // Current attachments
+            
+            const attachmentsToSend = pendingAttachments; 
 
             if (chatType === 'personal') {
                 await sendPersonalMessage(targetId, message, attachmentsToSend);
@@ -110,22 +107,22 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                 await sendProjectMessage(targetId, message, attachmentsToSend);
             }
 
-            // --- Clear inputs ONLY on success ---
+            
             setMessage('');
             setPendingAttachments([]);
-            setSendStatus(''); // Reset send status
+            setSendStatus(''); 
 
         } catch (error) {
             console.error('Error sending message via hook:', error);
             setSendStatus('error');
              toast.error(`Failed to send message: ${error}`);
-            // Keep message and attachments in input for retry? Or clear? Decide UX.
-            // Clear status after a delay to allow user to see error/retry state
+            
+            
             setTimeout(() => setSendStatus(''), 3000);
         }
     };
 
-    // Determine if send button should be disabled
+    
     const isSendDisabled = (!message.trim() && pendingAttachments.length === 0) || isUploading || sendStatus === 'sending' || !isConnected;
 
     return (
@@ -142,7 +139,7 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => removePendingAttachment(index)}
-                                className="p-0 h-auto text-red-400 hover:text-red-300 ml-1 flex-shrink-0" // Added flex-shrink-0
+                                className="p-0 h-auto text-red-400 hover:text-red-300 ml-1 flex-shrink-0" 
                                 disabled={isUploading || sendStatus === 'sending'}
                             >
                                 <XCircle className="w-4 h-4" />
@@ -160,8 +157,8 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                     variant="ghost"
                     size="icon"
                     onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading || sendStatus === 'sending' || !isConnected} // Disable if uploading or disconnected
-                    className="text-gray-400 hover:text-white disabled:text-gray-600" // Style disabled state
+                    disabled={isUploading || sendStatus === 'sending' || !isConnected} 
+                    className="text-gray-400 hover:text-white disabled:text-gray-600" 
                     aria-label="Attach file"
                     title="Attach file"
                 >
@@ -172,7 +169,7 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                     ref={fileInputRef}
                     onChange={handleFileChange}
                     className="hidden"
-                     // Consider adding more specific accept types if needed
+                     
                     accept="image/*,application/pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.txt,audio/*,video/*"
                 />
 
@@ -182,18 +179,18 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                     value={message}
                     onChange={(e) => {
                         setMessage(e.target.value);
-                        handleTyping(); // Send typing event
+                        handleTyping(); 
                     }}
                     placeholder={isConnected ? "Type a message..." : "Connecting..."}
-                    className="flex-1 rounded-md bg-gray-700 text-white border-gray-600 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 p-2" // Adjusted focus style
-                    disabled={isUploading || sendStatus === 'sending' || !isConnected} // Disable if uploading or disconnected
+                    className="flex-1 rounded-md bg-gray-700 text-white border-gray-600 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 p-2" 
+                    disabled={isUploading || sendStatus === 'sending' || !isConnected} 
                     autoComplete="off"
                 />
 
                  {/* Send Button */}
                 <Button
                     type="submit"
-                    size="icon" // Make button icon-sized
+                    size="icon" 
                     disabled={isSendDisabled}
                     className={`p-2 rounded-md ${isSendDisabled
                             ? 'bg-gray-500 text-gray-400 cursor-not-allowed'
@@ -203,7 +200,7 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                      title="Send message"
                 >
                     {sendStatus === 'sending' ? (<Loader2 className="w-4 h-4 animate-spin"/>)
-                        : sendStatus === 'error' ? (<XCircle className="w-4 h-4 text-red-400"/>) // Indicate error
+                        : sendStatus === 'error' ? (<XCircle className="w-4 h-4 text-red-400"/>) 
                         : (<Send className="w-4 h-4"/>)} {/* Use Send icon */}
                 </Button>
             </div>
@@ -223,5 +220,10 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
     );
 };
 
+MessageInput.propTypes = {
+    chatType: PropTypes.string.isRequired,
+    targetId: PropTypes.string.isRequired,
+    isConnected: PropTypes.bool.isRequired,
+};
+
 export default MessageInput;
-// --- END OF FILE frontend/src/components/chat/MessageInput.jsx ---

@@ -1,31 +1,31 @@
-// backend/src/controllers/chatbotController.js
-import { CohereClient } from 'cohere-ai'; // Use CohereClient
-const cohere = new CohereClient({ // Use CohereClient
+
+import { CohereClient } from 'cohere-ai'; 
+const cohere = new CohereClient({ 
     token: process.env.COHERE_API_KEY,
 });
 
 export const generateResponse = async (req, res) => {
     try {
-        const { message, conversationHistory = [] } = req.body; // Default history to empty array
+        const { message, conversationHistory = [] } = req.body; 
 
-        // Map frontend roles ('user'/'bot') to Cohere roles ('USER'/'CHATBOT')
+        
         const cohereHistory = conversationHistory.map(msg => ({
-            role: msg.role === 'USER' ? 'USER' : 'CHATBOT', // Map correctly
-            message: msg.message // Use 'message' field
+            role: msg.role === 'USER' ? 'USER' : 'CHATBOT', 
+            message: msg.message 
         }));
 
 
         const response = await cohere.chat({
-            // model: 'command-r', // FIX: Use a valid model like 'command-r' or 'command-r-plus'
-            model: 'command-light', // Or 'command-r-plus' etc.
-            message: message,       // Pass the user's current message here
+            
+            model: 'command-light', 
+            message: message,       
             chatHistory: cohereHistory,
         });
 
         res.json({ reply: response.text });
     } catch (error) {
-        console.error('Cohere API error:', error); // Log the detailed error
-        // Provide more specific error message if possible
+        console.error('Cohere API error:', error); 
+        
         const errorMessage = error.body?.message || error.message || 'Failed to generate response';
         res.status(500).json({ error: errorMessage });
     }

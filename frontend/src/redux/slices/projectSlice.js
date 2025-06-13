@@ -1,8 +1,6 @@
 import {createSlice,createAsyncThunk} from '@reduxjs/toolkit'
 import axios from 'axios'
 
-
-
 const getToken = (getState) => getState().auth.token
 
 export const fetchProjects=createAsyncThunk( 
@@ -34,7 +32,7 @@ export const createProject=createAsyncThunk(
             })
             return response.data.project
         } catch (error) {
-            return rejectWithValue(error.response.data)
+            return rejectWithValue(error.response?.data?.message || 'Failed to create project')
         }
     }
 )
@@ -64,7 +62,7 @@ export const inviteProjectMember=createAsyncThunk(
             const response=await axios.post(`/api/projects/${projectId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return {projectId,message:response.data.message}
+            return response.data.project; // Return the updated project
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to invite member to project')
         }
@@ -119,7 +117,6 @@ export const updateProjectSettings=createAsyncThunk(
 const initialState={
     projects:[],
     currentProject:null,
-    // projectDetail:null,
     isLoading:false,
     error:null
 }
@@ -193,14 +190,14 @@ const projectSlice=createSlice({
                 state.error=action.payload
             })
             .addCase(inviteProjectMember.fulfilled,(state,action)=>{
-                // console.log('Project invite success:',action.payload.message)
+                state.currentProject = action.payload; // Update the project with new member list
             })
             .addCase(inviteProjectMember.rejected,(state,action)=>{
                 state.error=action.payload
             })
             .addCase(updateProjectMemberRole.fulfilled,(state,action)=>{
-                if(state.currentProject._id===action.payload.projectId){
-                    const memberIndex=state.currentProject.members.findIndex(m=>m._id===action.payload.memberUserId)
+                if(state.currentProject?._id===action.payload.projectId){
+                    const memberIndex=state.currentProject.members.findIndex(m=> m.user?._id === action.payload.memberUserId)
                     if(memberIndex!==-1){
                         state.currentProject.members[memberIndex].role=action.payload.role
                     }
@@ -210,8 +207,8 @@ const projectSlice=createSlice({
                 state.error=action.payload
             })
             .addCase(removeProjectMember.fulfilled,(state,action)=>{
-                if(state.currentProject._id===action.payload.projectId){
-                    state.currentProject.members=state.currentProject.members.filter(m=>m._id!==action.payload.memberUserId)
+                if(state.currentProject?._id===action.payload.projectId){
+                    state.currentProject.members=state.currentProject.members.filter(m => m.user?._id !== action.payload.memberUserId)
                 }
             })
             .addCase(removeProjectMember.rejected,(state,action)=>{

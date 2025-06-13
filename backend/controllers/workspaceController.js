@@ -5,8 +5,6 @@ import sendEmail from '../utils/sendEmail.js'
 
 export const createWorkspace = async(req,res)=>{
     try{
-        // console.log('Request user:', req.user); // Check if user exists
-        // console.log('Request body:', req.body); // Check incoming data
         if(req.user.role!=='admin'){
             return res.status(403).json({
                 success:false,
@@ -47,7 +45,7 @@ export const createWorkspace = async(req,res)=>{
             await user.save({validateBeforeSave:false});
         }
         else{
-            console.warn(`User ${req.uesr._id} not found when trying to update workspace list.`)
+            console.warn(`User ${req.user._id} not found when trying to update workspace list.`)
         }
 
         const populatedWorkspace=await Workspace.findById(workspace._id)
@@ -59,8 +57,7 @@ export const createWorkspace = async(req,res)=>{
             workspace:populatedWorkspace
         });
     } catch(error){
-        // console.log('Crete workspace error: ',error);
-        if(error.code==11000){
+        if(error.code===11000){
             return res.status(400).json({
                 success:false,
                 message:'Workspace name already exists.'
@@ -82,7 +79,6 @@ export const getWorkspaces =async(req,res)=>{
                 message:'User not authenticated'
             })
         }
-        // console.log('Finding workspaces for user:', req.user._id);
         const workspaces=await Workspace.find({
             'members.user':req.user._id,
             status:'active'
@@ -90,8 +86,6 @@ export const getWorkspaces =async(req,res)=>{
         .populate('owner','name email')
         .populate('members.user','name email')
         .sort('-createdAt')
-
-        // console.log(`Found ${workspaces.length} workspaces for user ${req.user._id}`);
 
         res.json({
             success:true,
@@ -104,7 +98,7 @@ export const getWorkspaces =async(req,res)=>{
         res.status(500).json({
             success:false,
             message:'Could not fetch workspaces',
-            error:process.env.NODE_ENV==='developement' ? error.message:undefined
+            error:process.env.NODE_ENV==='development' ? error.message:undefined
         });
     }
 }
@@ -112,7 +106,6 @@ export const getWorkspaces =async(req,res)=>{
 export const getWorkspaceById=async(req,res)=>{
     try{
         const workspaceExists = await Workspace.findById(req.params.id);
-        // console.log('Basic workspace check:', workspaceExists);
         const workspace=await Workspace.findOne({
             _id:req.params.id,
             'members.user':req.user._id,
@@ -135,7 +128,7 @@ export const getWorkspaceById=async(req,res)=>{
     } catch(error){
         console.error('Get workspace error: ',error);
         res.status(500).json({
-            successl:false,
+            success:false,
             message:'Could not fetch workspace',
             error:process.env.NODE_ENV==='development' ? error.message:undefined
         })
@@ -266,45 +259,9 @@ export const updateWorkspaceSettings=async(req,res)=>{
     }
 }
 
-// export const inviteToWorkspace=async(req,res)=>{
-//     try {
-//         const {email,role}=req.body;
-//         const workspace=await Workspace.findById(req.params.id);
-
-//         if(!workspace){
-//             return res.status(404).json({success:false,message:'Workspace not found'})
-//         }
-//         if(!workspace.isAdmin(req.user._id)){
-//             return res.status(403).json({success:false,message:'Only admins can invite users'})
-//         }
-
-//         const user=await User.findOne({email});
-//         if(!user){
-//             return res.status(404).json({success:false,message:'User not found'})
-//         }
-
-//         if(workspace.isMember(user._id)){
-//             return res.status(400).json({success:false,message:'User is already a member'})
-//         }
-//         workspace.members.push({user:user._id,role,status:'pending'})
-//         await workspace.save()
-
-//         await sendEmail({
-//             email:user.email,
-//             subject:'Workspace Invitation',
-//             message:`You have been invited to join the "${workspace.name}" workspace.`
-//         })
-        
-//         res.json({success:true,message:'Invitation sent successfully'})
-//     } catch (error) {
-//         console.error('Invite to workspace error:',error);
-//         res.status(500).json({success:false,message:'Could not send invitation',error:process.env.NODE_ENV==='development'?error.message:undefined})
-//     }
-// }
-
 export const inviteToWorkspace = async (req, res) => {
     const { workspaceId } = req.params;
-    const { email, role = 'member' } = req.body; // Default role to 'member'
+    const { email, role = 'member' } = req.body; 
     const inviterId = req.user._id;
 
     const allowedRoles = ['admin', 'member'];
@@ -318,27 +275,27 @@ export const inviteToWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Workspace not found.' });
         }
 
-        // Check if the inviter is an admin
+        
         if (!workspace.isAdmin(inviterId)) {
             return res.status(403).json({ success: false, message: 'Only workspace admins can invite members.' });
         }
 
         const userToInvite = await User.findOne({ email: email.toLowerCase() });
         if (!userToInvite) {
-            // Consider sending an email inviting them to sign up first, or just return error
+            
             return res.status(404).json({ success: false, message: `User with email ${email} not found.` });
         }
 
-        // Check if user is already a member
+        
         if (workspace.isMember(userToInvite._id)) {
             return res.status(400).json({ success: false, message: 'User is already a member of this workspace.' });
         }
 
-        // Add member with 'pending' status (or 'active' if skipping acceptance step)
-        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' }); // Directly add as active for simplicity now
+        
+        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' }); 
         await workspace.save();
 
-        // Also update the user document (optional but good practice)
+        
          const userAlreadyHasWorkspace = userToInvite.workspaces.some(w => w.workspace.toString() === workspaceId);
          if (!userAlreadyHasWorkspace) {
             userToInvite.workspaces.push({ workspace: workspace._id, role: role, lastAccessed: new Date() });
@@ -346,17 +303,16 @@ export const inviteToWorkspace = async (req, res) => {
          }
 
 
-        // Optional: Send notification email
+        
         try {
             await sendEmail({
                 email: userToInvite.email,
                 subject: `You're invited to the ${workspace.name} workspace!`,
                 message: `${req.user.name.first} invited you to join the "${workspace.name}" workspace on Ensemble. You've been added directly. Log in to access it.`,
-                // html: `<p>...</p>` // Optional HTML version
             });
         } catch (emailError) {
             console.error(`Failed to send invitation email to ${email}:`, emailError);
-            // Don't fail the whole request if email fails, but log it
+            
         }
 
         res.status(200).json({ success: true, message: `User ${email} added to the workspace.` });
@@ -367,7 +323,7 @@ export const inviteToWorkspace = async (req, res) => {
     }
 };
 
-// --- Update Member Role in Workspace ---
+
 export const updateMemberRoleInWorkspace = async (req, res) => {
     const { workspaceId, memberUserId } = req.params;
     const { role: newRole } = req.body;
@@ -384,12 +340,12 @@ export const updateMemberRoleInWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Workspace not found.' });
         }
 
-        // Check if requester is admin
+        
         if (!workspace.isAdmin(requesterId)) {
             return res.status(403).json({ success: false, message: 'Only admins can change member roles.' });
         }
 
-        // Prevent changing owner's role
+        
         if (workspace.owner.toString() === memberUserId) {
             return res.status(400).json({ success: false, message: 'Cannot change the role of the workspace owner.' });
         }
@@ -399,21 +355,15 @@ export const updateMemberRoleInWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Member not found in this workspace.' });
         }
 
-        // Prevent admin from demoting themselves if they are the only admin (besides owner)
-         const adminCount = workspace.members.filter(m => m.role === 'admin' && m.user.toString() !== workspace.owner.toString()).length;
-         if (workspace.members[memberIndex].role === 'admin' && newRole === 'member' && adminCount <= 1 && memberUserId === requesterId) {
-            // This logic might need adjustment based on whether owner is also in members list with 'admin' role
-             // Simplified: Just prevent demoting self for now. More complex logic needed for "last admin" scenario.
-             if (memberUserId === requesterId) {
-                return res.status(400).json({ success: false, message: "You cannot demote yourself." });
-             }
+         if (memberUserId === requesterId) {
+            return res.status(400).json({ success: false, message: "You cannot demote yourself." });
          }
 
 
         workspace.members[memberIndex].role = newRole;
         await workspace.save();
 
-         // Update user's workspace role as well
+         
          const user = await User.findById(memberUserId);
          if (user) {
              const workspaceInUser = user.workspaces.find(w => w.workspace.toString() === workspaceId);
@@ -431,7 +381,7 @@ export const updateMemberRoleInWorkspace = async (req, res) => {
     }
 };
 
-// --- Remove Member from Workspace ---
+
 export const removeMemberFromWorkspace = async (req, res) => {
     const { workspaceId, memberUserId } = req.params;
     const requesterId = req.user._id;
@@ -442,17 +392,17 @@ export const removeMemberFromWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Workspace not found.' });
         }
 
-        // Check if requester is admin
+        
         if (!workspace.isAdmin(requesterId)) {
             return res.status(403).json({ success: false, message: 'Only admins can remove members.' });
         }
 
-        // Prevent removing owner
+        
         if (workspace.owner.toString() === memberUserId) {
             return res.status(400).json({ success: false, message: 'Cannot remove the workspace owner.' });
         }
 
-        // Prevent removing self (admin) - might need more complex logic for "last admin"
+        
         if (memberUserId === requesterId) {
             return res.status(400).json({ success: false, message: 'Admins cannot remove themselves. Ask another admin or transfer ownership.' });
         }
@@ -466,7 +416,7 @@ export const removeMemberFromWorkspace = async (req, res) => {
 
         await workspace.save();
 
-         // Remove workspace from user's list
+         
          const user = await User.findById(memberUserId);
          if (user) {
              user.workspaces = user.workspaces.filter(w => w.workspace.toString() !== workspaceId);

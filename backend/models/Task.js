@@ -64,11 +64,6 @@ const TaskSchema = new mongoose.Schema({
         content:String,
         createdAt:{type:Date,default:Date.now}
     }],
-    createdBy:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
-        required:true
-    },
     attachments:[{
         filename:{
             type:String,

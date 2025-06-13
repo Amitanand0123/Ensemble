@@ -8,10 +8,10 @@ import { extractTexFromFile, summarizeText } from '../utils/aiService.js';
 export const uploadWorkspaceFile=async(req,res)=>{
     const {workspaceId}=req.params;
     if(!req.files || req.files.length===0){
-        // console.log(`[uploadWorkspaceFile] Request received for workspace: ${workspaceId}`);
-        // console.log('[uploadWorkspaceFile] req.headers:', JSON.stringify(req.headers, null, 2));
-        // console.log('[uploadWorkspaceFile] req.body:', req.body);
-        // console.log('[uploadWorkspaceFile] req.files:', req.files);
+        
+        
+        
+        
 
         return res.status(400).json({
             success:false,

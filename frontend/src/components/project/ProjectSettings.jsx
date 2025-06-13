@@ -1,8 +1,6 @@
-// src/components/project/ProjectSettings.jsx
-
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { useForm } from 'react-hook-form'; // Import useForm
+import { useForm } from 'react-hook-form';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,70 +9,46 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-// Import Shadcn Form components
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { format } from 'date-fns';
-import { updateProjectSettings, fetchProjectDetail } from '../../redux/slices/projectSlice';
+import { updateProjectSettings} from '../../redux/slices/projectSlice';
 import { toast } from 'react-hot-toast';
 import PropTypes from 'prop-types';
-// Optional: If using Zod for validation
-// import { zodResolver } from '@hookform/resolvers/zod';
-// import * as z from 'zod';
 
-// Optional: Define a Zod schema for validation
-// const projectSettingsSchema = z.object({
-//     name: z.string().min(3, { message: "Project name must be at least 3 characters." }).max(100),
-//     description: z.string().max(1000).optional(),
-//     priority: z.enum(['low', 'medium', 'high', 'critical']),
-//     endDate: z.date().nullable().optional(),
-//     'settings.isPrivate': z.boolean(),
-//     'settings.visibility': z.enum(['workspace', 'members', 'admins']),
-//     // 'settings.tags': z.array(z.string()).optional(), // Example if tags were editable
-// });
 
 
 const ProjectSettings = ({ project }) => {
     const dispatch = useDispatch();
-    const [localError, setLocalError] = useState(''); // For backend errors
+    const [localError, setLocalError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // --- Initialize react-hook-form ---
     const form = useForm({
-        // resolver: zodResolver(projectSettingsSchema), // Optional: Add resolver
-        defaultValues: { // Set initial values when form mounts
+        defaultValues: {
             name: '',
             description: '',
             priority: 'medium',
             endDate: null,
             'settings.isPrivate': false,
             'settings.visibility': 'workspace',
-            // 'settings.tags': [],
         }
     });
-
-    // Effect to reset form values when the 'project' prop changes
     useEffect(() => {
         if (project) {
-            form.reset({ // Use form.reset to update defaultValues reactively
+            form.reset({
                 name: project.name || '',
                 description: project.description || '',
                 priority: project.priority || 'medium',
                 endDate: project.endDate ? new Date(project.endDate) : null,
                 'settings.isPrivate': project.settings?.isPrivate || false,
                 'settings.visibility': project.settings?.visibility || 'workspace',
-                // 'settings.tags': project.settings?.tags || [],
             });
-            setLocalError(''); // Clear previous errors
+            setLocalError('');
         }
-    }, [project, form]); // Add form as dependency for form.reset
+    }, [project, form]);
 
-    // --- Form Submission Handler ---
-    const onSubmit = async (data) => { // data is validated form values from react-hook-form
+    const onSubmit = async (data) => {
         setLocalError('');
         setIsSubmitting(true);
-
-        // Prepare data payload matching backend expectations
         const updateData = {
             name: data.name,
             description: data.description,
@@ -82,14 +56,11 @@ const ProjectSettings = ({ project }) => {
             endDate: data.endDate ? data.endDate.toISOString() : null,
             'settings.isPrivate': data['settings.isPrivate'],
             'settings.visibility': data['settings.visibility'],
-            // 'settings.tags': data['settings.tags'], // Include if needed
         };
 
         try {
             await dispatch(updateProjectSettings({ projectId: project._id, settings: updateData })).unwrap();
             toast.success('Project settings updated successfully!');
-            // Optionally refetch details
-            // dispatch(fetchProjectDetail(project._id));
         } catch (error) {
             setLocalError(error || 'Failed to update project settings');
             toast.error(`Update failed: ${error || 'Unknown error'}`);
@@ -97,8 +68,6 @@ const ProjectSettings = ({ project }) => {
             setIsSubmitting(false);
         }
     };
-
-    // Loading state based on project prop
     if (!project) {
         return <div className="text-white p-6">Loading project settings...</div>;
     }
@@ -114,31 +83,25 @@ const ProjectSettings = ({ project }) => {
                         Error: {localError}
                     </div>
                 )}
-
-                {/* --- Wrap form content with Shadcn Form Provider --- */}
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
-                        {/* --- Project Name (Using FormField) --- */}
                         <FormField
                             control={form.control}
-                            name="name" // Matches key in defaultValues/schema
-                            render={({ field }) => ( // 'field' contains { onChange, onBlur, value, name, ref }
+                            name="name"
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Project Name</FormLabel>
                                     <FormControl>
                                         <Input
                                             placeholder="Enter project name"
-                                            {...field} // Spread field props onto the Input
+                                            {...field}
                                             className="bg-gray-700 border-gray-600"
                                         />
                                     </FormControl>
-                                    <FormMessage className="text-red-400" /> {/* Shows validation errors */}
+                                    <FormMessage className="text-red-400" />
                                 </FormItem>
                             )}
                         />
-
-                        {/* --- Description (Using FormField) --- */}
                         <FormField
                             control={form.control}
                             name="description"
@@ -149,7 +112,7 @@ const ProjectSettings = ({ project }) => {
                                         <Textarea
                                             placeholder="Enter project description"
                                             rows={4}
-                                            {...field} // Spread field props
+                                            {...field}
                                             className="bg-gray-700 border-gray-600"
                                         />
                                     </FormControl>
@@ -157,10 +120,7 @@ const ProjectSettings = ({ project }) => {
                                 </FormItem>
                             )}
                         />
-
-                        {/* --- Priority & Visibility Grid --- */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Priority (Using FormField) */}
                             <FormField
                                 control={form.control}
                                 name="priority"
@@ -185,10 +145,9 @@ const ProjectSettings = ({ project }) => {
                                 )}
                             />
 
-                            {/* Visibility (Using FormField) */}
                             <FormField
                                 control={form.control}
-                                name="settings.visibility" // Use dot notation for nested fields
+                                name="settings.visibility"
                                 render={({ field }) => (
                                     <FormItem>
                                         <FormLabel>Visibility</FormLabel>
@@ -210,7 +169,6 @@ const ProjectSettings = ({ project }) => {
                             />
                         </div>
 
-                        {/* --- End Date (Using FormField) --- */}
                         <FormField
                             control={form.control}
                             name="endDate"
@@ -233,7 +191,7 @@ const ProjectSettings = ({ project }) => {
                                             <Calendar
                                                 mode="single"
                                                 selected={field.value ? new Date(field.value) : null}
-                                                onSelect={field.onChange} // RHF's onChange handles the date object
+                                                onSelect={field.onChange}
                                                 initialFocus
                                                 className="text-white [&_button]:text-white [&_button:hover]:bg-gray-600 [&_button[aria-selected]]:bg-blue-600"
                                             />
@@ -244,10 +202,9 @@ const ProjectSettings = ({ project }) => {
                             )}
                         />
 
-                        {/* --- Is Private Switch (Using FormField) --- */}
                         <FormField
                             control={form.control}
-                            name="settings.isPrivate" // Dot notation for nested field
+                            name="settings.isPrivate" 
                             render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
                                     <div className="space-y-0.5">
@@ -258,17 +215,16 @@ const ProjectSettings = ({ project }) => {
                                     </div>
                                     <FormControl>
                                         <Switch
-                                            checked={field.value} // Use field.value for checked state
-                                            onCheckedChange={field.onChange} // Use field.onChange for state update
+                                            checked={field.value}
+                                            onCheckedChange={field.onChange}
                                         />
                                     </FormControl>
                                 </FormItem>
                             )}
                         />
 
-                        {/* --- Action Buttons --- */}
                         <div className="flex justify-end space-x-4 pt-4">
-                            <Button type="button" variant="outline" onClick={() => form.reset()}> {/* Reset form on Cancel */}
+                            <Button type="button" variant="outline" onClick={() => form.reset()}>
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
@@ -276,13 +232,12 @@ const ProjectSettings = ({ project }) => {
                             </Button>
                         </div>
                     </form>
-                </Form> {/* --- End Shadcn Form Provider --- */}
+                </Form>
             </CardContent>
         </Card>
     );
 };
 
-// PropType definition (remains the same)
 ProjectSettings.propTypes = {
     project: PropTypes.shape({
         _id: PropTypes.string.isRequired,

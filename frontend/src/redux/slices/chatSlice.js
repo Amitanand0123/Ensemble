@@ -21,7 +21,7 @@ export const fetchPersonalMessages = createAsyncThunk(
   'chat/fetchPersonal',
   async (userId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/api/chats/personal/${userId}`);
+      const response = await axios.get(`/api/chat/personal/${userId}`);
       return {
         userId,
         messages: response.data.messages
@@ -36,7 +36,7 @@ export const fetchWorkspaceMessages = createAsyncThunk(
   'chat/fetchWorkspace',
   async (workspaceId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/api/chats/workspace/${workspaceId}`);
+      const response = await axios.get(`/api/chat/workspace/${workspaceId}`);
       return {
         workspaceId,
         messages: response.data.messages
@@ -51,7 +51,7 @@ export const fetchProjectMessages = createAsyncThunk(
   'chat/fetchProject',
   async (projectId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`/api/chats/project/${projectId}`);
+      const response = await axios.get(`/api/chat/project/${projectId}`);
       return {
         projectId,
         messages: response.data.messages
@@ -66,7 +66,7 @@ export const markAsRead = createAsyncThunk(
   'chat/markAsRead',
   async (chatId, { rejectWithValue }) => {
     try {
-      await axios.patch(`/api/chats/read/${chatId}`);
+      await axios.patch(`/api/chat/read/${chatId}`);
       return chatId;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
@@ -82,19 +82,24 @@ const chatSlice = createSlice({
       state.currentChat = action.payload;
 
       if (action.payload) {
-        // Reset unread count when user opens chat
+        
         state.unreadCount = 0;
       }
     },
     addPersonalMessage: (state, action) => {
-      const { senderId, message } = action.payload;
-      if (!state.personalMessages[senderId]) {
-        state.personalMessages[senderId] = [];
+      const {  message } = action.payload;
+      const chatKey = message.sender === state.currentChat?.userId ? message.receiver : message.sender; 
+
+      if (!state.personalMessages[chatKey]) {
+        state.personalMessages[chatKey] = [];
       }
-      state.personalMessages[senderId].push(message);
       
-      // Only increment unread count if not currently viewing this chat
-      if (!state.currentChat || state.currentChat.type !== 'personal' || state.currentChat.userId !== senderId) {
+      if (!state.personalMessages[chatKey].find(m => m._id === message._id)) {
+        state.personalMessages[chatKey].push(message);
+      }
+      
+      
+      if (!state.currentChat || state.currentChat.type !== 'personal' || state.currentChat.id !== chatKey) {
         state.unreadCount++;
       }
     },
@@ -103,10 +108,12 @@ const chatSlice = createSlice({
       if (!state.workspaceMessages[workspaceId]) {
         state.workspaceMessages[workspaceId] = [];
       }
-      state.workspaceMessages[workspaceId].push(message);
+       
+      if (!state.workspaceMessages[workspaceId].find(m => m._id === message._id)) {
+        state.workspaceMessages[workspaceId].push(message);
+      }
       
-      // Only increment unread count if not currently viewing this chat
-      if (!state.currentChat || state.currentChat.type !== 'workspace' || state.currentChat.workspaceId !== workspaceId) {
+      if (!state.currentChat || state.currentChat.type !== 'workspace' || state.currentChat.id !== workspaceId) {
         state.unreadCount++;
       }
     },
@@ -115,10 +122,12 @@ const chatSlice = createSlice({
       if (!state.projectMessages[projectId]) {
         state.projectMessages[projectId] = [];
       }
-      state.projectMessages[projectId].push(message);
       
-      // Only increment unread count if not currently viewing this chat
-      if (!state.currentChat || state.currentChat.type !== 'project' || state.currentChat.projectId !== projectId) {
+      if (!state.projectMessages[projectId].find(m => m._id === message._id)) {
+        state.projectMessages[projectId].push(message);
+      }
+      
+      if (!state.currentChat || state.currentChat.type !== 'project' || state.currentChat.id !== projectId) {
         state.unreadCount++;
       }
     },
@@ -137,6 +146,14 @@ const chatSlice = createSlice({
         state.typingUsers[chatType][chatId][userId] = userName;
       } else {
         delete state.typingUsers[chatType][chatId][userId];
+        
+        if (Object.keys(state.typingUsers[chatType][chatId]).length === 0) {
+          delete state.typingUsers[chatType][chatId];
+        }
+        
+        if (Object.keys(state.typingUsers[chatType]).length === 0) {
+          delete state.typingUsers[chatType];
+        }
       }
     },
     clearUnreadCount: (state) => {
@@ -144,12 +161,9 @@ const chatSlice = createSlice({
     },
     addActiveChat: (state, action) => {
       const chat = action.payload;
-      // Check if already exists
+      
       const exists = state.activeChats.some(c => 
-        c.type === chat.type && 
-        ((c.type === 'personal' && c.userId === chat.userId) || 
-         (c.type === 'workspace' && c.workspaceId === chat.workspaceId) ||
-         (c.type === 'project' && c.projectId === chat.projectId))
+        c.type === chat.type && c.id === chat.id
       );
       
       if (!exists) {
@@ -157,19 +171,10 @@ const chatSlice = createSlice({
       }
     },
     removeActiveChat: (state, action) => {
-      const chat = action.payload;
-      state.activeChats = state.activeChats.filter(c => {
-        if (c.type !== chat.type) return true;
-        
-        if (c.type === 'personal') {
-          return c.userId !== chat.userId;
-        } else if (c.type === 'workspace') {
-          return c.workspaceId !== chat.workspaceId;
-        } else if (c.type === 'project') {
-          return c.projectId !== chat.projectId;
-        }
-        return true;
-      });
+      const chatIdentifier = action.payload; 
+      state.activeChats = state.activeChats.filter(c => 
+        !(c.type === chatIdentifier.type && c.id === chatIdentifier.id)
+      );
     }
   },
   extraReducers: (builder) => {
@@ -214,30 +219,26 @@ const chatSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
-        // Update read status
-        const chatId = action.payload;
-        const currentUserId = state.currentChat?.userId;
+        const chatId = action.payload; 
+        const currentUserId = state.auth?.user?._id; 
         
         if (!currentUserId) return;
         
-        const markMessageAsRead = (message) => {
-          if (message._id === chatId && !message.readBy.includes(currentUserId)) {
-            message.readBy.push(currentUserId);
+        const markMessageAsReadInList = (messageList) => {
+          if (!messageList) return;
+          const message = messageList.find(m => m._id === chatId);
+          if (message && !message.readBy.some(reader => reader.user === currentUserId)) {
+            message.readBy.push({ user: currentUserId, readAt: new Date().toISOString() });
           }
         };
         
-        Object.values(state.personalMessages).forEach(messages => {
-          messages.forEach(markMessageAsRead);
-        });
         
-        Object.values(state.workspaceMessages).forEach(messages => {
-          messages.forEach(markMessageAsRead);
-        });
+        Object.values(state.personalMessages).forEach(markMessageAsReadInList);
+        Object.values(state.workspaceMessages).forEach(markMessageAsReadInList);
+        Object.values(state.projectMessages).forEach(markMessageAsReadInList);
+
         
-        Object.values(state.projectMessages).forEach(messages => {
-          messages.forEach(markMessageAsRead);
-        });
-      })
+      });
   }
 });
 
@@ -252,16 +253,23 @@ export const {
   removeActiveChat
 } = chatSlice.actions;
 
-// Selectors
-export const selectCurrentChat = (state) => state.chat.currentChat;
-export const selectPersonalMessages = (userId) => (state) => state.chat.personalMessages[userId] || [];
-export const selectWorkspaceMessages = (workspaceId) => (state) => state.chat.workspaceMessages[workspaceId] || [];
-export const selectProjectMessages = (projectId) => (state) => state.chat.projectMessages[projectId] || [];
+
+export const selectCurrentChatInfo = (state) => state.chat.currentChat;
+
+const emptyArray = []; 
+const emptyObject = {}; 
+
+export const selectPersonalMessages = (userId) => (state) => state.chat.personalMessages[userId] || emptyArray;
+export const selectWorkspaceMessages = (workspaceId) => (state) => state.chat.workspaceMessages[workspaceId] || emptyArray;
+export const selectProjectMessages = (projectId) => (state) => state.chat.projectMessages[projectId] || emptyArray;
+
 export const selectTypingUsers = (chatType, chatId) => (state) => {
-  if (!state.chat.typingUsers[chatType]) return {};
-  return state.chat.typingUsers[chatType][chatId] || {};
+  return state.chat.typingUsers?.[chatType]?.[chatId] || emptyObject;
 };
 export const selectUnreadCount = (state) => state.chat.unreadCount;
 export const selectActiveChats = (state) => state.chat.activeChats;
+export const selectChatIsLoading = (state) => state.chat.isLoading;
+export const selectChatError = (state) => state.chat.error;
+
 
 export default chatSlice.reducer;

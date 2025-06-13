@@ -1,14 +1,9 @@
-// frontend/src/components/landing/PricingSection.jsx (Example)
-import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import PaymentButton from '@/components/payment/PaymentButton';
 import { Check } from 'lucide-react';
-import { useSelector, useDispatch } from 'react-redux'; // Import useDispatch
-// import { updateUser } from '@/redux/slices/authSlice'; // Import action to update user state
+import { useSelector } from 'react-redux'; 
 
-
-// Fetch plan details from your config or define here
 const plansData = [
     { id: 'FREE', name: 'Free', price: 0, currency: 'INR', features: ['1 Workspace', '2 Projects', 'Basic Chat'] },
     { id: 'BASIC', name: 'Basic', price: 500, currency: 'INR', features: ['5 Workspaces', 'Unlimited Projects', 'File Sharing', 'Basic Support'] },
@@ -18,27 +13,27 @@ const plansData = [
 
 const Pricing = () => {
     const { isAuthenticated, user } = useSelector(state => state.auth);
-    // const dispatch = useDispatch(); // Get dispatch function
+    
 
     const handlePaymentSuccess = (paymentData) => {
-        // console.log("Payment success data from callback:", paymentData);
+        
         const newPlan = paymentData?.updatedUser?.plan;
         if (newPlan) {
-             // Option 1: Simple Alert (as before)
+             
              alert(`Successfully upgraded to the ${newPlan} plan!`);
 
-            // Option 2: Update Redux state (better UX)
-            // Dispatch an action to update the user state in Redux
-            // This assumes your authSlice has an 'updateUser' reducer
-            // dispatch(updateUser({ preferences: { ...user.preferences, plan: newPlan } }));
-            // toast.success(`Plan upgraded to ${newPlan}!`); // Use toast for better feedback
+            
+            
+            
+            
+            
         }
-        // Optionally refetch full user profile if needed:
-        // dispatch(fetchUserProfile());
+        
+        
     };
 
-    // Determine the user's current plan (assuming it's stored in user.preferences.plan)
-    const currentPlanId = user?.preferences?.plan || 'FREE'; // Default to FREE if no plan found
+    
+    const currentPlanId = user?.preferences?.plan || 'FREE'; 
 
     return (
         <section className="py-20 bg-gray-900 text-white">
@@ -75,13 +70,13 @@ const Pricing = () => {
                                     {isCurrentPlan ? (
                                         <Button className="w-full" variant="outline" disabled>Current Plan</Button>
                                     ) : plan.price === 0 ? (
-                                         <Button className="w-full" variant="outline" disabled>Free Plan</Button> // Should not happen if currentPlanId logic is right
+                                         <Button className="w-full" variant="outline" disabled>Free Plan</Button> 
                                     ): (
                                         isAuthenticated ? (
                                             <PaymentButton
-                                                amount={plan.price}     // For display on button
-                                                planId={plan.id}        // ID to send to backend
-                                                planName={plan.name}    // For display on button/checkout
+                                                amount={plan.price}     
+                                                planId={plan.id}        
+                                                planName={plan.name}    
                                                 onPaymentSuccess={handlePaymentSuccess}
                                             />
                                         ) : (

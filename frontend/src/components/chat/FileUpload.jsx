@@ -1,6 +1,6 @@
-import React from 'react';
 import { useChatSocket } from '../../hooks/useChatSocket';
 import { Paperclip } from 'lucide-react';
+import PropTypes from 'prop-types';
 
 const FileUpload = ({ chatType, targetId, setIsUploading }) => {
   const { uploadChatFile } = useChatSocket(localStorage.getItem('token'));
@@ -44,6 +44,12 @@ const FileUpload = ({ chatType, targetId, setIsUploading }) => {
       </label>
     </div>
   );
+};
+
+FileUpload.propTypes = {
+  chatType: PropTypes.string.isRequired,
+  targetId: PropTypes.string.isRequired,
+  setIsUploading: PropTypes.func.isRequired,
 };
 
 export default FileUpload;

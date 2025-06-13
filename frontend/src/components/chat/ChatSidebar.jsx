@@ -4,6 +4,7 @@ import { Button } from '../ui/button'
 import { MessageSquare, X } from 'lucide-react'
 import { Card } from '../ui/card'
 import ChatWindow from './ChatWindow'
+import PropTypes from 'prop-types';
 
 const ChatSidebar = ({type,targetId}) => {
     const [isOpen,setIsOpen] = useState(false)
@@ -48,5 +49,10 @@ const ChatSidebar = ({type,targetId}) => {
         </>
     )
 }
+
+ChatSidebar.propTypes = {
+    type: PropTypes.oneOf(['workspace', 'project']).isRequired,
+    targetId: PropTypes.string.isRequired,
+};
 
 export default ChatSidebar;

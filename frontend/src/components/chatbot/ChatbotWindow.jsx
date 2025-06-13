@@ -1,7 +1,7 @@
-// frontend/src/components/chatbot/ChatbotWindow.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
+import PropTypes from 'prop-types';
 
 const ChatbotWindow = ({ onClose }) => {
   const [messages, setMessages] = useState([
@@ -30,7 +30,6 @@ const ChatbotWindow = ({ onClose }) => {
     setIsLoading(true);
 
     try {
-      // Create conversation history in the format expected by Cohere
       const conversationHistory = messages.map(msg => ({
         role: msg.sender === 'user' ? 'USER' : 'CHATBOT',
         message: msg.text
@@ -96,7 +95,7 @@ const ChatbotWindow = ({ onClose }) => {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="flex-1 rounded-l-lg border border-gray-300 px-4 py-2 focus:outline-none focus:border-blue-500"
+          className="text-black flex-1 rounded-l-lg border border-gray-300 px-4 py-2 focus:outline-none focus:border-blue-500"
           disabled={isLoading}
         />
         <button 
@@ -111,6 +110,10 @@ const ChatbotWindow = ({ onClose }) => {
       </form>
     </div>
   );
+};
+
+ChatbotWindow.propTypes = {
+  onClose: PropTypes.func.isRequired,
 };
 
 export default ChatbotWindow;
