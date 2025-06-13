@@ -23,7 +23,10 @@ import './config/passport-config.js';
 
 const app = express();
 
-const allowedOrigins=[process.env.FRONTEND_URL || 'http://localhost:5173'];
+const allowedOrigins = [
+    process.env.FRONTEND_URL,
+    'http://localhost:5173' 
+].filter(Boolean); 
 
 const corsOptions={
     origin:function(origin,callback){
@@ -56,6 +59,7 @@ app.use(session({
     cookie: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
+        sameSite: 'None',
         maxAge: 24 * 60 * 60 * 1000 // 1 day
     }
 }))
