@@ -5,4 +5,4 @@ dist
 .git
 .gitignore
 Dockerfile
-nginx.conf
+nginx.conf 

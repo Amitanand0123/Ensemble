@@ -23,19 +23,23 @@ import './config/passport-config.js';
 
 const app = express();
 
-const allowedOrigins = [
-    process.env.FRONTEND_URL,
-    'http://localhost:5173' 
-].filter(Boolean); 
+const devFrontendUrl = 'http://localhost:5173';
+const prodFrontendUrl = process.env.FRONTEND_URL;
+
+const allowedOrigins = [devFrontendUrl];
+if (prodFrontendUrl) {
+    allowedOrigins.push(prodFrontendUrl);
+} 
 
 const corsOptions={
     origin:function(origin,callback){
-        if(!origin || allowedOrigins.indexOf(origin)!==-1){
-            callback(null,true)
-        }
-        else{
-            console.error("CORS Check - Denied:",origin);
-            callback(new Error('Not allowed by CORS'))
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) !== -1) {
+            callback(null, true);
+        } else {
+            console.error("CORS Check - Denied:", origin);
+            console.log("Allowed Origins:", allowedOrigins);
+            callback(new Error('Not allowed by CORS'));
         }
     },
     credentials:true,
@@ -85,7 +89,7 @@ const server = http.createServer(app);
 
 const io = setupSocketIO(server);
 
-server.listen(PORT, () => {
+server.listen(PORT,'0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     if(!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET){
         console.warn("Reminder: Razorpay API keys are missing or not loaded from .env")
