@@ -64,7 +64,7 @@ app.use(session({
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         sameSite: 'None',
-        maxAge: 24 * 60 * 60 * 1000 // 1 day
+        maxAge: 24 * 60 * 60 * 1000
     }
 }))
 app.use(passport.initialize())
@@ -92,6 +92,6 @@ const io = setupSocketIO(server);
 server.listen(PORT,'0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
     if(!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET){
-        console.warn("Reminder: Razorpay API keys are missing or not loaded from .env")
+        console.warn("Reminder:Razorpay API keys are missing or seemse like it is not loaded from .env")
     }
 });
