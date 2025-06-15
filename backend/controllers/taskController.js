@@ -1,8 +1,5 @@
 import Task from "../models/Task.js";
 import Project from "../models/Project.js";
-import Workspace from "../models/Workspace.js";
-import User from "../models/User.js";
-import { setupSocketIO } from "../utils/socket.js"; 
 import { uploadToCloud } from "../utils/fileUpload.js";
 
 export const createTask=async(req,res)=>{
@@ -243,6 +240,7 @@ export const updateTask=async(req,res)=>{
                 try {
                     value=JSON.parse(value)
                 } catch (error) {
+                    console.error('Update task error:',error);
                     if(update==='tags'){
                         value=value.split(',').map(t=>t.trim()).filter(t=>t)
                     }
@@ -453,7 +451,7 @@ export const addTaskComment=async(req,res)=>{
 
 export const addTaskDependeny=async(req,res)=>{
     try {
-        const {taskId,dependencyId}=req.body;
+        const {dependencyId}=req.body;
         const task=await Task.findById(req.params.id)
         
         if(!task){

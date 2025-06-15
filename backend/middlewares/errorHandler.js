@@ -1,5 +1,4 @@
-const errorHandler = (err,req,res,next)=>{
-    
+const errorHandler = (err,req,res)=>{
 
     if(err.name==='ValidationError'){
         const messages=Object.values(err.errors).map(val=>val.message);
@@ -16,7 +15,7 @@ const errorHandler = (err,req,res,next)=>{
         })
     }
 
-    if(err.name==='JsonWebTokenEror'){
+    if(err.name==='JsonWebTokenError'){
         return res.status(401).json({
             success:false,
             error:'Invalid token'

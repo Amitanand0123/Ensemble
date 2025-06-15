@@ -25,7 +25,7 @@ async function testDocxExtraction() {
         
         
         const result = await mammoth.extractRawText({ buffer: fileBuffer });
-
+        console.log(result.value);
         
         
         

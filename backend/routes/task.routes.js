@@ -58,6 +58,7 @@ router.post('/:id/comments',
                 message:errors.array()[0].msg
             })
         }   
+        next()
     },
     addTaskComment
 )

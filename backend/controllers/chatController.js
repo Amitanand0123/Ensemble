@@ -1,5 +1,4 @@
 import Chat from "../models/Chat.js";
-import User from "../models/User.js";
 import Project from "../models/Project.js";
 import Workspace from "../models/Workspace.js";
 import { uploadToCloud } from "../utils/fileUpload.js";
@@ -156,11 +155,11 @@ export const uploadChatAttachment=async(req,res)=>{
                 success:false,
                 message:'File size limit exceeded'
             })
-            res.status(500).json({
-                success:false,
-                message:'Failed to upload file.',
-                error:process.env.NODE_ENV==='development'?error.message:undefined
-            })
         }
+        res.status(500).json({
+            success:false,
+            message:'Failed to upload file.',
+            error:process.env.NODE_ENV==='development'?error.message:undefined
+        })
     }
 }

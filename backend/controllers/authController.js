@@ -1,5 +1,4 @@
 import User from '../models/User.js'
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import dotenv from 'dotenv'
 import crypto from 'crypto'
@@ -10,11 +9,6 @@ dotenv.config()
 
 const JWT_SECRET=process.env.JWT_SECRET;
 const JWT_REFRESH_SECRET=process.env.JWT_REFRESH_SECRET;
-
-
-
-
-
 
 const generateTokens = (user) =>{
     const accessToken=jwt.sign(  
@@ -81,9 +75,6 @@ export const registerUser = async(req,res)=>{
         try{
             await sendVerificationEmail(user);
         }catch(error){
-            
-            
-            
             console.error('Error sending verification email:',error);
         }
 
@@ -234,6 +225,7 @@ export const forgotPassword = async(req,res)=>{
             user.security.resetPasswordToken = undefined;
             user.security.resetPasswordExpire = undefined;
             await user.save();
+            console.log('Email sending error:', emailError);
             throw new Error('Email sending failed');
         }
         
@@ -244,6 +236,7 @@ export const forgotPassword = async(req,res)=>{
         });
     } catch(error){
         console.error('Forgot password error:',error)
+        const user=await User.findOne({email:req.body.email});
         if(user){
             user.security.resetPasswordToken=undefined;
             user.security.resetPasswordExpire=undefined;

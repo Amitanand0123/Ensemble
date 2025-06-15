@@ -102,7 +102,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             }
             return await response.text()
         } catch (error) {
-            console.error("Error fetching/reading plain text content.")
+            console.error("Error fetching plain text content:",error)
             throw new Error("Could not read the text file content.")
         }
     }

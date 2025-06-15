@@ -54,6 +54,7 @@ export const setupSocketIO=(server)=>{
                     })
                 }
             } catch (error) {
+                console.error('Task update error:',error)
                 socket.emit('taskError',{message:'Could not update task'})        
             }
         })

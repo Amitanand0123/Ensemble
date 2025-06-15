@@ -38,15 +38,14 @@ export const uploadToCloud = async (fileBuffer, originalFilename, folder = 'ense
     });
 };
 
-export const deleteFromCloud=async(pubic_id)=>{
-    return new Promise((Resolve,reject)=>{
+export const deleteFromCloud=async(public_id)=>{
+    return new Promise((resolve,reject)=>{
         cloudinary.uploader.destroy(public_id,(error,result)=>{
             if(error){
                 console.error("Cloudinary Deletion Error:",error);
                 reject(error)
             }
             else{
-                
                 resolve(result);
             }
         })

@@ -105,7 +105,6 @@ export const getWorkspaces =async(req,res)=>{
 
 export const getWorkspaceById=async(req,res)=>{
     try{
-        const workspaceExists = await Workspace.findById(req.params.id);
         const workspace=await Workspace.findOne({
             _id:req.params.id,
             'members.user':req.user._id,
