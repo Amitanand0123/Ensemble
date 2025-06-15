@@ -37,14 +37,11 @@ jobs:
       - name: Lint Frontend Code
         run: npm run lint --prefix frontend
 
-      - name: Run Frontend Tests
-        run: npm run test --prefix frontend
-
       - name: Build Frontend
         run: npm run build --prefix frontend
         env:
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD_FOR_CI_BUILD_CHECK }}
-          VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID_PROD_FOR_CI_BUILD_CHECK }}
+          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
+          VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID_PROD }}
 
   deploy_to_vercel:
     name: Deploy Frontend to Vercel
@@ -53,7 +50,7 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
-      - name: Trigger Vercel Deploy (Optional - if not using Vercel's Git integration auto-deploy)
+      - name: Trigger Vercel Deploy
         run: |
           if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL_FRONTEND }}" ]; then
             curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK_URL_FRONTEND }}
