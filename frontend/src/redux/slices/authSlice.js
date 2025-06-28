@@ -8,10 +8,9 @@ const handleAuthError=(error)=>{
     return message
 }
 
-
 const initialState={
     user:localStorage.getItem('user')
-        ?JSON.parse(localStorage.getItem('user'))
+        ?JSON.parse(localStorage.getItem('user')) // f yes, parses it (because localStorage stores strings)
         :null,
     token:localStorage.getItem('token') || null,
     isAuthenticated:!!localStorage.getItem('token'),
@@ -23,8 +22,8 @@ const initialState={
 }
 
 export const registerUser=createAsyncThunk(
-    'auth/register',
-    async (userData,{rejectWithValue})=>{
+    'auth/register', // 'auth/register' is the action type.
+    async (userData,{rejectWithValue})=>{ // rejectWithValue() is used to return a custom error to your reducers instead of throwing.
         try {
             const response=await axios.post('/api/auth/register',userData)
             localStorage.setItem('token',response.data.accessToken)
@@ -57,7 +56,7 @@ export const logoutUser = createAsyncThunk(
     async (_, { getState }) => {
         try {
             const token = getState().auth.token;
-            const config = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
+            const config = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {}; // Prepares an Axios config object to send the token in the request header (if token exists).
             await axios.post('/api/auth/logout', {}, config);
         } catch (error) {
             console.warn("Backend logout call failed (might be expected):", error.response?.data || error.message);
@@ -137,21 +136,21 @@ const authSlice=createSlice({
     name:'auth',
     initialState,
     reducers:{
-        resetAuth:(state)=>{
-            Object.assign(state, initialState);
+        resetAuth:(state)=>{ // These are synchronous reducers that change state directly when called
+            Object.assign(state, initialState); // It clones the initial state into current state (a safe way to reset).
             state.isAuthenticated = false;
             state.token = null;
             state.user = null;
             state.isAdmin = false;
         },
-        clearError:(state)=>{
+        clearError:(state)=>{ // This is used to manually dismiss error messages in the UI.
             state.error=null;
         },
-        clearMessage:(state)=>{
+        clearMessage:(state)=>{ // Clears any success/info messages shown to the user (like "Password reset email sent").
             state.message=null
         },
         updateUser:(state,action)=>{
-            if (state.user) {
+            if (state.user) { // This is used when the logged-in user's data changes — maybe profile update or receiving fresh data from backend.
                  state.user={...state.user,...action.payload};
                  localStorage.setItem('user',JSON.stringify(state.user));
                  state.isAdmin=state.user.role==='admin';
@@ -160,7 +159,7 @@ const authSlice=createSlice({
     },
     extraReducers:(builder)=>{
         builder
-        .addCase(registerUser.pending, (state) => {
+        .addCase(registerUser.pending, (state) => { // Triggered when the API request starts.
             state.isLoading = true;
             state.error = null;
             state.message = null;
@@ -260,8 +259,8 @@ const authSlice=createSlice({
             state.message = action.payload.message || 'Email verified successfully.';
             state.error = null;
             if (state.user && state.user.email_verification) {
-                 state.user.email_verification.verified = true;
-                 localStorage.setItem('user', JSON.stringify(state.user));
+                state.user.email_verification.verified = true;
+                localStorage.setItem('user', JSON.stringify(state.user)); // Persist the updated user info in localStorage to keep UI in sync across refresh.
             }
         })
         .addCase(verifyEmail.rejected, (state, action) => {
@@ -284,7 +283,7 @@ const authSlice=createSlice({
                 const storedUser = JSON.parse(localStorage.getItem('user'));
                 if (storedUser) {
                     storedUser.isVerified = true;
-                    localStorage.setItem('user', JSON.stringify(storedUser));
+                    localStorage.setItem('user', JSON.stringify(storedUser)); // Updates the user object stored in localStorage, so it persists after page reloads.
                 }
             }
         })

@@ -16,14 +16,19 @@ import UserProfile from './components/user/UserProfile.jsx';
 import GlobalChatHandler from './components/layout/GlobalChatHandler.jsx';
 import VerifyEmail from './components/auth/VerifyEmail.jsx';
 
+// BrowserRouter (aliased as Router): Enables client-side routing using HTML5 history API.
+// Routes: A wrapper that holds all <Route> elements.
+// Route: Defines individual route paths and their corresponding components.
+// Navigate: Used for programmatic redirects.
+
 const App = () => {
   return (
-    <Router>
+    <Router> {/* Main component wrapped in a Router to enable client-side routing. */}
       <div className="min-h-screen bg-gray-900 text-white">
         <Navbar />
         <main className="flex-grow pt-20">
           <Routes>
-            {/* --- Public Routes --- */}
+            {/* --- Public Routes ---: These routes are accessible to everyone (unauthenticated users too). */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Registration />} />
@@ -101,3 +106,49 @@ const App = () => {
 };
 
 export default App;
+
+
+// const App = () => (
+//   <Router>
+//     <div className="min-h-screen bg-gray-900 text-white">
+//       <Navbar />
+//       <main className="flex-grow pt-20">
+//         <Routes>
+//           {/* Public */}
+//           <Route path="/" element={<LandingPage />} />
+//           <Route path="login" element={<Login />} />
+//           <Route path="register" element={<Registration />} />
+//           <Route path="verify-email" element={<VerifyEmail />} />
+//           <Route path="forgot-password" element={<ForgotPassword />} />
+//           <Route path="reset-password/:token" element={<ResetPassword />} />
+//           <Route path="auth/callback" element={<AuthCallback />} />
+
+//           {/* Protected (all child routes require auth) */}
+//           <Route element={<ProtectedRoute />}>
+//             <Route path="dashboard" element={<WorkspaceDashboard />} />
+
+//             {/* Admin-only under Protected */}
+//             <Route element={<AdminRoute />}>
+//               <Route path="workspaces/create" element={<CreateWorkspace />} />
+//               <Route path="admin/users" element={<AdminUserList />} />
+//             </Route>
+
+//             <Route path="workspaces/:workspaceId" element={<WorkspaceDetail />} />
+//             <Route path="workspaces/:workspaceId/projects/:projectId" element={<ProjectDetail />} />
+//             <Route path="profile/:userId" element={<UserProfile />} />
+//           </Route>
+
+//           {/* Redirects & catch-all */}
+//           <Route path="workspaces" element={<Navigate to="/dashboard" replace />} />
+//           <Route path="profile" element={<Navigate to="/profile/me" replace />} />
+//           <Route path="*" element={<Navigate to="/" replace />} />
+//         </Routes>
+//       </main>
+//       <Footer />
+//       <ChatbotButton />
+//       <GlobalChatHandler />
+//     </div>
+//   </Router>
+// );
+
+// export default App;

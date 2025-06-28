@@ -7,8 +7,7 @@ const API_KEY=process.env.GEMINI_API_KEY
 if(!API_KEY){
     console.warn("GEMINI_API_KEY not found in .env file.AI features will be disabled")
 }
-
-const genAI=API_KEY? new GoogleGenerativeAI(API_KEY):null
+const genAI=API_KEY? new GoogleGenerativeAI(API_KEY):null // If the key is available, creates an AI client instance.
 
 export const summarizeText = async (text, filename = "this file") => {
     if (!genAI) {
@@ -17,19 +16,13 @@ export const summarizeText = async (text, filename = "this file") => {
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
         return "Cannot summarize empty or invalid content.";
     }
-
-    
-    
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-
-    
     const generationConfig = {
         temperature: 0.7,
         topK: 40,
         topP: 0.95,
         maxOutputTokens: 1024,
     };
-
     const safetySettings = [
         {
             category: HarmCategory.HARM_CATEGORY_HARASSMENT,
@@ -59,16 +52,13 @@ export const summarizeText = async (text, filename = "this file") => {
                 Summary:`;
 
     try {
-        
         const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }],
+            contents: [{ role: "user", parts: [{ text: prompt }] }], // role: "user" → you're the one sending the message.
             generationConfig,
             safetySettings
         });
-
         const response = result.response;
         const summary = response.text();
-        
         if (!summary) {
             if (response.promptFeedback?.blockReason) {
                 console.warn(`Summary generation blocked for ${filename}.`);
@@ -77,8 +67,6 @@ export const summarizeText = async (text, filename = "this file") => {
             console.warn(`Empty summary received for ${filename}.`);
             return "Could not generate a summary for this content.";
         }
-        
-        
         return summary.trim();
     } catch (error) {
         console.error(`Error generating summary for ${filename}:`, error);
@@ -93,12 +81,11 @@ export const summarizeText = async (text, filename = "this file") => {
 };
 
 export const extractTexFromFile=async(fileUrl,mimetype)=>{
-    
     if(mimetype==='text/plain'){
         try {
             const response=await fetch(fileUrl)
             if(!response.ok){
-                throw new Error(`Faile to fetch file: ${response.statusText}`)
+                throw new Error(`Failed to fetch file: ${response.statusText}`)
             }
             return await response.text()
         } catch (error) {
@@ -109,14 +96,13 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
 
     if(mimetype==='application/pdf'){
         try {
-            const {default:pdf}=await import('pdf-parse')
+            const {default:pdf}=await import('pdf-parse') // const pdfModule = await import('pdf-parse'); const pdf = pdfModule.default;
             const response=await fetch(fileUrl)
             if(!response.ok){
                 throw new Error(`Failed to fetch PDF: ${response.statusText}`)
             }
             const buffer=await response.arrayBuffer()
             const data=await pdf(buffer)
-            
             return data.text
         } catch (error) {
             console.error("Error parsing PDF:",error)
@@ -131,22 +117,14 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             if(!response.ok){
                 throw new Error(`Failed to fetch DOCX: ${response.statusText}`);
             }
-            
-            
             const arrayBuffer = await response.arrayBuffer();
-            
-            
             if (arrayBuffer.byteLength === 0) {
                 console.error("[aiService - DOCX] Fetched buffer is empty!");
                 throw new Error("Fetched DOCX file content is empty.");
             }
-            
-            
             const result = await mammoth.extractRawText({
-                buffer: Buffer.from(arrayBuffer)
+                buffer: Buffer.from(arrayBuffer) // Converts the ArrayBuffer to a Node.js Buffer, then passes it to mammoth.
             });
-            
-            
             return result.value;
         } catch (error) {
             console.error("--- ERROR DURING DOCX PROCESSING ---");
@@ -157,7 +135,6 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
             throw new Error("Could not extract text from the DOCX file.");
         }
     }
-
     console.warn(`Unsupported file type for text extraction:${mimetype}`)
     throw new Error(`File type ${mimetype} is not supported for summarization`)
 }

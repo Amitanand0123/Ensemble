@@ -281,28 +281,22 @@ export const inviteToWorkspace = async (req, res) => {
 
         const userToInvite = await User.findOne({ email: email.toLowerCase() });
         if (!userToInvite) {
-            
             return res.status(404).json({ success: false, message: `User with email ${email} not found.` });
         }
 
-        
         if (workspace.isMember(userToInvite._id)) {
             return res.status(400).json({ success: false, message: 'User is already a member of this workspace.' });
         }
 
-        
-        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' }); 
+        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' }); // fix
         await workspace.save();
 
-        
-         const userAlreadyHasWorkspace = userToInvite.workspaces.some(w => w.workspace.toString() === workspaceId);
-         if (!userAlreadyHasWorkspace) {
+        const userAlreadyHasWorkspace = userToInvite.workspaces.some(w => w.workspace.toString() === workspaceId);
+        if (!userAlreadyHasWorkspace) {
             userToInvite.workspaces.push({ workspace: workspace._id, role: role, lastAccessed: new Date() });
             await userToInvite.save({ validateBeforeSave: false });
-         }
+        }
 
-
-        
         try {
             await sendEmail({
                 email: userToInvite.email,
@@ -362,15 +356,14 @@ export const updateMemberRoleInWorkspace = async (req, res) => {
         workspace.members[memberIndex].role = newRole;
         await workspace.save();
 
-         
-         const user = await User.findById(memberUserId);
-         if (user) {
-             const workspaceInUser = user.workspaces.find(w => w.workspace.toString() === workspaceId);
-             if (workspaceInUser) {
-                 workspaceInUser.role = newRole;
-                 await user.save({ validateBeforeSave: false });
-             }
-         }
+        const user = await User.findById(memberUserId);
+        if (user) {
+            const workspaceInUser = user.workspaces.find(w => w.workspace.toString() === workspaceId);
+            if (workspaceInUser) {
+                workspaceInUser.role = newRole;
+                await user.save({ validateBeforeSave: false });
+            }
+        }
 
         res.status(200).json({ success: true, message: 'Member role updated.' });
 
@@ -391,17 +384,14 @@ export const removeMemberFromWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Workspace not found.' });
         }
 
-        
         if (!workspace.isAdmin(requesterId)) {
             return res.status(403).json({ success: false, message: 'Only admins can remove members.' });
         }
 
-        
         if (workspace.owner.toString() === memberUserId) {
             return res.status(400).json({ success: false, message: 'Cannot remove the workspace owner.' });
         }
 
-        
         if (memberUserId === requesterId) {
             return res.status(400).json({ success: false, message: 'Admins cannot remove themselves. Ask another admin or transfer ownership.' });
         }
@@ -413,14 +403,12 @@ export const removeMemberFromWorkspace = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Member not found in this workspace.' });
         }
 
-        await workspace.save();
-
-         
-         const user = await User.findById(memberUserId);
-         if (user) {
-             user.workspaces = user.workspaces.filter(w => w.workspace.toString() !== workspaceId);
-             await user.save({ validateBeforeSave: false });
-         }
+        await workspace.save(); 
+        const user = await User.findById(memberUserId);
+        if (user) {
+            user.workspaces = user.workspaces.filter(w => w.workspace.toString() !== workspaceId);
+            await user.save({ validateBeforeSave: false });
+        }
 
         res.status(200).json({ success: true, message: 'Member removed from workspace.' });
 
@@ -449,8 +437,8 @@ export const deleteWorkspace=async(req,res)=>{
         }
         await workspace.deleteOne();
         await User.updateMany(
-            {'workspaces.workspace':id},
-            {$pull:{workspaces:{workspace:id}}}
+            {'workspaces.workspace':id},  // Find all users who have this workspace ID in their workspaces array
+            {$pull:{workspaces:{workspace:id}}} // Remove that workspace entry from their workspaces array. $pull removes all objects in the workspaces array where workspace === id
         )
         res.status(200).json({
             success:true,

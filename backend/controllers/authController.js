@@ -12,12 +12,13 @@ const JWT_REFRESH_SECRET=process.env.JWT_REFRESH_SECRET;
 
 const generateTokens = (user) =>{
     const accessToken=jwt.sign(  
+        // Payload: What you embed inside the token:
         {
             userId:user._id, 
             role:user.role,
             email:user.email
         },
-        JWT_SECRET,
+        JWT_SECRET, // The secret key used to sign the token. Stored in .env.
         {
             expiresIn:'1d'
         }
@@ -38,7 +39,7 @@ const generateTokens = (user) =>{
 
 export const registerUser = async(req,res)=>{
     try{
-        const errors=validationResult(req);
+        const errors=validationResult(req); // It extracts the validation result from the request.
         if(!errors.isEmpty()){
             return res.status(400).json({
                 success: false,
@@ -81,10 +82,10 @@ export const registerUser = async(req,res)=>{
         
         const {accessToken,refreshToken}=generateTokens(user);
 
-        res.cookie('refreshToken',refreshToken,{
-            httpOnly:true,
+        res.cookie('refreshToken',refreshToken,{ // sets a secure, HTTP-only cookie in the user's browser to store the refresh token.
+            httpOnly:true, // Prevents JavaScript from accessing the cookie (protects against XSS attacks)
             secure:process.env.NODE_ENV==='production',
-            sameSite:'strict',
+            sameSite:'strict', // Restricts the cookie from being sent in cross-site requests.
             maxAge:7*24*60*60*1000
         });
 
@@ -169,7 +170,7 @@ export const loginUser = async(req,res)=>{
 export const logoutUser = async (req, res) => {
     try {
         
-        res.cookie('refreshToken', '', {
+        res.cookie('refreshToken', '', { // Sets the refreshToken cookie to an empty string.
             httpOnly: true,
             expires: new Date(0), 
             secure: process.env.NODE_ENV === 'production',
@@ -202,12 +203,12 @@ export const forgotPassword = async(req,res)=>{
 
         const resetToken=crypto.randomBytes(20).toString('hex'); 
 
-        user.security.resetPasswordToken=crypto
-            .createHash('sha256') 
-            .update(resetToken) 
-            .digest('hex'); 
+        user.security.resetPasswordToken=crypto // securely hashes the resetToken before storing it in the user's database record
+            .createHash('sha256') // Initializes a SHA-256 hashing algorithm (secure and widely used)
+            .update(resetToken) // Feeds the resetToken (a 40-character random hex string) into the hash function
+            .digest('hex') // Finalizes the hash and converts it to a hexadecimal string
 
-        user.security.resetPasswordExpire=Date.now()+10*60*1000; 
+        user.security.resetPasswordExpire=Date.now()+10*60*1000
 
         await user.save();
 
@@ -260,7 +261,7 @@ export const resetPassword=async(req,res)=>{
 
         const user=await User.findOne({
             'security.resetPasswordToken':resetPassword,
-            'security.resetPasswordExpire':{$gt:Date.now()}
+            'security.resetPasswordExpire':{$gt:Date.now()} // $gt = "greater than" checks that the expiration time is still in the future.
         })
 
         if(!user){
@@ -304,7 +305,7 @@ export const sendVerificationEmail = async (user) => {
     const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     console.log('Generated verification code:', verificationCode);
 
-    user.email_verification.token = crypto
+    user.email_verification.token = crypto // securely hashing the email verification code before storing it in the database.
         .createHash('sha256')
         .update(verificationCode)
         .digest('hex');

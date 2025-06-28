@@ -23,7 +23,7 @@ const WorkspaceDashboard = () => {
         ws.name.toLowerCase().includes(searchQuery.toLowerCase())
     ) || [];
 
-    if (isLoading && workspaces.length === 0) {
+    if(isLoading && workspaces.length === 0){
          return (
              <div className="flex justify-center items-center h-screen text-white">
                  Loading workspaces...
@@ -145,15 +145,15 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
         e.preventDefault();
         setLoading(true);
         setModalError('');
-        try {
+        try{
             setName('');
             setDescription('');
             setIsPrivate(false);
             onClose();
-        } catch (err) {
+        }catch (err){
             setModalError(err.message || 'Failed to create workspace.');
             console.error("Create Workspace Error:", err);
-        } finally {
+        }finally{
             setLoading(false);
         }
     };

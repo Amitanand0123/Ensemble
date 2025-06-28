@@ -65,10 +65,8 @@ export const updateUserAvatar = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
-      
       // Dispatch action to update auth slice immediately
       dispatch(updateUser({ avatar: response.data.avatar }));
-      
       return { userId, avatar: response.data.avatar };
     } catch (error) {
       return rejectWithValue(handleError(error));

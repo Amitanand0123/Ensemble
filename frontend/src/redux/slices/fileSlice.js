@@ -48,7 +48,6 @@ export const fetchProjectFiles = createAsyncThunk(
     }
 );
 
-
 export const uploadWorkspaceFiles = createAsyncThunk(
     'files/uploadWorkspace',
     async ({ workspaceId, formData }, { getState, rejectWithValue }) => {
@@ -57,9 +56,7 @@ export const uploadWorkspaceFiles = createAsyncThunk(
             const response = await axios.post(`/api/workspaces/${workspaceId}/files`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    
                 },
-                
             });
             return response.data.files; 
         } catch (error) {
@@ -68,7 +65,7 @@ export const uploadWorkspaceFiles = createAsyncThunk(
     }
 );
 
- 
+
 export const uploadProjectFiles = createAsyncThunk(
     'files/uploadProject',
     async ({ projectId, formData }, { getState, rejectWithValue }) => {
@@ -137,7 +134,6 @@ const fileSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            
             .addCase(fetchWorkspaceFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(fetchProjectFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(fetchWorkspaceFiles.fulfilled, (state, action) => {
@@ -150,8 +146,6 @@ const fileSlice = createSlice({
             })
             .addCase(fetchWorkspaceFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; state.files = []; })
             .addCase(fetchProjectFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; state.files = []; })
-
-            
             .addCase(uploadWorkspaceFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(uploadProjectFiles.pending, (state) => { state.isLoading = true; state.error = null; })
             .addCase(uploadWorkspaceFiles.fulfilled, (state, action) => {
@@ -164,11 +158,7 @@ const fileSlice = createSlice({
             })
             .addCase(uploadWorkspaceFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; })
             .addCase(uploadProjectFiles.rejected, (state, action) => { state.isLoading = false; state.error = action.payload; })
-
-
-            
             .addCase(deleteFile.pending, (state) => {
-                
                 state.error = null; 
             })
             .addCase(deleteFile.fulfilled, (state, action) => {

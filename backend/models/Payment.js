@@ -55,12 +55,12 @@ const paymentSchema=new mongoose.Schema({
         of:mongoose.Schema.Types.Mixed
     },
     error_details:{
-        code:String,
+        code:String, // A short identifier for the error (e.g., "BAD_REQUEST_ERROR").
         description:String,
-        source:String,
-        step:String,
-        reason:String,
-        metadata:mongoose.Schema.Types.Mixed
+        source:String, // Which system component caused the error (e.g., "gateway" or "merchant").
+        step:String, // The step in the payment lifecycle where the error occurred (e.g., "payment_authorization").
+        reason:String, // A more specific reason for the failure (e.g., "card_declined").
+        metadata:mongoose.Schema.Types.Mixed // Any additional data Razorpay or your app might attach (e.g., transaction IDs).
     }
 },{
     timestamps:true,

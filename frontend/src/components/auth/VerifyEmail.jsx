@@ -16,7 +16,6 @@ const VerifyEmail = () => {
     
     const { user, isLoading, error, message } = useSelector(state => state.auth);
 
-    
     useEffect(() => {
         dispatch(clearError());
         dispatch(clearMessage());
@@ -29,7 +28,6 @@ const VerifyEmail = () => {
         }
     }, [user, navigate]);
 
-    
     useEffect(() => {
         let timer;
         if (resendCooldown > 0) {
@@ -44,7 +42,6 @@ const VerifyEmail = () => {
             toast.error("Please enter a valid 6-digit code.");
             return;
         }
-        
         try {
             const result = await dispatch(verifyEmailWithCode({ email: user.email, code })).unwrap();
             toast.success(result.message || "Verification successful! Redirecting to login...");
@@ -56,7 +53,6 @@ const VerifyEmail = () => {
 
     const handleResendCode = async () => {
         if (resendCooldown > 0) return;
-
         try {
             const result = await dispatch(resendVerificationCode(user.email)).unwrap();
             toast.success(result.message || "New code sent!");

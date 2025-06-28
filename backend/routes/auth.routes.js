@@ -24,7 +24,7 @@ router.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 )
 router.get('/google/callback',
-    passport.authenticate('google',{
+    passport.authenticate('google',{ //Uses Passport’s google strategy to process the OAuth callback.
         failureRedirect:'/login',
         failureMessage:true,
         session:false
@@ -39,16 +39,16 @@ router.get('/google/callback',
                 throw new Error("User data from Google authentication is incomplete.")
             }
             const accessToken=jwt.sign(
-                {userId:req.user._id,role:req.user.role,email:req.user.email},
+                {userId:req.user._id,role:req.user.role,email:req.user.email}, // This is the payload — the data inside the token.
                 process.env.JWT_SECRET,
                 {expiresIn:'1d'}
             )
-            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${accessToken}`)
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${accessToken}`) // fix
         } catch (error) {
             console.error("Error generating token or redirecting: ",error);
-            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=token-generation-failed`)
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=token-generation-failed`) // fix
         }
     }
 )
 
-export default router; 
+export default router;

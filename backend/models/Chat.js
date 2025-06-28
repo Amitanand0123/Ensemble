@@ -47,4 +47,5 @@ const ChatSchema=new mongoose.Schema({
     timestamps:true
 })
 
+
 export default mongoose.model('Chat',ChatSchema)

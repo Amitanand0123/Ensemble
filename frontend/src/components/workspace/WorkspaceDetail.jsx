@@ -22,7 +22,7 @@ const WorkspaceDetail = () => {
 
     useEffect(() => {
         if (workspaceId) {
-            dispatch(fetchWorkspaceDetail(workspaceId));
+            dispatch(fetchWorkspaceDetail(workspaceId)); 
         }
     }, [dispatch, workspaceId]);
 
@@ -30,7 +30,7 @@ const WorkspaceDetail = () => {
         return <div className="flex justify-center items-center h-screen text-white">Loading workspace...</div>;
     }
 
-    const isProjectRouteActive = location.pathname.includes(`/projects/`);
+    const isProjectRouteActive = location.pathname.includes(`/projects/`); // Checks if the current path contains /projects/, which might be used later to conditionally render parts of the UI (e.g., tabs, buttons, breadcrumbs).
 
     return (
         <div className="min-h-screen bg-gray-900 text-white pt-32">

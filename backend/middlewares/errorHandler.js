@@ -1,5 +1,4 @@
 const errorHandler = (err,req,res)=>{
-
     if(err.name==='ValidationError'){
         const messages=Object.values(err.errors).map(val=>val.message);
         return res.status(400).json({
@@ -21,7 +20,7 @@ const errorHandler = (err,req,res)=>{
             error:'Invalid token'
         })
     }
-    res.status(err.statusCode || 500).json({
+    return res.status(err.statusCode || 500).json({
         success:false,
         error:err.message || 'Server Error'
     })

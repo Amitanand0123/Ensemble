@@ -16,7 +16,7 @@ const Registration=()=>{
         role:'user',
         acceptTerms:false
     }); 
-    const [setAlert]=useState(null);
+    const [alert,setAlert]=useState(null);
     const dispatch=useDispatch();
     const navigate=useNavigate();
     const {isLoading,error,isAuthenticated,user}=useSelector(state=>state.auth);
@@ -30,7 +30,7 @@ const Registration=()=>{
     },[isAuthenticated, user, navigate])
 
     const handleSubmit=async(e)=>{
-        e.preventDefault();
+        e.preventDefault(); // Prevent form reload
         if(formData.password!==formData.confirmPassword){
             setAlert({type:'error',message:'Passwords do not match'})
             return;
@@ -51,7 +51,7 @@ const Registration=()=>{
                     </div>
                     {/* {alert && <Alert {...alert}/>} */}
 
-                    {error && <Alert type="error" message={error} />}
+                    {alert && <Alert type="error" message={error} />}
 
                     <form onSubmit={handleSubmit} className='space-y-6'>
                         <div className='grid grid-cols-2 gap-4'>

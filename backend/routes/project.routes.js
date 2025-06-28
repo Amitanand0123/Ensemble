@@ -13,7 +13,7 @@ const upload=multer({storage:multer.memoryStorage(),limits:{
 }})
 router.use(protect)
 
-const validateProject=[
+const validateProject=[ // In Express, middleware functions can be passed as an array so they run sequentially, which is exactly why validateProject is defined as an array:
     check('name') 
         .trim()
         .notEmpty()
@@ -38,7 +38,7 @@ router.route('/')
     .get(protect,getProjects);
 
 router.route('/:id')
-    .get(protect,getProjectById)   
+    .get(protect,getProjectById)  
     .patch(protect,validateProject,updateProject)
     .delete(protect,deleteProject);
 

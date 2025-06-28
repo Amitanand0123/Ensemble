@@ -7,16 +7,16 @@ dotenv.config()
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret:process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL:`${process.env.BACKEND_URL}/api/auth/google/callback`,
-    scope:['profile','email']
+    callbackURL:`${process.env.BACKEND_URL}/api/auth/google/callback`, //Redirect URL Google uses after successful login.
+    scope:['profile','email'] //Data your app wants access to (email, profile).
 },
-    async(acessToken,refreshToken,profile,done)=>{
+    async(acessToken,refreshToken,profile,done)=>{ // This is the verify callback, triggered after Google authenticates the user.
         try {
             let user=await User.findOne({googleId:profile.id})
             if(user){
                 return done(null,user);
             }
-            const userEmail=profile.emails[0].value;
+            const userEmail=profile.emails[0].value; // the user hasn't logged in with Google before, but an account with the same email already exists 
             if(!userEmail){
                 return done(new Error('Could not retrieve email from Google profile.'),null)
             }
@@ -39,7 +39,7 @@ passport.use(new GoogleStrategy({
                 },
                 email_verification:{
                     verified:true,
-                    token:undefined,
+                    token:undefined, // Since the email is already verified via Google, you don’t need a token or expiry time
                     tokenExpires:undefined
                 }
             })
@@ -52,11 +52,11 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.serializeUser((user,done)=>{
+passport.serializeUser((user,done)=>{ // When a user logs in, Passport needs to store something in the session to identify them on future requests.
     done(null,user.id);
 })
 
-passport.deserializeUser(async(id,done)=>{
+passport.deserializeUser(async(id,done)=>{ //  reconstruct the full user object from the session on each request.
     try {
         const user=await User.findById(id);
         done(null,user);

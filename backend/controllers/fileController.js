@@ -8,11 +8,6 @@ import { extractTexFromFile, summarizeText } from '../utils/aiService.js';
 export const uploadWorkspaceFile=async(req,res)=>{
     const {workspaceId}=req.params;
     if(!req.files || req.files.length===0){
-        
-        
-        
-        
-
         return res.status(400).json({
             success:false,
             message:'No files uploaded'
@@ -45,7 +40,7 @@ export const uploadWorkspaceFile=async(req,res)=>{
                 workspace:workspaceId
             })
             await newFile.save();
-            await newFile.populate('uploadedBy','name email avatar')
+            await newFile.populate('uploadedBy','name email avatar') // Replaces the uploadedBy ObjectId with the actual user’s:
             uploadedFilesInfo.push(newFile);
         }
         res.status(201).json({

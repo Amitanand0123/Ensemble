@@ -131,7 +131,6 @@ export const updateProject=async(req,res)=>{
         }
 
         const allowedUpdates=['name','description','status','priority','endDate','settings.isPrivate','settings.tags','settings.visibility']
-
         const updates=Object.keys(req.body);
         const isValidOperation=updates.every(update=>allowedUpdates.includes(update));
 
@@ -241,12 +240,10 @@ export const inviteToProject = async (req, res) => {
     }
 
     try {
-        const project = await Project.findById(projectId).populate('workspace', 'members'); 
+        const project = await Project.findById(projectId).populate('workspace', 'members');  // Fetch the referenced workspace document, but only return its members field — not the whole document.
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found.' });
         }
-
-        
         if (!project.isAdmin(inviterId)) {
             return res.status(403).json({ success: false, message: 'Only project admins can invite members.' });
         }
@@ -255,14 +252,10 @@ export const inviteToProject = async (req, res) => {
         if (!userToInvite) {
             return res.status(404).json({ success: false, message: `User with email ${email} not found.` });
         }
-
-         
-         const workspace = await Workspace.findById(project.workspace);
-         if (!workspace || !workspace.isMember(userToInvite._id)) {
-             return res.status(400).json({ success: false, message: `User must be a member of the workspace '${workspace?.name || 'Unknown'}' before being added to this project.` });
-         }
-
-
+        const workspace = await Workspace.findById(project.workspace);
+        if (!workspace || !workspace.isMember(userToInvite._id)) {
+            return res.status(400).json({ success: false, message: `User must be a member of the workspace '${workspace?.name || 'Unknown'}' before being added to this project.` });
+        }
         
         if (project.isMember(userToInvite._id)) {
             return res.status(400).json({ success: false, message: 'User is already a member of this project.' });
@@ -313,8 +306,6 @@ export const updateMemberRoleInProject = async (req, res) => {
         if (memberIndex === -1) {
             return res.status(404).json({ success: false, message: 'Member not found in this project.' });
         }
-
-        
 
         project.members[memberIndex].role = newRole;
         await project.save();

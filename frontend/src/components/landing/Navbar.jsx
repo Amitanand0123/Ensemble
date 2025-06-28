@@ -24,11 +24,10 @@ const Navbar = () => {
     const dispatch = useDispatch();
     const [currentAvatarUrl, setCurrentAvatarUrl] = useState(user?.avatar?.url || '');
 
-    useEffect(() => {
+    useEffect(() => {   {/*  Ensures that: The latest avatar URL of the currently logged-in user is displayed. */}
         setCurrentAvatarUrl(user?.avatar?.url || '');
-
         const fetchFreshAvatar = async () => {
-            if (isAuthenticated && user?.id) {
+            if(isAuthenticated && user?.id){
                 try {
                     const response = await axios.get('/api/users/me/avatar-url', {
                         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -36,7 +35,8 @@ const Navbar = () => {
                     if (response.data.success && response.data.avatarUrl) {
                         setCurrentAvatarUrl(response.data.avatarUrl);
                         if (user.avatar?.url !== response.data.avatarUrl) {
-                            dispatch(updateUser({ avatar: { url: response.data.avatarUrl } }));
+                            // Only dispatches an update to the Redux store if the avatar URL has changed, preventing unnecessary global state updates.
+                            dispatch(updateUser({ avatar: { url: response.data.avatarUrl } }));  
                         }
                     }
                 } catch (error) {
@@ -44,16 +44,15 @@ const Navbar = () => {
                 }
             }
         };
-
         fetchFreshAvatar();
     }, [isAuthenticated, user?.id, user?.avatar?.url, dispatch]);
 
-    useEffect(() => {
+    useEffect(() => { // This is typically used to change the navbar’s appearance when the user scrolls (e.g., background blur, shadows, etc.).
         const handleScroll = () => {
             const offset = window.scrollY;
             setScrolled(offset > 50);
         };
-        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll); // Attaches the handleScroll function to the browser's scroll event.
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -68,7 +67,7 @@ const Navbar = () => {
     };
 
     const handleLogoutClick = (e) => {
-        e.preventDefault();
+        e.preventDefault(); // stops the default link/button behavior
         setShowLogoutPopup(true);
     };
 
@@ -84,14 +83,7 @@ const Navbar = () => {
     return (
         <>
             <nav
-                className={`
-          w-full md:w-[80%] lg:w-[60%]
-          fixed top-[3%] left-[50%] transform -translate-x-[50%]
-          border border-slate-50 rounded-full
-          shadow-lg backdrop-blur-md z-50
-          transition-all duration-300 ease-in-out
-          ${scrolled ? 'bg-black/50' : 'bg-transparent'}
-        `}
+                className={`w-full md:w-[80%] lg:w-[60%] fixed top-[3%] left-[50%] transform -translate-x-[50%] border border-slate-50 rounded-full shadow-lg backdrop-blur-md z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-black/50' : 'bg-transparent'}`}
             >
                 <div className="px-4 md:px-6 py-2 md:py-3">
                     <div className="flex items-center justify-between h-14 md:h-16">
@@ -200,15 +192,15 @@ const Navbar = () => {
 
                     <div
                         className={`
-              md:hidden
-              absolute top-full left-0
-              w-full mt-2
-              bg-gray-900/95 backdrop-blur-md
-              rounded-2xl border border-gray-700
-              shadow-lg
-              transform origin-top transition-all duration-200 ease-in-out
-              ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}
-            `}
+                            md:hidden
+                            absolute top-full left-0
+                            w-full mt-2
+                            bg-gray-900/95 backdrop-blur-md
+                            rounded-2xl border border-gray-700
+                            shadow-lg
+                            transform origin-top transition-all duration-200 ease-in-out
+                            ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}
+                        `}
                     >
                         <div className="px-4 py-3 space-y-3">
                             <a

@@ -12,12 +12,11 @@ const Login = () => {
         password: '',
         rememberMe: false
     }); 
-
     const dispatch=useDispatch();
     const navigate=useNavigate();
     const {isLoading,error,isAuthenticated,isAdmin}=useSelector(state=>state.auth)
 
-    useEffect(()=>{
+    useEffect(()=>{ // When the component mounts, it clears any existing login errors (helpful if user comes from a failed attempt).
         dispatch(clearError());
     },[dispatch])
 
@@ -112,7 +111,6 @@ const Login = () => {
                         href="/api/auth/google"
                         className="w-full py-3 px-4 rounded-lg bg-white text-gray-700 border border-gray-300 font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-2"
                     >
-                        {/* You can add a Google Icon here */}
                         <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9.18v3.48h4.79c-.2 1.13-.83 2.1-1.81 2.77v2.26h2.91c1.7-1.56 2.69-3.89 2.69-6.67z"/><path fill="#34A853" d="M9.18 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.26c-.8.54-1.83.86-2.96.86-2.28 0-4.22-1.54-4.91-3.61H1.27v2.33A8.96 8.96 0 009.18 18z"/><path fill="#FBBC05" d="M4.27 10.81c-.17-.54-.27-1.1-.27-1.68s.1-1.14.27-1.68V5.12H1.27a8.96 8.96 0 000 7.75L4.27 10.81z"/><path fill="#EA4335" d="M9.18 3.58c1.32 0 2.52.45 3.46 1.35l2.58-2.58A8.96 8.96 0 009.18 0a8.96 8.96 0 00-7.91 5.12l3 2.33c.69-2.07 2.63-3.61 4.91-3.61z"/></svg>
                         Continue with Google
                     </a>

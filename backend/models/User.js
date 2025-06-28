@@ -173,7 +173,6 @@ UserSchema.virtual('fullName').get(function() { //virtuals are fields that do no
 // Pre-save middleware for password hashing
 UserSchema.pre('save', async function(next) {
   if (!this.isModified('password') || !this.password) return next(); // To prevent unnecessary re-hashing every time a user updates other fields (like name or email).Without this check, the password would be re-hashed on every update, making the user unable to log in.
-  
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -226,14 +225,14 @@ UserSchema.statics.getUserStats = async function() {
   return await this.aggregate([
     {
       $group: {
-        _id: null,
-        totalUsers: { $sum: 1 },
+        _id: null, // We're grouping all documents together as a single group — so this returns just one result.
+        totalUsers: { $sum: 1 }, // Adds 1 for every document (user) → total number of users.
         activeUsers: { 
           $sum: { 
-            $cond: [{ $eq: ['$status', 'active'] }, 1, 0] 
+            $cond: [{ $eq: ['$status', 'active'] }, 1, 0]  // If status == 'active', add 1, else 0.
           }
         },
-        averageProjects: { $avg: '$activity.totalProjects' }
+        averageProjects: { $avg: '$activity.totalProjects' } // Average of the activity.totalProjects field across all users.
       }
     }
   ]);

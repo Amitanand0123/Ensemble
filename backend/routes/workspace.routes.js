@@ -61,7 +61,4 @@ router.post('/:workspaceId/members/invite',protect,inviteToWorkspace);
 router.patch('/:workspaceId/members/:memberUserId/role',protect,updateMemberRoleInWorkspace);
 router.delete('/:workspaceId/members/:memberUserId',protect,removeMemberFromWorkspace);
 
-    
-
 export default router;
- 

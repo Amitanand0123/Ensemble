@@ -68,7 +68,7 @@ const ProjectSchema=new mongoose.Schema({
     }
 },{
     timestamps:true,
-    toJSON:{virtuals:true},
+    toJSON:{virtuals:true}, // Virtuals are fields not stored in the database but computed on the fly.
     toObject:{virtuals:true}
 })
 

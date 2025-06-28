@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
@@ -14,16 +13,13 @@ export const useChatbot = () => {
         { message, conversationHistory },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      
       const updatedHistory = [
         ...conversationHistory,
         { role: 'USER', message },
         { role: 'CHATBOT', message: response.data.reply }
       ];
-      
       setConversationHistory(updatedHistory);
       setIsLoading(false);
-      
       return response.data.reply;
     } catch (error) {
       console.error('Chatbot error:', error);

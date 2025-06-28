@@ -6,7 +6,7 @@ import Workspace from '../models/Workspace.js'
 import Chat from '../models/Chat.js'
 
 export const setupSocketIO=(server)=>{
-    const io=new Server(server,{
+    const io=new Server(server,{ // Attaches Socket.IO to your existing HTTP server.
         cors:{
             origin:process.env.FRONTEND_URL || 'http://localhost:5173',
             methods:["GET","POST"],
@@ -18,11 +18,11 @@ export const setupSocketIO=(server)=>{
     console.log("[Socket Setup] Applying 'verifySocketToken' middleware to all incoming connections.");
     io.use(verifySocketToken)
 
-    io.on('connection',async (socket)=>{
+    io.on('connection',async (socket)=>{ // This runs when a user connects.
         const userId=socket.user._id
         console.log(`[Socket Connection] ✅ User connected: ${socket.user.email} (ID: ${userId})`);
         onlineUsers.set(userId.toString(),socket.id)
-        socket.join(userId.toString())
+        socket.join(userId.toString()) // This line tells Socket.IO to join the current socket to a private room named after the user's ID.
 
         const userWorkspaces = await Workspace.find({ 'members.user': userId });
         userWorkspaces.forEach(workspace => {
@@ -34,11 +34,10 @@ export const setupSocketIO=(server)=>{
             socket.join(`project:${project._id}`);
         });
 
-        socket.broadcast.emit('userStatusChanged',{
+        socket.broadcast.emit('userStatusChanged',{ // This broadcasts an event named 'userStatusChanged' to all connected sockets except the one that triggered it. It tells other users:“Hey, this user is now online!”
             userId:userId,
             status:'online'
         })
-
 
         socket.on('taskUpdate',async (data)=>{
             try {
@@ -48,7 +47,7 @@ export const setupSocketIO=(server)=>{
                     return socket.emit('taskError',{message:'Task not found'})
                 }
                 if(task.assignedTo){
-                    io.to(task.assignedTo._id.toString()).emit('taskUpdated',{
+                    io.to(task.assignedTo._id.toString()).emit('taskUpdated',{ // Emits a taskUpdated event to the socket room matching the assigned user's ID.
                         message:`Task "${task.title}" has been updated`,
                         update,
                     })
@@ -59,9 +58,9 @@ export const setupSocketIO=(server)=>{
             }
         })
 
-        socket.on('setStatus',(status)=>{
-            socket.user.status=status;
-            socket.broadcast.emit('userStatusChanged',{
+        socket.on('setStatus',(status)=>{ // This listens for a setStatus event (e.g. "online", "away", "busy", "offline") from a user, updates their current status, and broadcasts it to everyone else.
+            socket.user.status=status; // Stores the status in the current socket object for future reference.
+            socket.broadcast.emit('userStatusChanged',{ // Broadcasts to everyone except the sender that the user's status has changed.
                 userId:userId,
                 status:status
             })
@@ -90,7 +89,7 @@ export const setupSocketIO=(server)=>{
                 await message.populate('sender','name avatar')
 
                 io.to(receiverId.toString()).emit('newPersonalMessage',message)
-                if(callback){
+                if(callback){ // If the sender supplied a callback, they get confirmation + the message payload.
                     callback({
                         success:true,
                         data:message
@@ -141,7 +140,7 @@ export const setupSocketIO=(server)=>{
 
                 await message.save()
                 await message.populate('sender','name avatar')
-                io.to(`project:${projectId}`).emit('newProjectMessage',message)
+                io.to(`project:${projectId}`).emit('newProjectMessage',message) // is broadcasting a real-time message to all users who have joined the Socket.IO room named project:<projectId>.
                 if(callback){
                     callback({
                         success:true,

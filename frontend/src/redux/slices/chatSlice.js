@@ -80,25 +80,19 @@ const chatSlice = createSlice({
   reducers: {
     setCurrentChat: (state, action) => {
       state.currentChat = action.payload;
-
       if (action.payload) {
-        
-        state.unreadCount = 0;
+        state.unreadCount = 0; // resets unreadCount when a chat is opened.
       }
     },
     addPersonalMessage: (state, action) => {
       const {  message } = action.payload;
-      const chatKey = message.sender === state.currentChat?.userId ? message.receiver : message.sender; 
-
+      const chatKey = message.sender === state.currentChat?.userId ? message.receiver : message.sender; // the user ID of the other person in the conversation
       if (!state.personalMessages[chatKey]) {
         state.personalMessages[chatKey] = [];
       }
-      
       if (!state.personalMessages[chatKey].find(m => m._id === message._id)) {
         state.personalMessages[chatKey].push(message);
       }
-      
-      
       if (!state.currentChat || state.currentChat.type !== 'personal' || state.currentChat.id !== chatKey) {
         state.unreadCount++;
       }
@@ -107,12 +101,10 @@ const chatSlice = createSlice({
       const { workspaceId, message } = action.payload;
       if (!state.workspaceMessages[workspaceId]) {
         state.workspaceMessages[workspaceId] = [];
-      }
-       
+      } 
       if (!state.workspaceMessages[workspaceId].find(m => m._id === message._id)) {
         state.workspaceMessages[workspaceId].push(message);
       }
-      
       if (!state.currentChat || state.currentChat.type !== 'workspace' || state.currentChat.id !== workspaceId) {
         state.unreadCount++;
       }
@@ -122,36 +114,29 @@ const chatSlice = createSlice({
       if (!state.projectMessages[projectId]) {
         state.projectMessages[projectId] = [];
       }
-      
       if (!state.projectMessages[projectId].find(m => m._id === message._id)) {
         state.projectMessages[projectId].push(message);
       }
-      
       if (!state.currentChat || state.currentChat.type !== 'project' || state.currentChat.id !== projectId) {
         state.unreadCount++;
       }
     },
     setTypingStatus: (state, action) => {
       const { chatType, chatId, userId, userName, isTyping } = action.payload;
-      
       if (!state.typingUsers[chatType]) {
         state.typingUsers[chatType] = {};
       }
-      
-      if (!state.typingUsers[chatType][chatId]) {
+      if (!state.typingUsers[chatType][chatId]) { //Then makes sure typingUsers[chatType][chatId] exists 
         state.typingUsers[chatType][chatId] = {};
       }
-      
       if (isTyping) {
         state.typingUsers[chatType][chatId][userId] = userName;
       } else {
-        delete state.typingUsers[chatType][chatId][userId];
-        
-        if (Object.keys(state.typingUsers[chatType][chatId]).length === 0) {
+        delete state.typingUsers[chatType][chatId][userId]; // If user stopped typing, remove them.
+        if (Object.keys(state.typingUsers[chatType][chatId]).length === 0) { // If no one is typing in that chat → delete chatId entry.
           delete state.typingUsers[chatType][chatId];
         }
-        
-        if (Object.keys(state.typingUsers[chatType]).length === 0) {
+        if (Object.keys(state.typingUsers[chatType]).length === 0) { // If no chats have typing users → delete the whole chatType.
           delete state.typingUsers[chatType];
         }
       }
@@ -161,11 +146,9 @@ const chatSlice = createSlice({
     },
     addActiveChat: (state, action) => {
       const chat = action.payload;
-      
       const exists = state.activeChats.some(c => 
         c.type === chat.type && c.id === chat.id
-      );
-      
+      )
       if (!exists) {
         state.activeChats.push(chat);
       }
@@ -221,9 +204,7 @@ const chatSlice = createSlice({
       .addCase(markAsRead.fulfilled, (state, action) => {
         const chatId = action.payload; 
         const currentUserId = state.auth?.user?._id; 
-        
         if (!currentUserId) return;
-        
         const markMessageAsReadInList = (messageList) => {
           if (!messageList) return;
           const message = messageList.find(m => m._id === chatId);
@@ -231,13 +212,9 @@ const chatSlice = createSlice({
             message.readBy.push({ user: currentUserId, readAt: new Date().toISOString() });
           }
         };
-        
-        
-        Object.values(state.personalMessages).forEach(markMessageAsReadInList);
+        Object.values(state.personalMessages).forEach(markMessageAsReadInList); // Object.values(...) extracts just the arrays of messages. Each message list is checked and updated if it contains the message with chatId.
         Object.values(state.workspaceMessages).forEach(markMessageAsReadInList);
         Object.values(state.projectMessages).forEach(markMessageAsReadInList);
-
-        
       });
   }
 });

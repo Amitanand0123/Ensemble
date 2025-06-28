@@ -17,14 +17,14 @@ export const useAuth = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
-    if (storedToken !== token) {
-        setToken(storedToken);
+    if (storedToken !== token) { // This avoids unnecessary state updates (and re-renders) if they’re already the same.
+      setToken(storedToken);
     }
   }, [isAuthenticated, token]);
 
   const handleLogin = async (credentials) => {
     try {
-      const result = await dispatch(loginUser(credentials)).unwrap();
+      const result = await dispatch(loginUser(credentials)).unwrap(); // unwrap : If the thunk fulfilled, it resolves to the actual payload (e.g. user data, token).
       return result;
     } catch (err) {
       console.error('Login error in hook:', err);
@@ -42,7 +42,6 @@ export const useAuth = () => {
     }
   };
 
-
   const handleRegister = async (userData) => {
     try {
       const result = await dispatch(registerUser(userData)).unwrap();
@@ -53,12 +52,9 @@ export const useAuth = () => {
     }
   };
 
-  
    const handleResetPassword = async ({ token, password }) => { 
     try {
-      
       const result = await dispatch(resetPassword({ token, password })).unwrap();
-      
       navigate('/login');
       return result;
     } catch (err) {
@@ -68,19 +64,14 @@ export const useAuth = () => {
   };
 
    const handleForgotPassword = async ({ email }) => { 
-      try {
-          
-          
-           
-           const result = await dispatch(forgotPassword({ email })).unwrap(); 
-          
+      try { 
+          const result = await dispatch(forgotPassword({ email })).unwrap(); 
           return result;
       } catch (err) {
           console.error('Forgot password error in hook:', err);
           throw err;
       }
   };
-
 
   return {
     user,
@@ -92,7 +83,6 @@ export const useAuth = () => {
     login: handleLogin,
     logout: handleLogout, 
     register: handleRegister,
-    
     resetPassword: handleResetPassword,
     forgotPassword: handleForgotPassword 
   };

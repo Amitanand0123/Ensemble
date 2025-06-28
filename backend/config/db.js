@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from 'mongoose'; // Imports the mongoose library, which is an ODM (Object Data Modeling) tool for MongoDB.
 
 const connectDB = async () =>{
   try{

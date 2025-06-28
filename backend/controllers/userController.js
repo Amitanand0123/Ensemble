@@ -1,15 +1,10 @@
-
-
-
 import User from '../models/User.js';
 import mongoose from 'mongoose';
 import { uploadToCloud, deleteFromCloud } from '../utils/fileUpload.js'; 
 
 export const getAllUsers = async (req, res) => { 
     try {
-        
-        const users = await User.find({})
-                                .select('-password -security -email_verification.token -activity.loginHistory');
+        const users = await User.find({}).select('-password -security -email_verification.token -activity.loginHistory');
         res.json({
             success: true,
             count: users.length,
@@ -27,14 +22,12 @@ export const getAllUsers = async (req, res) => {
 export const updateUserRole = async (req, res) => {
     const { userId } = req.params;
     const { role: newRole } = req.body;
-
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) { // Checks if userId is a valid MongoDB ObjectId. Prevents database crashes due to malformed IDs.
         return res.status(400).json({
             success: false,
             message: 'Invalid user ID format'
         });
     }
-
     const allowedRoles = ['user', 'admin', 'moderator'];
     if (!newRole || !allowedRoles.includes(newRole)) {
         return res.status(400).json({
@@ -42,12 +35,9 @@ export const updateUserRole = async (req, res) => {
             message: `Invalid role specified. Allowed roles are: ${allowedRoles.join(', ')}`
         });
     }
-
-    
     if (req.user.id === userId) {
         return res.status(400).json({ success: false, message: "Admins cannot change their own role here." });
     }
-
     try {
         const userToUpdate = await User.findById(userId);
         if (!userToUpdate) {
@@ -56,16 +46,9 @@ export const updateUserRole = async (req, res) => {
                 message: 'User not found'
             });
         }
-
-        
-
         userToUpdate.role = newRole;
         await userToUpdate.save({ validateBeforeSave: true });
-
-        
-        const updatedUserResponse = await User.findById(userId)
-                                            .select('-password -security -email_verification.token -activity.loginHistory');
-
+        const updatedUserResponse = await User.findById(userId).select('-password -security -email_verification.token -activity.loginHistory');
         res.json({
             success: true,
             message: `User role updated successfully to ${newRole}`,
@@ -86,16 +69,15 @@ export const updateUserRole = async (req, res) => {
     }
 };
 
-
 export const getUserProfile = async (req, res) => {
     const { userId } = req.params;
-
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-        return res.status(400).json({ success: false, message: 'Invalid user ID format' });
+        return res.status(400).json({ 
+            success: false, 
+            message: 'Invalid user ID format' 
+        });
     }
-
     try {
-        
         const userProfile = await User.findById(userId)
             .select('-password -security -email_verification.token -activity.loginHistory -notifications._id') 
             .populate({ 
@@ -107,11 +89,6 @@ export const getUserProfile = async (req, res) => {
         if (!userProfile) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
-
-        
-        
-        
-
         res.json({
             success: true,
             user: userProfile
@@ -126,43 +103,37 @@ export const getUserProfile = async (req, res) => {
 
 export const updateMyAvatar = async (req, res) => {
     if (!req.file) {
-        return res.status(400).json({ success: false, message: 'No avatar image uploaded.' });
+        return res.status(400).json({ 
+            success: false, 
+            message: 'No avatar image uploaded.' 
+        });
     }
-
     try {
         const user = await User.findById(req.user._id); 
         if (!user) {
-            
-            return res.status(404).json({ success: false, message: 'User not found.' });
+            return res.status(404).json({ 
+                success: false, 
+                message: 'User not found.' 
+            });
         }
-
-        
         if (user.avatar?.public_id && user.avatar.url !== 'default-avatar.png') {
             try {
-                await deleteFromCloud(user.avatar.public_id);
-                
+                await deleteFromCloud(user.avatar.public_id);  
             } catch (deleteError) {
-                
                 console.warn(`Could not delete old avatar (${user.avatar.public_id}):`, deleteError.message);
             }
         }
-
-        
         const result = await uploadToCloud(
             req.file.buffer,
             `avatar_${user._id}_${Date.now()}`, 
-            `user_avatars/${user._id}` 
+            `user_avatars/${user._id}` // This is the folder path in the cloud storage. Example: user_avatars/662d9a0f14fa7a. Helps organize avatars per user.
         );
-
-        
         user.avatar = {
             url: result.url,
             public_id: result.public_id, 
             uploadDate: new Date()
         };
         await user.save();
-
-        
         res.json({
             success: true,
             message: 'Avatar updated successfully.',
@@ -171,9 +142,8 @@ export const updateMyAvatar = async (req, res) => {
 
     } catch (error) {
         console.error('Error updating avatar:', error);
-        
         if (error.code === 'LIMIT_FILE_SIZE') {
-             return res.status(400).json({ success: false, message: 'File size exceeds the 5MB limit.' });
+            return res.status(400).json({ success: false, message: 'File size exceeds the 5MB limit.' });
         }
         res.status(500).json({ success: false, message: 'Server error updating avatar.' });
     }

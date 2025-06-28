@@ -4,9 +4,7 @@ import {fetchNotifications,markNotificationAsRead,markAllNotificationsAsRead} fr
 
 export const useNotification=()=>{
     const dispatch=useDispatch()
-    const {notifications,unreadCount,isLoading,error}=useSelector(
-        (state)=>state.notifications
-    )
+    const {notifications,unreadCount,isLoading,error}=useSelector((state)=>state.notifications)
     const [filter,setFilter]=useState('all')
 
     useEffect(()=>{

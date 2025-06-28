@@ -11,12 +11,11 @@ export const useChatSocket = (token) => {
   const dispatch = useDispatch();
   const currentUser = useSelector(state => state.auth.user);
   const [isConnected, setIsConnected] = useState(socketInstance?.connected || false);
-  const currentUserRef = useRef(currentUser);
+  const currentUserRef = useRef(currentUser);  //useRef: It survives across re-renders without causing re-renders when you update it.
   
   useEffect(() => {
     currentUserRef.current = currentUser;
-  }, [currentUser]);
-
+  },[currentUser]);
 
   useEffect(() => {
         if (token && (!socketInstance || !socketInstance.connected)) { 
@@ -33,7 +32,6 @@ export const useChatSocket = (token) => {
                     transports: ['websocket'],
                 });
             }
-
             const handleConnect = () => {
                 console.log('[useChatSocket] Socket connected:', socketInstance.id);
                 setIsConnected(true);
@@ -41,21 +39,11 @@ export const useChatSocket = (token) => {
 
             const handleDisconnect = (reason) => {
                 console.log('[useChatSocket] Socket disconnected. Reason:', reason);
-                setIsConnected(false);
-                
-                
-                
-                
+                setIsConnected(false);   
             };
-
             const handleConnectError = (error) => {
                 console.error('%c[useChatSocket Hook] ❌ Connection Error:', 'color: #dc3545', error.message, error);
-                setIsConnected(false);
-                
-                
-                
-                
-                
+                setIsConnected(false); 
             };
             
             const handleNewPersonalMessage = (message) => {
@@ -88,7 +76,6 @@ export const useChatSocket = (token) => {
                 }
             };
 
-            
             socketInstance.on('connect', handleConnect);
             socketInstance.on('disconnect', handleDisconnect);
             socketInstance.on('connect_error', handleConnectError);
@@ -115,7 +102,6 @@ export const useChatSocket = (token) => {
                 socketInstance.off('newWorkspaceMessage');
                 socketInstance.off('newProjectMessage');
                 socketInstance.off('userTyping');
-                
             }
         };
     }, [token, dispatch]); 
@@ -125,7 +111,6 @@ export const useChatSocket = (token) => {
             if (!socketInstance || !socketInstance.connected) return reject('Socket not connected');
             socketInstance.emit('sendPersonalMessage', { receiverId: userId, content, attachments }, (response) => {
                 if (response?.success) {
-                   
                    dispatch(addPersonalMessage({ senderId: userId, message: response.data })); 
                    resolve(response.data);
                 } else {

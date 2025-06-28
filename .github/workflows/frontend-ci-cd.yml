@@ -1,58 +1,58 @@
-name: Frontend CI/CD
+name: Frontend CI/CD  # This sets a human-readable name for the workflow that appears in the GitHub Actions UI.
 
-on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/frontend-ci-cd.yml'
+on:  #Defines the triggering events — when this workflow should run.
+  push:  # Triggers when someone pushes commits.
+    branches: [ main ]  # Only if the push is to the `main` branch.
+    paths:  # Only if files in `frontend/**` or this workflow file itself are changed.
+      - 'frontend/**'  # means _any file or folder_ inside the `frontend` directory.
+      - '.github/workflows/frontend-cia-cd.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'frontend/**'
       - '.github/workflows/frontend-ci-cd.yml'
 
-permissions:
+permissions:  # This workflow has read access to the repository contents.
   contents: read
 
-jobs:
-  lint_test_build:
-    name: Lint, Test & Build Frontend
-    runs-on: ubuntu-latest
+jobs:  # A job is a group of steps that run in the same runner environment.
+  lint_test_build:  # lint_test_build is the job ID (used internally).
+    name: Lint, Test & Build Frontend  # name: is what shows up in GitHub's UI.
+    runs-on: ubuntu-latest  # This job runs on a Linux virtual machine (Ubuntu).
 
-    steps:
+    steps:  # list of tasks this job will do
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Downloads your repository's content into the runner so it can be accessed
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4  # Sets up Node.js version 18.
         with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          node-version: '18' # Specifies which version of Node.js to install in the GitHub Actions runne
+          cache: 'npm'  # Tells the setup-node action to cache node_modules using npm’s cache.
+          cache-dependency-path: frontend/package-lock.json  # Informs GitHub which lock file to use as the cache key.
 
       - name: Install Frontend Dependencies
-        run: npm ci --prefix frontend
+        run: npm ci --prefix frontend  # This flag specifies the working directory for the command.
 
       - name: Lint Frontend Code
-        run: npm run lint --prefix frontend
+        run: npm run lint --prefix frontend  # Runs the lint script defined in frontend/package.json
 
       - name: Build Frontend
-        run: npm run build --prefix frontend
-        env:
+        run: npm run build --prefix frontend  # Runs the build script in frontend/package.json
+        env:  # This section defines environment variables for the frontend build process using values stored in GitHub secrets:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
           VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID_PROD }}
 
-  deploy_to_vercel:
+  deploy_to_vercel:  # This block defines a GitHub Actions job named deploy_to_vercel
     name: Deploy Frontend to Vercel
-    needs: lint_test_build
+    needs: lint_test_build  # This ensures this deploy job only runs if the lint_test_build job completes successfully.
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'  # Run only if the workflow was triggered by a push event (github.event_name == 'push') AND it was pushed to the main branch (github.ref == 'refs/heads/main')
 
     steps:
       - name: Trigger Vercel Deploy
-        run: |
-          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL_FRONTEND }}" ]; then
+        run: |  # Starts a multi-line shell script block using |.
+          if [ -n "${{ secrets.VERCEL_DEPLOY_HOOK_URL_FRONTEND }}" ]; then 
             curl -X POST ${{ secrets.VERCEL_DEPLOY_HOOK_URL_FRONTEND }}
           else
             echo "VERCEL_DEPLOY_HOOK_URL_FRONTEND not set. Assuming Vercel auto-deploys from Git."

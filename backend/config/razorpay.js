@@ -15,7 +15,7 @@ if(!keyId || !keySecret){
 export const razorpayInstance=(keyId && keySecret) ? new Razorpay({
     key_id:keyId,
     key_secret:keySecret,
-    
+
 }) : {
     orders: { 
         create: () => Promise.reject(new Error("Razorpay not configured")), 
@@ -23,4 +23,4 @@ export const razorpayInstance=(keyId && keySecret) ? new Razorpay({
     },
 }
 
-export const isRazorpayConfigured=()=> !!(keyId && keySecret);
+export const isRazorpayConfigured=()=> !!(keyId && keySecret); // A function that returns true if both keys are defined.
