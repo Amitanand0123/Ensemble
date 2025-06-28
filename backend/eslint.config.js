@@ -15,8 +15,7 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      // Add any custom rules here if you want
-      // e.g., "no-unused-vars": "warn"
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
     },
   }
 ];
