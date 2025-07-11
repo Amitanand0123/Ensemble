@@ -25,7 +25,7 @@ router.get('/google',
 )
 router.get('/google/callback',
     passport.authenticate('google',{ //Uses Passport’s google strategy to process the OAuth callback.
-        failureRedirect:'/login',
+        failureRedirect:`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google-auth-failed`,
         failureMessage:true,
         session:false
     }),

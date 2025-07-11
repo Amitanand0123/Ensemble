@@ -18,6 +18,8 @@ const AuthCallback=()=>{
                 axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
                 const response=await axios.get('/api/auth/me')
                 if(response.data && response.data.user){
+                    // --- FIX: Add this line to save the user object to localStorage ---
+                    localStorage.setItem('user', JSON.stringify(response.data.user));
                     
                     dispatch({
                         type:'auth/login/fulfilled',

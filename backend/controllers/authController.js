@@ -5,6 +5,7 @@ import crypto from 'crypto'
 import sendEmail from '../utils/sendEmail.js'
 import { validationResult } from 'express-validator'
 
+
 dotenv.config() 
 
 const JWT_SECRET=process.env.JWT_SECRET;

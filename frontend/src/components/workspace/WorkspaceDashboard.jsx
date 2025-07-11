@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchWorkspaces, joinWorkspace } from '../../redux/slices/workspaceSlice.js';
+import { fetchWorkspaces, joinWorkspace, createWorkspace } from '../../redux/slices/workspaceSlice.js';
 import { Plus, Users, ArrowRight, Search, Lock, Globe, LogIn } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import PropTypes from 'prop-types';
 
 const WorkspaceDashboard = () => {
@@ -135,6 +136,7 @@ const WorkspaceDashboard = () => {
 
 
 const CreateWorkspaceModal = ({ isOpen, onClose }) => {
+    const dispatch = useDispatch();
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
@@ -143,16 +145,25 @@ const CreateWorkspaceModal = ({ isOpen, onClose }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (!name.trim()) {
+            setModalError('Workspace name cannot be empty.');
+            toast.error('Workspace name cannot be empty.');
+            return;
+        }
         setLoading(true);
         setModalError('');
         try{
+            await dispatch(createWorkspace({ name, description, isPrivate })).unwrap();
+            toast.success('Workspace created!');
             setName('');
             setDescription('');
             setIsPrivate(false);
             onClose();
         }catch (err){
-            setModalError(err.message || 'Failed to create workspace.');
+            const errorMessage = err.message || 'Failed to create workspace.';
+            setModalError(errorMessage);
             console.error("Create Workspace Error:", err);
+            toast.error(errorMessage);
         }finally{
             setLoading(false);
         }

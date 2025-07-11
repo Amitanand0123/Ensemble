@@ -1,30 +1,45 @@
-import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
-const apikey=process.env.RESEND_API_KEY
-if (!apikey) {
-    console.error("❌ RESEND_API_KEY is missing from environment variables");
-    console.error("Please add RESEND_API_KEY=re_your_key_here to your .env file");
-}
-
-const resend = new Resend(process.env.RESEND_API_KEY);
+let transporter = null;
 
 const sendEmail = async (options) => {
-    if (!process.env.RESEND_API_KEY) {
-        console.error("Resend API Key is missing. Cannot send email.");
-        throw new Error("Email service is not configured.");
-    }
     try {
-        const data = await resend.emails.send({
-            from: `${process.env.FROM_NAME} <${process.env.FROM_EMAIL}>`,
+        if (!transporter) {
+            if (!process.env.GMAIL_USER || !process.env.GMAIL_APP_PASSWORD) {
+                throw new Error('Gmail credentials are missing. Please set GMAIL_USER and GMAIL_APP_PASSWORD in your .env file');
+            }
+
+            transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.GMAIL_USER,
+                    pass: process.env.GMAIL_APP_PASSWORD, // App password, not regular password
+                },
+            });
+
+            await transporter.verify();
+            console.log('Gmail SMTP connection verified successfully');
+        }
+        const mailOptions = {
+            from: `"${process.env.FROM_NAME || 'Your App'}" <${process.env.GMAIL_USER}>`,
             to: options.email,
             subject: options.subject,
+            text: options.message,
             html: options.html || `<p>${options.message}</p>`,
-        });
-        console.log('Email sent successfully via Resend:', data);
-        return data;
+        };
+
+        // Send the email
+        const info = await transporter.sendMail(mailOptions);
+        console.log('Email sent successfully:', info.messageId);
+        
+        return {
+            success: true,
+            messageId: info.messageId,
+            response: info.response
+        };
     } catch (error) {
-        console.error('Detailed Resend email sending error:', error);
-        throw error;
+        console.error('Error sending email:', error);
+        throw new Error('Email could not be sent: ' + error.message);
     }
 };
 
