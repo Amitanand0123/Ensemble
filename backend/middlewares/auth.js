@@ -27,12 +27,6 @@ export const protect = async (req, res, next) => {
                 message: 'Account is not active'
             });
         }
-        if (!user.email_verification.verified) {
-            return res.status(401).json({
-                success: false,
-                message: 'Please verify your email address'
-            });
-        }
 
         req.user = user; 
         next();

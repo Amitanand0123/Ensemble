@@ -2,46 +2,46 @@
 import { useRef, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { format } from 'date-fns';
-import { Paperclip } from 'lucide-react'; 
-import { selectTypingUsers, selectCurrentChatInfo } from '../../redux/slices/chatSlice'; 
+import { Paperclip, MessageSquare } from 'lucide-react';
+import { selectTypingUsers, selectCurrentChatInfo } from '../../redux/slices/chatSlice';
 import PropTypes from 'prop-types';
 
 
 const ChatMessage = ({ message, isOwnMessage, senderName }) => {
     return (
-        <div className={`flex mb-3 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
-            <div className={`flex flex-col max-w-[75%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
+        <div className={`flex mb-4 ${isOwnMessage ? 'justify-end' : 'justify-start'} animate-fadeInUp`}>
+            <div className={`flex flex-col max-w-[75%] md:max-w-[65%] ${isOwnMessage ? 'items-end' : 'items-start'}`}>
                 {/* Sender Name */}
                 {!isOwnMessage && (
-                    <div className="text-xs text-gray-400 mb-1 ml-2">{senderName}</div>
+                    <div className="text-xs text-muted-foreground mb-1 ml-2 font-medium">{senderName}</div>
                 )}
 
                 {/* Message Bubble */}
-                <div className={`py-2 px-3 rounded-lg shadow-md ${ 
+                <div className={`py-2.5 px-4 rounded-lg shadow-lg ${
                         isOwnMessage
-                            ? 'bg-blue-600 text-white rounded-tr-none'
-                            : 'bg-gray-700 text-gray-100 rounded-tl-none'
+                            ? 'bg-sidebar text-sidebar-text rounded-tr-none border border-accent/30'
+                            : 'bg-card text-foreground rounded-tl-none border border-border'
                     }`}
                 >
                     {/* Message Content */}
-                    {message.content && <div>{message.content}</div>}
+                    {message.content && <div className="leading-relaxed">{message.content}</div>}
 
                     {/* --- Attachments --- */}
                     {message.attachments && message.attachments.length > 0 && (
-                        <div className={`mt-2 space-y-1 ${message.content ? 'pt-2 border-t border-white/20' : ''}`}>
+                        <div className={`mt-2 space-y-1.5 ${message.content ? 'pt-2 border-t border-border/30' : ''}`}>
                             {message.attachments.map((attachment) => (
                                 <a
-                                    key={attachment.public_id || attachment.url} 
+                                    key={attachment.public_id || attachment.url}
                                     href={attachment.url}
-                                    className={`flex items-center p-1.5 rounded hover:bg-black/20 transition-colors ${ 
-                                            isOwnMessage ? 'text-blue-100 hover:text-white' : 'text-blue-300 hover:text-blue-100'
+                                    className={`flex items-center gap-2 p-2 rounded-md hover:bg-accent/30 transition-colors ${
+                                            isOwnMessage ? 'text-sidebar-text/90 hover:text-sidebar-text' : 'text-accent hover:text-accent/80'
                                         }`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     title={`Size: ${attachment.size ? (attachment.size / 1024).toFixed(1) + ' KB' : 'Unknown size'}`}
                                 >
-                                    <Paperclip className="h-4 w-4 mr-1.5 flex-shrink-0" />
-                                    <span className="text-sm truncate">{attachment.filename}</span>
+                                    <Paperclip className="h-4 w-4 flex-shrink-0" />
+                                    <span className="text-sm truncate font-medium">{attachment.filename}</span>
                                 </a>
                             ))}
                         </div>
@@ -50,7 +50,7 @@ const ChatMessage = ({ message, isOwnMessage, senderName }) => {
 
 
                     {/* Timestamp */}
-                    <div className={`text-xs mt-1 ${isOwnMessage ? 'text-blue-200' : 'text-gray-400'} text-right`}>
+                    <div className={`text-xs mt-1.5 ${isOwnMessage ? 'text-sidebar-textMuted' : 'text-muted-foreground'} text-right`}>
                         {format(new Date(message.createdAt), 'HH:mm')}
                     </div>
                 </div>
@@ -101,13 +101,26 @@ const MessageList = ({ messages, currentUserId }) => {
                     );
                 })
             ) : (
-                <div className="text-center text-gray-500 pt-10">No messages yet</div>
+                <div className="text-center py-16">
+                    <div className="max-w-sm mx-auto bg-accent/20 border-2 border-dashed border-border rounded-xl p-8">
+                        <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
+                            <MessageSquare className="w-7 h-7 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-base font-semibold text-foreground mb-2">No messages yet</h3>
+                        <p className="text-sm text-muted-foreground">Start the conversation by sending a message</p>
+                    </div>
+                </div>
             )}
 
              {/* Typing indicators */}
             {typingUserNames.length > 0 && (
-                <div className="text-sm text-gray-400 italic pt-2 pl-2 animate-pulse">
-                    {typingUserNames.join(', ')} {typingUserNames.length === 1 ? 'is' : 'are'} typing...
+                <div className="flex items-center gap-2 text-sm text-muted-foreground italic pt-2 pl-2 animate-pulse">
+                    <div className="flex gap-1">
+                        <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{animationDelay: '0ms'}}></span>
+                        <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{animationDelay: '150ms'}}></span>
+                        <span className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{animationDelay: '300ms'}}></span>
+                    </div>
+                    <span>{typingUserNames.join(', ')} {typingUserNames.length === 1 ? 'is' : 'are'} typing...</span>
                 </div>
             )}
 

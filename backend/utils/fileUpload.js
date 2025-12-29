@@ -8,11 +8,11 @@ cloudinary.config({
 
 export const uploadToCloud = async (fileBuffer, originalFilename, folder = 'ensemble-tasks') => {
     return new Promise((resolve, reject) => {
-        const uploadStream = cloudinary.uploader.upload_stream( // upload_stream: Streams the file data to Cloudinary.
+        const uploadStream = cloudinary.uploader.upload_stream(
             {
                 folder: folder,
-                public_id: originalFilename.split('.').slice(0, -1).join('.'), // is used to set a custom filename (public ID) for the uploaded file on Cloudinary, without its extension (like .pdf, .png, etc.). .slice(0, -1):Takes all elements except the last one ("pdf")
-                resource_type: "auto" // This tells Cloudinary to automatically detect the type of file being uploaded 
+                public_id: originalFilename.split('.').slice(0, -1).join('.'),
+                resource_type: "auto"
             },
             (error, result) => {
                 if (error) {
@@ -29,7 +29,7 @@ export const uploadToCloud = async (fileBuffer, originalFilename, folder = 'ense
                 }
             }
         );
-        uploadStream.end(fileBuffer); // This line finishes the stream by sending the actual file content (fileBuffer) to Cloudinary for upload.
+        uploadStream.end(fileBuffer);
     });
 };
 

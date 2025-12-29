@@ -36,7 +36,7 @@ const MembersList = ({ workspace }) => {
     ];
 
     if (!workspace) {
-         return <p className="text-gray-400 p-4">Loading workspace data...</p>;
+         return <p className="text-muted-foreground p-4">Loading workspace data...</p>;
     }
 
     const handleRoleChange = async (memberUserId, newRole) => {
@@ -91,65 +91,65 @@ const MembersList = ({ workspace }) => {
                     const isLoadingAction = actionLoading.id === memberUserId;
 
                     return (
-                        <Card key={memberUserId} className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white">
+                        <Card key={memberUserId} className="bg-card/60 backdrop-blur-sm rounded-xl border-2 border-border text-foreground">
                             <CardContent className="flex items-center space-x-4 p-3">
                                 <Link to={`/profile/${memberUserId}`}>
                                     <Avatar className="w-10 h-10 hover:opacity-80 transition-opacity">
                                         <AvatarImage src={member.user.avatar?.url} alt={memberName} />
-                                        <AvatarFallback className="bg-gray-600">
+                                        <AvatarFallback className="bg-accent text-white">
                                             {getInitials(member.user.name?.first, member.user.name?.last)}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Link>
                                 <div>
-                                    <Link to={`/profile/${memberUserId}`} className="font-semibold hover:underline">
+                                    <Link to={`/profile/${memberUserId}`} className="font-semibold hover:underline text-foreground">
                                         {memberName}
                                     </Link>
-                                    <p className="text-sm text-gray-400">{member.user.email || 'No Email'}</p>
+                                    <p className="text-sm text-muted-foreground">{member.user.email || 'No Email'}</p>
                                 </div>
                                 <div className="ml-auto flex items-center space-x-2">
-                                     {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+                                     {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-accent" />}
                                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                                        isOwner ? 'bg-yellow-600' :
-                                        member.role === 'admin' ? 'bg-purple-600' :
-                                        'bg-gray-600'
+                                        isOwner ? 'bg-chart-4 text-white' :
+                                        member.role === 'admin' ? 'bg-sidebar text-sidebar-text' :
+                                        'bg-secondary text-white'
                                     }`}>
                                         {isOwner ? 'Owner' : member.role}
                                     </span>
                                     {canManageMember && !isLoadingAction && (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-white">
+                                            <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
                                                 {member.role === 'member' ? (
-                                                    <DropdownMenuItem onClick={() => handleRoleChange(memberUserId, 'admin')} className="cursor-pointer hover:bg-gray-700">
-                                                        <ShieldCheck className="mr-2 h-4 w-4 text-purple-400" /> Make Admin
+                                                    <DropdownMenuItem onClick={() => handleRoleChange(memberUserId, 'admin')} className="cursor-pointer hover:bg-sidebar-hover">
+                                                        <ShieldCheck className="mr-2 h-4 w-4 text-sidebar" /> Make Admin
                                                     </DropdownMenuItem>
                                                 ) : (
-                                                    <DropdownMenuItem onClick={() => handleRoleChange(memberUserId, 'member')} className="cursor-pointer hover:bg-gray-700">
-                                                        <Shield className="mr-2 h-4 w-4 text-gray-400" /> Make Member
+                                                    <DropdownMenuItem onClick={() => handleRoleChange(memberUserId, 'member')} className="cursor-pointer hover:bg-sidebar-hover">
+                                                        <Shield className="mr-2 h-4 w-4 text-muted-foreground" /> Make Member
                                                     </DropdownMenuItem>
                                                 )}
-                                                <DropdownMenuSeparator className="bg-gray-700" />
+                                                <DropdownMenuSeparator className="bg-border" />
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer text-red-400 hover:bg-red-900/50">
+                                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="cursor-pointer text-destructive hover:bg-destructive/10">
                                                             <Trash2 className="mr-2 h-4 w-4" /> Remove Member...
                                                         </DropdownMenuItem>
                                                     </AlertDialogTrigger>
-                                                    <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
+                                                    <AlertDialogContent className="bg-card border-border text-foreground">
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription className="text-gray-300">
+                                                            <AlertDialogDescription className="text-muted-foreground">
                                                                 This will remove {memberName} from the workspace. They will lose access immediately.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleRemoveMember(memberUserId)} className="bg-red-600 hover:bg-red-700">Yes, Remove</AlertDialogAction>
+                                                            <AlertDialogAction onClick={() => handleRemoveMember(memberUserId)} className="bg-destructive hover:bg-destructive/90 text-white">Yes, Remove</AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>

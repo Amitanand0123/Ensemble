@@ -5,7 +5,7 @@ on:  #Defines the triggering events — when this workflow should run.
     branches: [ main ]  # Only if the push is to the `main` branch.
     paths:  # Only if files in `frontend/**` or this workflow file itself are changed.
       - 'frontend/**'  # means _any file or folder_ inside the `frontend` directory.
-      - '.github/workflows/frontend-cia-cd.yml'
+      - '.github/workflows/frontend-ci-cd.yml'
   pull_request:
     branches: [ main ]
     paths:

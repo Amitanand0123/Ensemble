@@ -40,7 +40,7 @@ export const uploadWorkspaceFile=async(req,res)=>{
                 workspace:workspaceId
             })
             await newFile.save();
-            await newFile.populate('uploadedBy','name email avatar') // Replaces the uploadedBy ObjectId with the actual user’s:
+            await newFile.populate('uploadedBy','name email avatar')
             uploadedFilesInfo.push(newFile);
         }
         res.status(201).json({

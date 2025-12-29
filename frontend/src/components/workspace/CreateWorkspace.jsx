@@ -50,72 +50,94 @@ const CreateWorkspace = () => {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-900 p-4">
-            <Card className="w-full max-w-lg bg-gray-800/50 border-gray-700 text-white">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
+            <Card className="w-full max-w-2xl bg-card border-2 border-border shadow-2xl slack-hover-lift">
                 <form onSubmit={handleSubmit}>
-                    <CardHeader>
-                        <CardTitle className="text-2xl">Create New Workspace</CardTitle>
+                    <CardHeader className="space-y-1 pb-6 border-b border-border">
+                        <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-chart-1 to-chart-3 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                </svg>
+                            </div>
+                            <div>
+                                <CardTitle className="text-3xl font-bold text-foreground">Create New Workspace</CardTitle>
+                                <p className="text-sm text-muted-foreground mt-1">Set up a collaborative space for your team</p>
+                            </div>
+                        </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className='space-y-4'>
+                    <CardContent className="pt-6">
+                        <div className='space-y-6'>
                             {error && (
-                                <Alert variant="destructive">
-                                    <AlertDescription>{error.message || error}</AlertDescription>
+                                <Alert variant="destructive" className="border-destructive/50 bg-destructive/10">
+                                    <AlertDescription className="text-destructive">{error.message || error}</AlertDescription>
                                 </Alert>
                             )}
                             <div className="space-y-2">
-                                <Label htmlFor="name">Workspace Name*</Label>
-                                <Input 
-                                    id="name" 
-                                    name="name" 
-                                    value={formData.name} 
-                                    onChange={handleChange} 
-                                    maxLength={50} 
-                                    placeholder="Enter workspace name" 
-                                    required 
-                                    className="bg-gray-700 border-gray-600" 
+                                <Label htmlFor="name" className="text-sm font-semibold text-foreground">Workspace Name*</Label>
+                                <Input
+                                    id="name"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    maxLength={50}
+                                    placeholder="e.g., Marketing Team, Engineering Hub"
+                                    required
+                                    className="bg-input border-2 border-border focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all h-12 text-base"
                                 />
+                                <p className="text-xs text-muted-foreground pl-1">{formData.name.length}/50 characters</p>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
-                                <Textarea 
-                                    id="description" 
-                                    name="description" 
-                                    value={formData.description} 
-                                    onChange={handleChange} 
-                                    maxLength={500} 
-                                    placeholder="A brief description of your workspace" 
-                                    rows={4} 
-                                    className="bg-gray-700 border-gray-600" 
+                                <Label htmlFor="description" className="text-sm font-semibold text-foreground">Description (Optional)</Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    maxLength={500}
+                                    placeholder="A brief description of your workspace's purpose and goals..."
+                                    rows={5}
+                                    className="bg-input border-2 border-border focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none"
                                 />
+                                <p className="text-xs text-muted-foreground pl-1">{formData.description.length}/500 characters</p>
                             </div>
-                            <div className="flex items-center space-x-3 pt-2">
-                                <Switch 
-                                    id="isPrivate" 
-                                    checked={formData.isPrivate} 
-                                    onCheckedChange={handleSwitchChange} 
+                            <div className="flex items-start space-x-3 p-4 rounded-lg bg-muted/30 border-2 border-border">
+                                <Switch
+                                    id="isPrivate"
+                                    checked={formData.isPrivate}
+                                    onCheckedChange={handleSwitchChange}
+                                    className="data-[state=checked]:bg-secondary"
                                 />
-                                <Label htmlFor="isPrivate">Private Workspace</Label>
+                                <div className="flex-1">
+                                    <Label htmlFor="isPrivate" className="text-sm font-semibold text-foreground cursor-pointer">Private Workspace</Label>
+                                    <p className="text-xs text-muted-foreground mt-1">Members can only join via invitation link. Public workspaces allow anyone to discover and join.</p>
+                                </div>
                             </div>
-                            <p className="text-xs text-gray-400 pl-1">If private, members can only join via invitation.</p>
                         </div>
                     </CardContent>
-                    <CardFooter className="flex justify-end gap-4">
-                        <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => navigate(-1)} 
+                    <CardFooter className="flex justify-end gap-3 pt-6 border-t border-border">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => navigate(-1)}
                             disabled={isLoading}
+                            className="px-6 h-11 border-2 hover:bg-accent"
                         >
                             Cancel
                         </Button>
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             disabled={isLoading}
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90"
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 h-11 shadow-lg hover:shadow-xl transition-all"
                         >
-                            {isLoading ? <Loader2 className="animate-spin mr-2" /> : null}
-                            {isLoading ? "Creating..." : "Create Workspace"}
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="animate-spin mr-2 h-5 w-5" />
+                                    Creating...
+                                </>
+                            ) : (
+                                "Create Workspace"
+                            )}
                         </Button>
                     </CardFooter>
                 </form>

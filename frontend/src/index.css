@@ -32,30 +32,58 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
+    /* Slack-Inspired Theme - Purple/Teal/Green vibrant palette */
+    --background: 0 0% 7%;           /* Main content area - very dark gray */
+    --foreground: 0 0% 95%;          /* Main text - off-white */
+
+    /* Sidebar specific colors */
+    --sidebar-bg: 271 81% 20%;       /* #4A154B - Slack purple background */
+    --sidebar-hover: 274 57% 27%;    /* #611f69 - Hover state */
+    --sidebar-active: 284 42% 39%;   /* #8b3a8f - Active item */
+    --sidebar-text: 0 0% 90%;        /* Light text on purple */
+    --sidebar-text-muted: 0 0% 70%;  /* Muted text on purple */
+
+    /* Muted elements */
+    --muted: 0 0% 15%;               /* Dark backgrounds for muted */
+    --muted-foreground: 0 0% 65%;    /* Muted text color */
+
+    /* Accent - Slack Teal */
+    --accent: 191 82% 58%;           /* #36C5F0 - Slack teal */
+    --accent-foreground: 0 0% 10%;   /* Dark text on teal */
+
+    /* Popovers & Dropdowns */
+    --popover: 0 0% 8%;              /* Darker than background */
+    --popover-foreground: 0 0% 95%;  /* Off-white text */
+
+    /* Borders and inputs */
+    --border: 0 0% 20%;              /* Medium gray borders */
+    --input: 0 0% 12%;               /* Input backgrounds */
+
+    /* Cards - Elevated surfaces */
+    --card: 0 0% 10%;                /* Cards slightly lighter than background */
+    --card-foreground: 0 0% 95%;     /* Off-white text on cards */
+
+    /* Primary - Slack Blue */
+    --primary: 203 87% 35%;          /* #1264A3 - Slack blue */
+    --primary-foreground: 0 0% 100%; /* White text on blue */
+
+    /* Secondary - Slack Green */
+    --secondary: 159 56% 43%;        /* #2BAC76 - Slack green */
+    --secondary-foreground: 0 0% 100%; /* White text on green */
+
+    /* Destructive - Slack Red */
+    --destructive: 343 81% 52%;      /* #E01E5A - Slack red */
+    --destructive-foreground: 0 0% 100%; /* White text on red */
+
+    /* Focus rings - Slack Teal for accessibility */
+    --ring: 191 82% 58%;             /* Teal focus ring */
+
+    /* Chart colors - Vibrant Slack palette */
+    --chart-1: 191 82% 58%;          /* Teal #36C5F0 */
+    --chart-2: 159 56% 43%;          /* Green #2BAC76 */
+    --chart-3: 203 87% 35%;          /* Blue #1264A3 */
+    --chart-4: 44 85% 55%;           /* Yellow #ECB22E */
+    --chart-5: 343 81% 52%;          /* Red #E01E5A */
   }
 }
 
@@ -74,5 +102,88 @@
   }
   body {
     @apply bg-background text-foreground;
+    margin: 0;
+    padding: 0;
+  }
+}
+
+/* Custom utilities for Slack-inspired theme */
+@layer utilities {
+  /* Sidebar gradient background */
+  .sidebar-gradient {
+    background: linear-gradient(135deg, hsl(271, 81%, 20%) 0%, hsl(274, 57%, 27%) 100%);
+  }
+
+  /* Slack-style glow effects */
+  .slack-glow {
+    box-shadow: 0 0 20px rgba(54, 197, 240, 0.2);
+  }
+
+  .slack-glow-purple {
+    box-shadow: 0 0 20px rgba(74, 21, 75, 0.3);
+  }
+
+  .slack-glow-hover:hover {
+    box-shadow: 0 0 30px rgba(54, 197, 240, 0.4);
+  }
+
+  /* Hover lift effect for interactive elements */
+  .slack-hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .slack-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Unread badge - Slack red */
+  .unread-badge {
+    background: hsl(343, 81%, 52%);
+    color: white;
+    font-weight: bold;
+    font-size: 0.75rem;
+    border-radius: 9999px;
+    padding: 0.125rem 0.375rem;
+    min-width: 1.25rem;
+    text-align: center;
+  }
+
+  /* Online status indicator - Slack green */
+  .online-indicator {
+    background: hsl(159, 56%, 43%);
+    border: 2px solid hsl(271, 81%, 20%);
+    border-radius: 9999px;
+    width: 0.75rem;
+    height: 0.75rem;
+    display: inline-block;
+  }
+
+  /* Offline status indicator */
+  .offline-indicator {
+    background: hsl(0, 0%, 50%);
+    border: 2px solid hsl(271, 81%, 20%);
+    border-radius: 9999px;
+    width: 0.75rem;
+    height: 0.75rem;
+    display: inline-block;
+  }
+
+  /* Purple-to-teal gradient text */
+  .text-slack-gradient {
+    background: linear-gradient(135deg, hsl(274, 57%, 57%) 0%, hsl(191, 82%, 58%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Teal-to-green gradient background */
+  .bg-slack-accent-gradient {
+    background: linear-gradient(135deg, hsl(191, 82%, 58%) 0%, hsl(159, 56%, 43%) 100%);
+  }
+
+  /* Smooth transitions for sidebar items */
+  .sidebar-item-transition {
+    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
   }
 }

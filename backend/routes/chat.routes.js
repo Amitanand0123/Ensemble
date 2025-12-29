@@ -4,7 +4,7 @@ import { getPersonalMessages,getProjectMessages,getWorkspaceMessages,markMessage
 import multer from 'multer';
 
 const router=express.Router()
-const upload = multer({ storage: multer.memoryStorage() }); // Configures multer to store uploaded files in memory instead of saving to disk.
+const upload = multer({ storage: multer.memoryStorage() });
 
 router.use(protect)
 

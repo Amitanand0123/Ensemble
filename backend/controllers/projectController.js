@@ -240,7 +240,7 @@ export const inviteToProject = async (req, res) => {
     }
 
     try {
-        const project = await Project.findById(projectId).populate('workspace', 'members');  // Fetch the referenced workspace document, but only return its members field — not the whole document.
+        const project = await Project.findById(projectId).populate('workspace', 'members');
         if (!project) {
             return res.status(404).json({ success: false, message: 'Project not found.' });
         }

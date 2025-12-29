@@ -23,4 +23,4 @@ export const razorpayInstance=(keyId && keySecret) ? new Razorpay({
     },
 }
 
-export const isRazorpayConfigured=()=> !!(keyId && keySecret); // A function that returns true if both keys are defined.
+export const isRazorpayConfigured=()=> !!(keyId && keySecret);

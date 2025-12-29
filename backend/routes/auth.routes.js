@@ -1,5 +1,5 @@
 import express from 'express'
-import { registerUser,loginUser,forgotPassword, verifyEmail, logoutUser, resetPassword, resendVerificationEmail } from '../controllers/authController.js'
+import { registerUser,loginUser,forgotPassword, logoutUser, resetPassword } from '../controllers/authController.js'
 import {protect} from '../middlewares/auth.js'
 import { loginValidation, registerValidation, validateRequest } from '../middlewares/validation.js';
 import passport from 'passport';
@@ -17,14 +17,11 @@ router.get('/me',protect,(req,res)=>{
     res.json({user:req.user})
 });
 
-router.post('/verify-email',verifyEmail);
-router.post('/resend-verification', resendVerificationEmail);
-
 router.get('/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
 )
 router.get('/google/callback',
-    passport.authenticate('google',{ //Uses Passport’s google strategy to process the OAuth callback.
+    passport.authenticate('google',{
         failureRedirect:`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=google-auth-failed`,
         failureMessage:true,
         session:false
@@ -39,14 +36,14 @@ router.get('/google/callback',
                 throw new Error("User data from Google authentication is incomplete.")
             }
             const accessToken=jwt.sign(
-                {userId:req.user._id,role:req.user.role,email:req.user.email}, // This is the payload — the data inside the token.
+                {userId:req.user._id,role:req.user.role,email:req.user.email},
                 process.env.JWT_SECRET,
                 {expiresIn:'1d'}
             )
-            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${accessToken}`) // fix
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/auth/callback?token=${accessToken}`)
         } catch (error) {
             console.error("Error generating token or redirecting: ",error);
-            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=token-generation-failed`) // fix
+            res.redirect(`${process.env.FRONTEND_URL || 'http://localhost:5173'}/login?error=token-generation-failed`)
         }
     }
 )

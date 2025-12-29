@@ -28,7 +28,7 @@ export const createTask=async(req,res)=>{
         }
         let uploadedAttachments=[];
         if(req.files && req.files.length>0){
-            uploadedAttachments=await Promise.all( // Promise.all() ensures uploads are done in parallel but waits for all to complete.
+            uploadedAttachments=await Promise.all(
                 req.files.map(async(file)=>{
                     try {
                         const result=await uploadToCloud(file.buffer,file.originalname);
@@ -47,18 +47,18 @@ export const createTask=async(req,res)=>{
                     }
                 })
             )
-            uploadedAttachments=uploadedAttachments.filter(att=>att!==null); // Removes any failed uploads (null entries) from the array.
+            uploadedAttachments=uploadedAttachments.filter(att=>att!==null);
         }
         let parsedAssignedTo=[];
         if(assignedTo){
             try {
-                if(typeof assignedTo==='string' && assignedTo.startsWith('[')){ // like "[\"user1\", \"user2\"]"), it's likely a JSON-encoded array.
+                if(typeof assignedTo==='string' && assignedTo.startsWith('[')){
                     parsedAssignedTo=JSON.parse(assignedTo);
                 }
-                else if(Array.isArray(assignedTo)){ // If it's already an array (e.g., ["user1", "user2"]), just assign it directly.
+                else if(Array.isArray(assignedTo)){
                     parsedAssignedTo=assignedTo;
                 }
-                else if(typeof assignedTo==='string'){ // If it's just a single string (e.g., "user1"), wrap it in an array.
+                else if(typeof assignedTo==='string'){
                     parsedAssignedTo=[assignedTo];
                 }
             } catch (error) {
@@ -128,7 +128,7 @@ export const createTask=async(req,res)=>{
 export const getTasks=async(req,res)=>{
     try {
         const {project,status,assignedTo}=req.query;
-        const currentWorkspace=req.user.workspaces?.[0]?.workspace // fix
+        const currentWorkspace=req.user.workspaces?.[0]?.workspace
         if(!currentWorkspace){
             return res.status(400).json({
                 success:false,
@@ -167,58 +167,6 @@ export const getTasks=async(req,res)=>{
         })
     }
 }
-
-// export const getTasks = async (req, res) => {
-//     try {
-//         const { workspace: workspaceId, project, status, assignedTo } = req.query;
-
-//         if (!workspaceId) {
-//             return res.status(400).json({
-//                 success: false,
-//                 message: 'Workspace ID is required in query'
-//             });
-//         }
-
-//         // Validate if user belongs to this workspace
-//         const isMember = req.user.workspaces.some(
-//             w => w.workspace.toString() === workspaceId
-//         );
-
-//         if (!isMember) {
-//             return res.status(403).json({
-//                 success: false,
-//                 message: 'You are not a member of this workspace'
-//             });
-//         }
-
-//         const filter = { workspace: workspaceId };
-
-//         if (project) filter.project = project;
-//         if (status) filter.status = status;
-//         if (assignedTo) filter.assignedTo = assignedTo;
-
-//         const tasks = await Task.find(filter)
-//             .populate('project', 'name')
-//             .populate('assignedTo', 'name email')
-//             .populate('createdBy', 'name email')
-//             .sort('-createdAt');
-
-//         res.json({
-//             success: true,
-//             count: tasks.length,
-//             tasks
-//         });
-
-//     } catch (error) {
-//         console.error('Get tasks error:', error);
-//         res.status(500).json({
-//             success: false,
-//             message: 'Could not fetch tasks',
-//             error: process.env.NODE_ENV === 'development' ? error.message : undefined
-//         });
-//     }
-// };
-
 
 export const getTaskById = async (req, res) => {
     try {
@@ -289,13 +237,13 @@ export const updateTask=async(req,res)=>{
             let value=req.body[update]
             if((update==='assignedTo' || update==='tags') && typeof value==='string'){
                 try {
-                    value=JSON.parse(value) // If the value is a string, try to JSON.parse() it first
+                    value=JSON.parse(value)
                 } catch (error) {
                     console.error('Update task error:',error);
                     if(update==='tags'){
-                        value=value.split(',').map(t=>t.trim()).filter(t=>t) // split : Splits the string at commas into an array., map:Removes whitespace from each string., filter: Removes empty strings (falsy values).
+                        value=value.split(',').map(t=>t.trim()).filter(t=>t)
                     }
-                    else value=[value] // If assignedTo is a single value, make it an array for consistency.
+                    else value=[value]
                 }
             }
             else if(update==='assignedTo' && !Array.isArray(value) && value){
@@ -474,7 +422,7 @@ export const addTaskComment=async(req,res)=>{
             content:content.trim(),
             createdAt:new Date()
         }
-        task.comments.unshift(comment); // Adds the new comment to the **beginning** of the `comments` array in the task document using `.unshift()` (so the latest comment appears first).
+        task.comments.unshift(comment);
         await task.save();
         await task.populate('comments.user','name email avatar')
         const newComment=task.comments[0];
@@ -542,7 +490,7 @@ export const getTasksbyProject=async(req,res)=>{
                 message:'Not authorized to view tasks in this project'
             })
         }
-        const filter={project:projectId} // Only tasks belonging to a specific project will be queried.
+        const filter={project:projectId}
         if(status) filter.status=status;
         if(priority) filter.priority=priority;
         if(assignedTo) filter['assignedTo.user']=assignedTo

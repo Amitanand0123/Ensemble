@@ -17,14 +17,14 @@ export const useAuth = () => {
 
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
-    if (storedToken !== token) { // This avoids unnecessary state updates (and re-renders) if they’re already the same.
+    if (storedToken !== token) {
       setToken(storedToken);
     }
   }, [isAuthenticated, token]);
 
   const handleLogin = async (credentials) => {
     try {
-      const result = await dispatch(loginUser(credentials)).unwrap(); // unwrap : If the thunk fulfilled, it resolves to the actual payload (e.g. user data, token).
+      const result = await dispatch(loginUser(credentials)).unwrap();
       return result;
     } catch (err) {
       console.error('Login error in hook:', err);

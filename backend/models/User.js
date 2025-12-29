@@ -106,7 +106,7 @@ const UserSchema = new mongoose.Schema(
          date: { type: Date, default: Date.now },
          ip: { type: String },
          device: { type: String }
-      }] // Add this array to store login history
+      }]
    }
    ,
 
@@ -144,13 +144,7 @@ const UserSchema = new mongoose.Schema(
     recentWorkspaces:[{
       workspace:{type:mongoose.Schema.Types.ObjectId,ref:'Workspace'},
       lastAccess:{type:Date}
-    }].slice(0,5),
-
-    email_verification:{
-      verified:{type:Boolean,default:false},
-      token:String,
-      tokenExpires:Date
-    }
+    }].slice(0,5)
   },
 
   { 
@@ -160,19 +154,16 @@ const UserSchema = new mongoose.Schema(
   }
 );
 
-// Indexes for better query performance
 
 UserSchema.index({ 'skills': 1 });
 UserSchema.index({ createdAt: -1 });
 
-// Virtual for full name
-UserSchema.virtual('fullName').get(function() { //virtuals are fields that do not get stored in the MongoDB database. Instead, they are computed dynamically when accessed.
+UserSchema.virtual('fullName').get(function() {
   return `${this.name.first} ${this.name.last}`;
 });
 
-// Pre-save middleware for password hashing
 UserSchema.pre('save', async function(next) {
-  if (!this.isModified('password') || !this.password) return next(); // To prevent unnecessary re-hashing every time a user updates other fields (like name or email).Without this check, the password would be re-hashed on every update, making the user unable to log in.
+  if (!this.isModified('password') || !this.password) return next(); 
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
@@ -185,7 +176,6 @@ UserSchema.pre('save', async function(next) {
   }
 });
 
-// Method to match password
 UserSchema.methods.matchPassword = async function(enteredPassword) {
   try {
     return await bcrypt.compare(enteredPassword, this.password);
@@ -195,7 +185,6 @@ UserSchema.methods.matchPassword = async function(enteredPassword) {
   }
 };
 
-// Method to update last login
 UserSchema.methods.updateLoginInfo = async function(ip, device) {
   this.activity.lastLogin = Date.now();
   this.activity.loginHistory.push({ date: Date.now(), ip, device });
@@ -220,19 +209,18 @@ UserSchema.methods.addRecentWorkspace=function(workspaceId){
   this.recentWorkspaces=this.recentWorkspaces.slice(0,5);
 }
 
-// Static method to get user stats
 UserSchema.statics.getUserStats = async function() {
   return await this.aggregate([
     {
       $group: {
-        _id: null, // We're grouping all documents together as a single group — so this returns just one result.
-        totalUsers: { $sum: 1 }, // Adds 1 for every document (user) → total number of users.
+        _id: null,
+        totalUsers: { $sum: 1 },
         activeUsers: { 
           $sum: { 
-            $cond: [{ $eq: ['$status', 'active'] }, 1, 0]  // If status == 'active', add 1, else 0.
+            $cond: [{ $eq: ['$status', 'active'] }, 1, 0]
           }
         },
-        averageProjects: { $avg: '$activity.totalProjects' } // Average of the activity.totalProjects field across all users.
+        averageProjects: { $avg: '$activity.totalProjects' }
       }
     }
   ]);

@@ -2,89 +2,89 @@ import {ArrowRight,Users,Calendar,CheckCircle} from 'lucide-react';
 
 const Hero=()=>{
     return(
-        <div className='relative'>
+        <div className='relative min-h-[calc(100vh-4rem)] flex items-center'>
             <div className='absolute inset-0 overflow-hidden'>
-                <div className='absolute -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse'/>
-                <div className='absolute top-20 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500'/>
-                <div className='absolute bottom-0 right-0 w-96 h-96 bg-pink-500/20 rounded-full blur-3xl animate-pulse delay-1000'/>
+                <div className='absolute -right-40 top-20 w-96 h-96 bg-chart-1/30 rounded-full blur-3xl animate-pulse'/>
+                <div className='absolute top-40 -left-40 w-80 h-80 bg-chart-3/30 rounded-full blur-3xl animate-pulse'/>
+                <div className='absolute bottom-20 right-1/3 w-72 h-72 bg-primary/25 rounded-full blur-3xl animate-pulse'/>
             </div>
             {/* Main content container */}
-            <div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-16'>
+            <div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24'>
                 <div className='grid lg:grid-cols-2 gap-12 items-center'>
                     {/* Left column */}
-                    <div className='space-y-8 text-center lg:text-left'>
+                    <div className='space-y-6 lg:space-y-8 text-center lg:text-left'>
                         {/* Animated badge */}
-                        <div className='inline-flex items-center px-4 py-2 bg-gray-800/50 backdrop-blur-smbackdrop-blur-sm rounded-full border border-gray-700 animate-fade-in-up'>
-                            <span className='text-gray-300 text-sm'>
+                        <div className='inline-flex items-center px-4 py-2 bg-accent/15 backdrop-blur-sm rounded-full border-2 border-accent/50 animate-fadeInUp shadow-lg hover:shadow-accent/20 transition-all'>
+                            <span className='text-accent text-sm font-semibold'>
                                 ✨ Streamline Your Workflow
                             </span>
                         </div>
                          {/* Main headline */}
-                        <h1 className='text-4xl md:text-5xl lg:text-6xl font-bold'>
-                            <span className='block text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 animate-gradient'>
+                        <h1 className='text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight'>
+                            <span className='block bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent drop-shadow-lg'>
                                 Transform Your
                             </span>
-                            <span className='block text-white mt-2'>
+                            <span className='block text-foreground mt-2 drop-shadow-md'>
                                 Team Collaboration
                             </span>
                         </h1>
                         {/* Subheadline */}
-                        <p className='text-lg md:text-xl text-gray-300 max-w-2xl animate-fade-in-up delay-200'>
-                            Empower your team with Ensembles intuitive project management platform. 
+                        <p className='text-base md:text-lg lg:text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0 leading-relaxed animate-fadeInUp'>
+                            Empower your team with Ensemble&apos;s intuitive project management platform.
                             Organize, collaborate, and achieve more together.
                         </p>
                         {/* Buttons */}
-                        <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in-up delay-300'>
-                            <button className='px-8 py-4 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2 group'>
+                        <div className='flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fadeInUp pt-2'>
+                            <button className='px-8 py-3.5 rounded-lg bg-sidebar text-sidebar-text font-bold hover:bg-sidebar-hover transition-all duration-200 flex items-center justify-center gap-2 group shadow-2xl hover:shadow-accent/30'>
                                 Get Started Free
                                 <ArrowRight className='w-5 h-5 group-hover:translate-x-1 transition-transform'/>
                             </button>
-                            <button className='px-8 py-4 rounded-full border border-gray-700 text-white hover:bg-gray-800/50 transition-all duration-300'>
+                            <button className='px-8 py-3.5 rounded-lg border-2 border-primary/60 text-foreground hover:bg-primary/10 hover:border-primary transition-all duration-200 font-bold shadow-lg hover:shadow-primary/20'>
                                 Watch Demo
                             </button>
                         </div>
                         {/* Features List */}
-                        <div className='grid grid-cols-2 gap-4 mt-12 animate-fade-in-up delay-400'>
-                            <div className='flex items-center gap-2 text-gray-300'>
-                                <CheckCircle className='"w-5 h-5 text-green-500' />
-                                <span>Real-time Updates</span>
+                        <div className='grid grid-cols-2 gap-3 lg:gap-4 pt-4 animate-fadeInUp'>
+                            <div className='flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors'>
+                                <CheckCircle className='w-5 h-5 text-chart-4 flex-shrink-0' />
+                                <span className='text-sm lg:text-base font-medium'>Real-time Updates</span>
                             </div>
-                            <div className='flex items-center gap-2 text-gray-300'>
-                                <Users className='w-5 h-5 text-blue-500' />
-                                <span>Team Collaboration</span>
+                            <div className='flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors'>
+                                <Users className='w-5 h-5 text-chart-1 flex-shrink-0' />
+                                <span className='text-sm lg:text-base font-medium'>Team Collaboration</span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-300">
-                                <Calendar className="w-5 h-5 text-purple-500" />
-                                <span>Smart Scheduling</span>
+                            <div className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors">
+                                <Calendar className="w-5 h-5 text-chart-3 flex-shrink-0" />
+                                <span className='text-sm lg:text-base font-medium'>Smart Scheduling</span>
                             </div>
-                            <div className="flex items-center gap-2 text-gray-300">
-                                <CheckCircle className="w-5 h-5 text-pink-500" />
-                                <span>Task Management</span>
+                            <div className="flex items-center gap-2.5 text-muted-foreground hover:text-foreground transition-colors">
+                                <CheckCircle className="w-5 h-5 text-chart-2 flex-shrink-0" />
+                                <span className='text-sm lg:text-base font-medium'>Task Management</span>
                             </div>
                         </div>
                     </div>
                     {/* Right column */}
-                    <div className='relative lg:block animate-fade-in-up delay-500'>
+                    <div className='relative hidden lg:block animate-fadeInUp'>
                         <div className='relative'>
                             {/* Dashboard preview */}
-                            <div className='bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-4 shadow-2xl'>
+                            <div className='bg-card/80 backdrop-blur-md rounded-2xl border-2 border-accent/40 p-6 shadow-2xl hover:shadow-accent/10 transition-all'>
                                 <div className='grid grid-cols-3 gap-4'>
                                     {/* Animated placeholder cards */}
                                     {[...Array(6)].map((_, i) => (
-                                        <div 
+                                        <div
                                         key={i}
-                                        className="h-24 bg-gray-700/50 rounded-lg animate-pulse"
+                                        className="h-24 bg-accent/10 rounded-lg animate-pulse border-2 border-accent/20 shadow-lg"
                                         style={{ animationDelay: `${i * 200}ms` }}
                                         />
                                     ))}
                                 </div>
                             </div>
                             {/* Floating elements */}
-                            <div className="absolute -top-6 -right-6 bg-blue-500/10 backdrop-blur-sm rounded-lg p-4 border border-blue-500/20 animate-float">
-                                <div className="w-16 h-16 bg-blue-500/20 rounded-lg" />
+                            <div className="absolute -top-6 -right-6 bg-chart-1/20 backdrop-blur-sm rounded-xl p-4 border-2 border-chart-1/50 animate-float shadow-2xl hover:shadow-accent/20 transition-all">
+                                <div className="w-16 h-16 bg-chart-1/30 rounded-lg" />
                             </div>
-                            <div className="absolute -bottom-6 -left-6 bg-purple-500/10 backdrop-blur-sm rounded-lg p-4 border border-purple-500/20 animate-float delay-500">
-                                <div className="w-16 h-16 bg-purple-500/20 rounded-lg" />
+                            <div className="absolute -bottom-6 -left-6 bg-chart-3/20 backdrop-blur-sm rounded-xl p-4 border-2 border-chart-3/50 animate-float shadow-2xl hover:shadow-primary/20 transition-all" style={{animationDelay: '500ms'}}>
+                                <div className="w-16 h-16 bg-chart-3/30 rounded-lg" />
                             </div>
                         </div>
                     </div>

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { updateUser } from './authSlice.js'; // Import updateUser from authSlice
+import { updateUser } from './authSlice.js';
 
 const handleError = (error) => {
   const message = error.response?.data?.message || error.message || 'An error occurred';
@@ -65,7 +65,6 @@ export const updateUserAvatar = createAsyncThunk(
           'Content-Type': 'multipart/form-data',
         },
       });
-      // Dispatch action to update auth slice immediately
       dispatch(updateUser({ avatar: response.data.avatar }));
       return { userId, avatar: response.data.avatar };
     } catch (error) {

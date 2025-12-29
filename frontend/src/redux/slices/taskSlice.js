@@ -51,7 +51,6 @@ export const createTask = createAsyncThunk(
                 {
                     headers:{
                         'Authorization':`Bearer ${token}`
-                        // 'Content-Type': 'multipart/form-data' is set automatically by axios for FormData
                     }
                 }
             )

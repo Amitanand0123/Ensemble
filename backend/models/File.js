@@ -39,7 +39,7 @@ const FileSchema=new mongoose.Schema({
     timestamps:true
 })
 
-FileSchema.pre('save',function(next){ // This pre('save') middleware in Mongoose is a validation hook for the File schema.
+FileSchema.pre('save',function(next){
     if(this.workspace && this.project){
         next(new Error('File cannot belong to both a workspace and a project.'))
     }

@@ -81,12 +81,12 @@ const chatSlice = createSlice({
     setCurrentChat: (state, action) => {
       state.currentChat = action.payload;
       if (action.payload) {
-        state.unreadCount = 0; // resets unreadCount when a chat is opened.
+        state.unreadCount = 0;
       }
     },
     addPersonalMessage: (state, action) => {
       const {  message } = action.payload;
-      const chatKey = message.sender === state.currentChat?.userId ? message.receiver : message.sender; // the user ID of the other person in the conversation
+      const chatKey = message.sender === state.currentChat?.userId ? message.receiver : message.sender;
       if (!state.personalMessages[chatKey]) {
         state.personalMessages[chatKey] = [];
       }
@@ -126,17 +126,17 @@ const chatSlice = createSlice({
       if (!state.typingUsers[chatType]) {
         state.typingUsers[chatType] = {};
       }
-      if (!state.typingUsers[chatType][chatId]) { //Then makes sure typingUsers[chatType][chatId] exists 
+      if (!state.typingUsers[chatType][chatId]) { 
         state.typingUsers[chatType][chatId] = {};
       }
       if (isTyping) {
         state.typingUsers[chatType][chatId][userId] = userName;
       } else {
-        delete state.typingUsers[chatType][chatId][userId]; // If user stopped typing, remove them.
-        if (Object.keys(state.typingUsers[chatType][chatId]).length === 0) { // If no one is typing in that chat → delete chatId entry.
+        delete state.typingUsers[chatType][chatId][userId];
+        if (Object.keys(state.typingUsers[chatType][chatId]).length === 0) {
           delete state.typingUsers[chatType][chatId];
         }
-        if (Object.keys(state.typingUsers[chatType]).length === 0) { // If no chats have typing users → delete the whole chatType.
+        if (Object.keys(state.typingUsers[chatType]).length === 0) {
           delete state.typingUsers[chatType];
         }
       }
@@ -212,7 +212,7 @@ const chatSlice = createSlice({
             message.readBy.push({ user: currentUserId, readAt: new Date().toISOString() });
           }
         };
-        Object.values(state.personalMessages).forEach(markMessageAsReadInList); // Object.values(...) extracts just the arrays of messages. Each message list is checked and updated if it contains the message with chatId.
+        Object.values(state.personalMessages).forEach(markMessageAsReadInList);
         Object.values(state.workspaceMessages).forEach(markMessageAsReadInList);
         Object.values(state.projectMessages).forEach(markMessageAsReadInList);
       });

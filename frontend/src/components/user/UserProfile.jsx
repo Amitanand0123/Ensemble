@@ -1,5 +1,3 @@
-// frontend/src/components/user/UserProfile.jsx
-
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -86,23 +84,32 @@ const UserProfile = () => {
     };
 
     if (profileIsLoading || authIsLoading) {
-        return <div className="flex justify-center items-center h-screen text-white"><Loader2 className="h-8 w-8 animate-spin" /> Loading Profile...</div>;
-    }
-    
-    if (error) {
         return (
-            <div className="flex flex-col justify-center items-center h-screen text-red-400">
-                <p className="mb-4">Error loading profile: {error}</p>
-                <Button onClick={() => navigate(-1)}>Go Back</Button>
+            <div className="flex flex-col justify-center items-center min-h-[calc(100vh-4rem)] bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary mb-3" />
+                <p className="text-muted-foreground">Loading Profile...</p>
             </div>
         );
     }
-    
+
+    if (error) {
+        return (
+            <div className="flex flex-col justify-center items-center min-h-[calc(100vh-4rem)] bg-background">
+                <div className="text-center p-6 bg-card border-2 border-destructive/50 rounded-xl max-w-md">
+                    <p className="text-destructive font-medium mb-4">Error loading profile: {error}</p>
+                    <Button onClick={() => navigate(-1)} className="bg-primary hover:bg-primary/90">Go Back</Button>
+                </div>
+            </div>
+        );
+    }
+
     if (!profile) {
         return (
-            <div className="flex flex-col justify-center items-center h-screen text-gray-400">
-                <p className="mb-4">User profile not found.</p>
-                <Button onClick={() => navigate(-1)}>Go Back</Button>
+            <div className="flex flex-col justify-center items-center min-h-[calc(100vh-4rem)] bg-background">
+                <div className="text-center p-6 bg-card border-2 border-border rounded-xl max-w-md">
+                    <p className="text-muted-foreground mb-4">User profile not found.</p>
+                    <Button onClick={() => navigate(-1)} className="bg-primary hover:bg-primary/90">Go Back</Button>
+                </div>
             </div>
         );
     }
@@ -110,26 +117,27 @@ const UserProfile = () => {
     const profileName = `${profile.name?.first || ''} ${profile.name?.last || ''}`.trim();
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white pt-24 pb-12">
-            <div className="absolute inset-0 overflow-hidden -z-10">
-                <div className="absolute -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute top-20 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="min-h-[calc(100vh-4rem)] bg-background">
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute right-0 top-20 w-96 h-96 bg-chart-1/10 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute left-0 bottom-20 w-80 h-80 bg-chart-3/10 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
             </div>
-            <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 overflow-hidden animate-fade-in-up">
-                    <CardHeader className="bg-gradient-to-r from-gray-800 via-gray-800/80 to-gray-800 p-6 border-b border-gray-700">
+            <div className="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+                <Card className="bg-card/60 backdrop-blur-sm rounded-xl border-2 border-border shadow-lg overflow-hidden animate-fadeInUp">
+                    <CardHeader className="bg-accent/20 p-6 border-b-2 border-border">
                         <div className="flex flex-col md:flex-row items-center gap-6">
                             <div className="relative group">
-                                <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-gray-700 shadow-lg">
+                                <Avatar className="w-24 h-24 md:w-32 md:h-32 border-4 border-border shadow-xl">
                                     <AvatarImage src={profile.avatar?.url} alt={profileName} key={profile.avatar?.url} />
-                                    <AvatarFallback className="text-4xl bg-gradient-to-br from-blue-500 to-purple-600">
+                                    <AvatarFallback className="text-4xl bg-gradient-to-br from-chart-1 to-chart-3 text-white">
                                         {getInitials(profile.name?.first, profile.name?.last)}
                                     </AvatarFallback>
                                 </Avatar>
                                 {isOwnProfile && (
                                     <Button
-                                        variant="outline" size="icon"
-                                        className="absolute bottom-0 right-0 rounded-full bg-gray-700 hover:bg-gray-600 border-gray-600 text-white w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        variant="outline"
+                                        size="icon"
+                                        className="absolute bottom-0 right-0 rounded-full bg-card hover:bg-accent border-border text-foreground w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity shadow-lg"
                                         onClick={triggerFileInput}
                                         disabled={isUploading}
                                         title="Change avatar"
@@ -143,24 +151,26 @@ const UserProfile = () => {
                                 />
                             </div>
                             <div className="flex-1 text-center md:text-left">
-                                <CardTitle className="text-3xl font-bold mb-1">{profileName}</CardTitle>
-                                <p className="text-gray-400 flex items-center justify-center md:justify-start gap-2">
+                                <CardTitle className="text-2xl lg:text-3xl font-bold mb-2 text-foreground">{profileName}</CardTitle>
+                                <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2 text-sm">
                                     <Mail className="w-4 h-4" /> {profile.email}
                                 </p>
-                                <Badge variant="secondary" className="mt-2 capitalize bg-gray-700 text-gray-300 border-gray-600">
+                                <Badge variant="secondary" className="mt-3 capitalize bg-primary/10 text-primary border border-primary/30 font-semibold">
                                     {profile.role}
                                 </Badge>
                                 {profile.location?.city && (
-                                    <p className="text-sm text-gray-400 mt-1 flex items-center justify-center md:justify-start gap-1">
-                                        <MapPin className="w-3 h-3"/> {profile.location.city}{profile.location.country ? `, ${profile.location.country}` : ''}
+                                    <p className="text-sm text-muted-foreground mt-2 flex items-center justify-center md:justify-start gap-1.5">
+                                        <MapPin className="w-3.5 h-3.5"/> {profile.location.city}{profile.location.country ? `, ${profile.location.country}` : ''}
                                     </p>
                                 )}
                             </div>
                             <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0 md:ml-auto self-center md:self-start">
                                 {isOwnProfile ? (
-                                    <Button variant="outline" size="sm" disabled> <Edit className="w-4 h-4 mr-2"/> Edit Profile </Button>
+                                    <Button variant="outline" size="sm" disabled className="border-border hover:bg-accent">
+                                        <Edit className="w-4 h-4 mr-2"/> Edit Profile
+                                    </Button>
                                 ) : (
-                                    <Button onClick={handleStartChat} size="sm" className="bg-gradient-to-r from-blue-500 to-purple-500 hover:opacity-90" disabled={!profile._id}>
+                                    <Button onClick={handleStartChat} size="sm" className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg" disabled={!profile._id}>
                                         <MessageSquare className="w-4 h-4 mr-2"/> Chat
                                     </Button>
                                 )}
@@ -170,40 +180,40 @@ const UserProfile = () => {
                     <CardContent className="p-6 space-y-6">
                         {profile.bio && (
                             <div>
-                                <h3 className="text-lg font-semibold mb-2 text-gray-300">Bio</h3>
-                                <p className="text-gray-400 whitespace-pre-wrap">{profile.bio}</p>
+                                <h3 className="text-lg font-semibold mb-3 text-foreground">Bio</h3>
+                                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">{profile.bio}</p>
                             </div>
                         )}
                         {profile.skills && profile.skills.length > 0 && (
                             <div>
-                                <h3 className="text-lg font-semibold mb-2 text-gray-300">Skills</h3>
+                                <h3 className="text-lg font-semibold mb-3 text-foreground">Skills</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {profile.skills.map((skill, index) => (
-                                        <Badge key={index} variant="outline" className="bg-gray-700 border-gray-600 text-gray-300">{skill}</Badge>
+                                        <Badge key={index} variant="outline" className="bg-chart-1/10 border border-chart-1/30 text-chart-1 font-medium px-3 py-1">{skill}</Badge>
                                     ))}
                                 </div>
                             </div>
                         )}
                         <div>
-                            <h3 className="text-lg font-semibold mb-2 text-gray-300">Workspaces</h3>
+                            <h3 className="text-lg font-semibold mb-3 text-foreground">Workspaces</h3>
                             {profile.workspaces && profile.workspaces.length > 0 ? (
                                 <ul className="space-y-2">
                                      {profile.workspaces.filter(w => w.workspace).map(({ workspace, role }) => (
-                                        <li key={workspace._id} className="flex items-center justify-between p-3 bg-gray-700/50 rounded-md hover:bg-gray-700/70 transition-colors">
-                                            <Link to={`/workspaces/${workspace._id}`} className="font-medium flex items-center gap-2 hover:text-purple-400">
-                                                <Building className="w-4 h-4 text-gray-500"/>
+                                        <li key={workspace._id} className="flex items-center justify-between p-3 bg-accent/30 rounded-lg border border-border hover:bg-accent/50 hover:border-primary/30 transition-all">
+                                            <Link to={`/workspaces/${workspace._id}`} className="font-medium flex items-center gap-2 text-foreground hover:text-primary transition-colors">
+                                                <Building className="w-4 h-4 text-muted-foreground"/>
                                                 {workspace.name}
-                                                {workspace.settings?.isPrivate && <Lock className="w-3 h-3 text-gray-500 ml-1" />}
+                                                {workspace.settings?.isPrivate && <Lock className="w-3 h-3 text-muted-foreground ml-1" />}
                                             </Link>
-                                            <Badge variant="secondary" className="capitalize bg-gray-600 text-gray-300 border-gray-500">{role}</Badge>
+                                            <Badge variant="secondary" className="capitalize bg-chart-2/10 text-chart-2 border border-chart-2/30 font-medium">{role}</Badge>
                                         </li>
                                     ))}
                                      {profile.workspaces.filter(w => !w.workspace).length > 0 && (
-                                        <li className="text-gray-500 italic">Some workspace data could not be loaded.</li>
+                                        <li className="text-muted-foreground italic text-sm">Some workspace data could not be loaded.</li>
                                     )}
                                 </ul>
                             ) : (
-                                <p className="text-gray-500 italic">Not a member of any workspaces.</p>
+                                <p className="text-muted-foreground italic">Not a member of any workspaces.</p>
                             )}
                         </div>
                     </CardContent>

@@ -288,7 +288,7 @@ export const inviteToWorkspace = async (req, res) => {
             return res.status(400).json({ success: false, message: 'User is already a member of this workspace.' });
         }
 
-        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' }); // fix
+        workspace.members.push({ user: userToInvite._id, role: role, status: 'active' });
         await workspace.save();
 
         const userAlreadyHasWorkspace = userToInvite.workspaces.some(w => w.workspace.toString() === workspaceId);
@@ -437,8 +437,8 @@ export const deleteWorkspace=async(req,res)=>{
         }
         await workspace.deleteOne();
         await User.updateMany(
-            {'workspaces.workspace':id},  // Find all users who have this workspace ID in their workspaces array
-            {$pull:{workspaces:{workspace:id}}} // Remove that workspace entry from their workspaces array. $pull removes all objects in the workspaces array where workspace === id
+            {'workspaces.workspace':id},
+            {$pull:{workspaces:{workspace:id}}}
         )
         res.status(200).json({
             success:true,

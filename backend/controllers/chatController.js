@@ -14,9 +14,9 @@ export const getPersonalMessages=async(req,res)=>{
                 {sender:userId,receiver:currUserId}
             ]
         })
-        .populate('sender','name avatar') // Replaces the sender field (which is usually just an ObjectId) with the actual user document, but only includes: name avatar
+        .populate('sender','name avatar')
         .populate('receiver','name avatar')
-        .sort({createdAt:1})  // 1 ascending
+        .sort({createdAt:1})
 
         res.json({
             success:true,

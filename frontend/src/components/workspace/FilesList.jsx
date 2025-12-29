@@ -171,7 +171,7 @@ const FilesList = ({ contextType, contextId }) => {
                                          <div className="flex items-center space-x-3 overflow-hidden">
                                             <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
                                             <div className="overflow-hidden">
-                                                <a href={file.url} /* ... */ >{file.filename}</a>
+                                                <a href={file.url}>{file.filename}</a>
                                                 <p className="text-xs text-gray-500 mt-0.5">
                                                 </p>
                                             </div>
@@ -184,7 +184,7 @@ const FilesList = ({ contextType, contextId }) => {
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => handleSummarize(file._id)}
-                                                    disabled={isSummarizing || !!summaryText || !!summaryError} // Disable if loading, has summary, or has error
+                                                    disabled={isSummarizing || !!summaryText || !!summaryError}
                                                     className="text-purple-400 hover:text-purple-300 h-7 w-7"
                                                     aria-label="Summarize file"
                                                     title={summaryText ? "Summary generated" : summaryError ? `Error: ${summaryError}`: "Summarize file"}
@@ -192,15 +192,14 @@ const FilesList = ({ contextType, contextId }) => {
                                                     {isSummarizing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                 </Button>
                                             )}
-                                            {/* ... (Download and Delete buttons remain the same) ... */}
                                              <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white h-7 w-7">
-                                                 <a href={file.url} /* ... */><Download className="h-4 w-4" /></a>
+                                                 <a href={file.url}><Download className="h-4 w-4" /></a>
                                              </Button>
                                              <AlertDialog>
-                                                 <AlertDialogTrigger asChild><Button variant="ghost" /* ... */><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
-                                                 <AlertDialogContent /* ... */>
+                                                 <AlertDialogTrigger asChild><Button variant="ghost"><Trash2 className="h-4 w-4" /></Button></AlertDialogTrigger>
+                                                 <AlertDialogContent>
                                                      {/* ... confirmation ... */}
-                                                     <AlertDialogAction onClick={() => handleDelete(file._id)} /* ... */>Yes, delete</AlertDialogAction>
+                                                     <AlertDialogAction onClick={() => handleDelete(file._id)}>Yes, delete</AlertDialogAction>
                                                  </AlertDialogContent>
                                              </AlertDialog>
                                         </div>

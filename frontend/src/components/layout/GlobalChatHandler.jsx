@@ -49,12 +49,12 @@ const GlobalChatHandler = () => {
     }
 
     return (
-        <Card className="fixed bottom-0 right-0 md:right-4 md:bottom-4 z-[100] w-full max-w-sm h-[60vh] md:h-[70vh] shadow-2xl rounded-t-lg md:rounded-lg overflow-hidden flex flex-col bg-gray-900 border border-gray-700 animate-fade-in-up">
-            <div className="flex items-center justify-between p-3 border-b border-gray-700 bg-gray-800 flex-shrink-0">
-                <h3 className="text-white font-semibold text-sm truncate">
+        <Card className="fixed bottom-0 right-0 md:right-4 md:bottom-4 z-[100] w-full max-w-sm h-[60vh] md:h-[70vh] shadow-2xl hover:shadow-accent/20 rounded-t-lg md:rounded-lg overflow-hidden flex flex-col bg-card border-2 border-accent/40 animate-fade-in-up transition-all lg:ml-64">
+            <div className="flex items-center justify-between p-3 border-b border-border bg-sidebar flex-shrink-0">
+                <h3 className="text-sidebar-text font-semibold text-sm truncate">
                     {currentChat.type === 'personal' ? `Chat with ${currentChat.name || 'User'}` : currentChat.name || 'Chat'}
                 </h3>
-                <Button variant="ghost" size="icon" onClick={handleCloseChat} className="text-gray-400 hover:text-white h-6 w-6">
+                <Button variant="ghost" size="icon" onClick={handleCloseChat} className="text-sidebar-textMuted hover:text-accent h-6 w-6 hover:bg-sidebar-hover">
                     <X className="h-4 w-4" />
                     <span className="sr-only">Close chat</span>
                 </Button>

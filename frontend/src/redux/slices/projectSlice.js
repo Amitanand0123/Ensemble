@@ -62,7 +62,7 @@ export const inviteProjectMember=createAsyncThunk(
             const response=await axios.post(`/api/projects/${projectId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return response.data.project; // Return the updated project
+            return response.data.project;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to invite member to project')
         }
@@ -190,7 +190,7 @@ const projectSlice=createSlice({
                 state.error=action.payload
             })
             .addCase(inviteProjectMember.fulfilled,(state,action)=>{
-                state.currentProject = action.payload; // Update the project with new member list
+                state.currentProject = action.payload;
             })
             .addCase(inviteProjectMember.rejected,(state,action)=>{
                 state.error=action.payload

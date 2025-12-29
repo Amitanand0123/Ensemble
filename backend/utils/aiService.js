@@ -7,7 +7,7 @@ const API_KEY=process.env.GEMINI_API_KEY
 if(!API_KEY){
     console.warn("GEMINI_API_KEY not found in .env file.AI features will be disabled")
 }
-const genAI=API_KEY? new GoogleGenerativeAI(API_KEY):null // If the key is available, creates an AI client instance.
+const genAI=API_KEY? new GoogleGenerativeAI(API_KEY):null
 
 export const summarizeText = async (text, filename = "this file") => {
     if (!genAI) {
@@ -16,7 +16,7 @@ export const summarizeText = async (text, filename = "this file") => {
     if (!text || typeof text !== 'string' || text.trim().length === 0) {
         return "Cannot summarize empty or invalid content.";
     }
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const generationConfig = {
         temperature: 0.7,
         topK: 40,
@@ -53,7 +53,7 @@ export const summarizeText = async (text, filename = "this file") => {
 
     try {
         const result = await model.generateContent({
-            contents: [{ role: "user", parts: [{ text: prompt }] }], // role: "user" → you're the one sending the message.
+            contents: [{ role: "user", parts: [{ text: prompt }] }],
             generationConfig,
             safetySettings
         });
@@ -96,7 +96,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
 
     if(mimetype==='application/pdf'){
         try {
-            const {default:pdf}=await import('pdf-parse') // const pdfModule = await import('pdf-parse'); const pdf = pdfModule.default;
+            const {default:pdf}=await import('pdf-parse')
             const response=await fetch(fileUrl)
             if(!response.ok){
                 throw new Error(`Failed to fetch PDF: ${response.statusText}`)
@@ -123,7 +123,7 @@ export const extractTexFromFile=async(fileUrl,mimetype)=>{
                 throw new Error("Fetched DOCX file content is empty.");
             }
             const result = await mammoth.extractRawText({
-                buffer: Buffer.from(arrayBuffer) // Converts the ArrayBuffer to a Node.js Buffer, then passes it to mammoth.
+                buffer: Buffer.from(arrayBuffer)
             });
             return result.value;
         } catch (error) {

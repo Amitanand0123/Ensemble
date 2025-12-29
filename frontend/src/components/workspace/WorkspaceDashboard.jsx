@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { fetchWorkspaces, joinWorkspace, createWorkspace } from '../../redux/slices/workspaceSlice.js';
-import { Plus, Users, ArrowRight, Search, Lock, Globe, LogIn } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import PropTypes from 'prop-types';
+import { fetchWorkspaces } from '../../redux/slices/workspaceSlice.js';
+import { Plus, Users, ArrowRight, Search, Lock, Globe, LogIn, Loader2 } from 'lucide-react';
+import CreateWorkspaceModal from './CreateWorkspaceModal';
+import JoinWorkspaceModal from './JoinWorkspaceModal';
 
 const WorkspaceDashboard = () => {
     const dispatch = useDispatch();
@@ -26,50 +26,68 @@ const WorkspaceDashboard = () => {
 
     if(isLoading && workspaces.length === 0){
          return (
-             <div className="flex justify-center items-center h-screen text-white">
-                 Loading workspaces...
+             <div className="flex justify-center items-center min-h-screen bg-background">
+                 <div className="flex flex-col items-center gap-3">
+                     <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                     <p className="text-muted-foreground">Loading workspaces...</p>
+                 </div>
              </div>
          );
     }
 
-    if (error) {
+    if (error && error.message !== 'Invalid token') {
          return (
-             <div className="flex justify-center items-center h-screen text-red-500">
-                 Error loading workspaces: {error.message || 'Unknown error'}
+             <div className="flex justify-center items-center min-h-screen bg-background">
+                 <div className="text-center p-8 bg-card/50 border-2 border-border rounded-xl max-w-md shadow-2xl">
+                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-chart-1 to-chart-3 flex items-center justify-center">
+                         <Users className="w-8 h-8 text-white" />
+                     </div>
+                     <p className="text-foreground font-semibold text-lg mb-2">Unable to load workspaces</p>
+                     <p className="text-muted-foreground text-sm">{error.message || 'Please try refreshing the page'}</p>
+                     <button
+                         onClick={() => dispatch(fetchWorkspaces())}
+                         className="mt-6 px-6 py-2.5 rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl"
+                     >
+                         Try Again
+                     </button>
+                 </div>
              </div>
          );
     }
 
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white pt-32">
-             {/* Background elements */}
-             <div className="absolute inset-0 overflow-hidden -z-10">
-                <div className="absolute -right-40 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute top-20 -left-40 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-500" />
+        <div className="min-h-screen bg-background">
+             {/* Background elements - Slack teal and purple glows */}
+             <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute right-0 top-40 w-96 h-96 bg-accent/5 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute left-0 bottom-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
             </div>
 
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
                 {/* Header */}
-                <div className="flex flex-wrap justify-between items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-bold">My Workspaces</h1>
-                    <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-8 gap-4">
+                    <div>
+                        <h1 className="text-3xl lg:text-4xl font-bold text-foreground">My Workspaces</h1>
+                        <p className="text-muted-foreground mt-1">Manage and collaborate across all your workspaces</p>
+                    </div>
+                    <div className="flex gap-3">
                        {/* Join Workspace Button (Visible to all logged-in users) */}
                        <button
                             onClick={() => setIsJoinModalOpen(true)}
-                            className="px-4 py-2 rounded-full border border-gray-600 hover:bg-gray-700/50 transition-colors flex items-center gap-2"
+                            className="px-4 py-2.5 rounded-lg border-2 border-border hover:border-primary/50 hover:bg-accent transition-all flex items-center gap-2 font-medium text-sm"
                         >
-                            <LogIn className="w-5 h-5" />
-                            Join Workspace
+                            <LogIn className="w-4 h-4" />
+                            <span className="hidden sm:inline">Join Workspace</span>
                         </button>
                        {/* Create Workspace Button (Visible only to Admins) */}
                        {isAdmin && (
                            <button
                                onClick={() => setIsCreateModalOpen(true)}
-                               className="px-4 py-2 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all duration-300 flex items-center gap-2"
+                               className="px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl flex items-center gap-2 text-sm"
                            >
-                               <Plus className="w-5 h-5" />
-                               New Workspace
+                               <Plus className="w-4 h-4" />
+                               <span className="hidden sm:inline">New Workspace</span>
                            </button>
                        )}
                    </div>
@@ -77,45 +95,83 @@ const WorkspaceDashboard = () => {
 
                 {/* Search Input */}
                  <div className="relative mb-8">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                     <input
                         type="text"
                         placeholder="Search workspaces..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-gray-800/50 backdrop-blur-sm rounded-full border border-gray-700 focus:outline-none focus:border-purple-500 transition-all duration-300"
+                        className="w-full pl-12 pr-4 py-3 bg-card border-2 border-border rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
 
                 {/* Workspaces Grid */}
                 {filteredWorkspaces.length > 0 ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
-                        {filteredWorkspaces.map((workspace) => (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6 pb-12">
+                        {filteredWorkspaces.map((workspace, index) => (
                             <div
                                 key={workspace._id}
-                                onClick={() => navigate(`/workspaces/${workspace._id}`)} // Navigate to detail page
-                                className="group bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 p-6 hover:border-purple-500 transition-all duration-300 cursor-pointer animate-fade-in-up"
+                                onClick={() => navigate(`/workspaces/${workspace._id}`)}
+                                className="group bg-card/60 backdrop-blur-sm rounded-xl border-2 border-border p-6 hover:border-accent hover:shadow-xl hover:shadow-accent/5 transition-all duration-300 cursor-pointer animate-fadeInUp slack-hover-lift"
+                                style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <div className="flex items-start justify-between mb-4">
-                                    <h3 className="text-xl font-semibold group-hover:text-purple-400 transition-colors">{workspace.name}</h3>
-                                    <div className="flex items-center gap-2 text-gray-500">
-                                        {workspace.settings?.isPrivate ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                    <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors">{workspace.name}</h3>
+                                    <div className="flex items-center gap-2 text-muted-foreground p-2 rounded-lg bg-gradient-to-br from-accent/20 to-secondary/20 border border-accent/30">
+                                        {workspace.settings?.isPrivate ? <Lock className="w-4 h-4 text-accent" /> : <Globe className="w-4 h-4 text-secondary" />}
                                     </div>
                                 </div>
-                                <p className="text-gray-400 mb-4 text-sm line-clamp-2 h-10">{workspace.description || 'No description available.'}</p> {/* Fixed height and line clamp */}
-                                <div className="flex items-center justify-between text-sm text-gray-500">
-                                    <div className="flex items-center gap-2">
-                                        <Users className="w-4 h-4" />
-                                        <span>{workspace.members?.length || 0} members</span>
+                                <p className="text-muted-foreground mb-5 text-sm line-clamp-2 h-10 leading-relaxed">{workspace.description || 'No description available.'}</p>
+                                <div className="flex items-center justify-between text-sm">
+                                    <div className="flex items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                                        <div className="p-1.5 rounded-md bg-gradient-to-br from-chart-2 to-chart-3">
+                                            <Users className="w-4 h-4 text-white" />
+                                        </div>
+                                        <span className="font-medium">{workspace.members?.length || 0} members</span>
                                     </div>
-                                    <ArrowRight className="w-5 h-5 group-hover:text-purple-400 group-hover:translate-x-1 transition-all" />
+                                    <div className="flex items-center gap-1 text-accent font-medium">
+                                        <span className="text-sm">View</span>
+                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-16 text-gray-500">
-                         {searchQuery ? 'No workspaces match your search.' : 'You are not part of any workspaces yet.'}
+                    <div className="text-center py-20">
+                        <div className="max-w-lg mx-auto bg-card/50 border-2 border-dashed border-border rounded-xl p-10 shadow-xl">
+                            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-accent via-secondary to-primary flex items-center justify-center shadow-lg">
+                                <Users className="w-10 h-10 text-white" />
+                            </div>
+                            <h3 className="text-2xl font-bold text-foreground mb-3">
+                                {searchQuery ? 'No workspaces found' : 'Welcome to Ensemble!'}
+                            </h3>
+                            <p className="text-muted-foreground text-base mb-6">
+                                {searchQuery
+                                    ? 'Try adjusting your search criteria'
+                                    : 'Get started by creating a new workspace or joining an existing one to collaborate with your team'}
+                            </p>
+                            {!searchQuery && (
+                                <div className="flex gap-3 justify-center flex-wrap">
+                                    {isAdmin && (
+                                        <button
+                                            onClick={() => setIsCreateModalOpen(true)}
+                                            className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-semibold hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl flex items-center gap-2"
+                                        >
+                                            <Plus className="w-5 h-5" />
+                                            Create Workspace
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setIsJoinModalOpen(true)}
+                                        className="px-6 py-3 rounded-lg border-2 border-accent text-accent hover:bg-accent/10 transition-all flex items-center gap-2 font-semibold hover:shadow-lg"
+                                    >
+                                        <LogIn className="w-5 h-5" />
+                                        Join Workspace
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                      </div>
                 )}
             </div>
@@ -133,179 +189,5 @@ const WorkspaceDashboard = () => {
         </div>
     );
 };
-
-
-const CreateWorkspaceModal = ({ isOpen, onClose }) => {
-    const dispatch = useDispatch();
-    const [name, setName] = useState('');
-    const [description, setDescription] = useState('');
-    const [isPrivate, setIsPrivate] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const [modalError, setModalError] = useState('');
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        if (!name.trim()) {
-            setModalError('Workspace name cannot be empty.');
-            toast.error('Workspace name cannot be empty.');
-            return;
-        }
-        setLoading(true);
-        setModalError('');
-        try{
-            await dispatch(createWorkspace({ name, description, isPrivate })).unwrap();
-            toast.success('Workspace created!');
-            setName('');
-            setDescription('');
-            setIsPrivate(false);
-            onClose();
-        }catch (err){
-            const errorMessage = err.message || 'Failed to create workspace.';
-            setModalError(errorMessage);
-            console.error("Create Workspace Error:", err);
-            toast.error(errorMessage);
-        }finally{
-            setLoading(false);
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700 shadow-xl">
-                <h2 className="text-2xl font-bold mb-4 text-white">Create New Workspace</h2>
-                {modalError && <p className="text-red-500 text-sm mb-4">{modalError}</p>}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Input fields for name, description, isPrivate */}
-                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Name*</label>
-                        <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500"
-                            required
-                        />
-                    </div>
-                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
-                        <textarea
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500"
-                            rows="3"
-                        />
-                    </div>
-                     <div className="flex items-center gap-2 pt-2">
-                        <input
-                            type="checkbox"
-                            id="isPrivateModal" // Use unique ID
-                            checked={isPrivate}
-                            onChange={(e) => setIsPrivate(e.target.checked)}
-                            className="rounded border-gray-600 text-purple-500 focus:ring-purple-500 bg-gray-700"
-                        />
-                        <label htmlFor="isPrivateModal" className="text-sm text-gray-300">Make workspace private</label>
-                    </div>
-
-                    <div className="flex justify-end gap-4 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
-                            disabled={loading}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:opacity-90 transition-all"
-                            disabled={loading}
-                        >
-                            {loading ? 'Creating...' : 'Create'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-
- const JoinWorkspaceModal = ({ isOpen, onClose }) => {
-    const dispatch = useDispatch();
-    const [inviteCode, setInviteCode] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [modalError, setModalError] = useState('');
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setModalError('');
-        try {
-            await dispatch(joinWorkspace(inviteCode)).unwrap();
-            setInviteCode('');
-            onClose(); // Close modal on success
-        } catch (err) {
-            setModalError(err.message || 'Failed to join workspace. Check the code.');
-            console.error("Join Workspace Error:", err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-             <div className="bg-gray-800 rounded-xl p-6 w-full max-w-md border border-gray-700 shadow-xl">
-                <h2 className="text-2xl font-bold mb-4 text-white">Join Workspace</h2>
-                {modalError && <p className="text-red-500 text-sm mb-4">{modalError}</p>}
-                <form onSubmit={handleSubmit} className="space-y-4">
-                     <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-1">Invite Code*</label>
-                        <input
-                            type="text"
-                            value={inviteCode}
-                            onChange={(e) => setInviteCode(e.target.value)}
-                            placeholder="Enter the workspace invite code"
-                            className="w-full px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500"
-                            required
-                        />
-                    </div>
-
-                    <div className="flex justify-end gap-4 pt-4">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="px-4 py-2 rounded-lg border border-gray-600 text-gray-300 hover:bg-gray-700 transition-colors"
-                            disabled={loading}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            className="px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white font-semibold hover:opacity-90 transition-all"
-                            disabled={loading}
-                        >
-                            {loading ? 'Joining...' : 'Join'}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    );
-};
-
-CreateWorkspaceModal.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-};
-
-JoinWorkspaceModal.propTypes = {
-    isOpen: PropTypes.bool.isRequired,
-    onClose: PropTypes.func.isRequired,
-};
-
 
 export default WorkspaceDashboard;

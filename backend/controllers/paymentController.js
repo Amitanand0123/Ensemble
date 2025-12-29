@@ -59,14 +59,14 @@ export const createOrder = async (req, res) => {
     }
 
     const amountInSmallestUnit = Math.round(amount * 100); 
-    const shortUserId = userId.toString().slice(-8); // he last 8 characters of the MongoDB ObjectId
-    const shortTimestamp = Date.now().toString(36); // converts it to base-36 (0–9 + a–z) for compactness
+    const shortUserId = userId.toString().slice(-8);
+    const shortTimestamp = Date.now().toString(36);
 
     const options = {
         amount: amountInSmallestUnit,
         currency: currency.toUpperCase(), 
         receipt: `${planId}_${shortUserId}_${shortTimestamp}`, 
-        notes: { // A free-form object to attach extra metadata to the order.
+        notes: {
             userId: userId.toString(),
             userEmail: req.user.email, 
             planId: planId, 
@@ -147,12 +147,12 @@ export const verifyPayment = async (req, res) => {
 
     
 
-    const body = razorpay_order_id + "|" + razorpay_payment_id; // This string is the base for generating a hash.
+    const body = razorpay_order_id + "|" + razorpay_payment_id;
     let isAuthentic = false;
     try {
-        const expectedSignature = crypto // Razorpay payment verification to ensure that the payment wasn’t tampered with on the client side. 
-            .createHmac('sha256', secret) // hash-based message authentication code
-            .update(body.toString()) // Converts the string into a hash (HMAC-SHA256) in hexadecimal format, matching Razorpay’s expected format.
+        const expectedSignature = crypto 
+            .createHmac('sha256', secret)
+            .update(body.toString())
             .digest('hex');
 
         isAuthentic = expectedSignature === razorpay_signature;

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Loader2 } from 'lucide-react';
+import { Loader2, Copy, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import {
@@ -29,12 +29,11 @@ const WorkspaceSettings = ({ workspaceId }) => {
 
     const [localUpdateError, setLocalUpdateError] = useState('');
     const [updateSuccess, setUpdateSuccess] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false); // Local submitting state for update
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-    // --- Initialize react-hook-form ---
     const form = useForm({
-        // resolver: zodResolver(workspaceSettingsSchema), // Optional
-        defaultValues: { // Set initial values
+        defaultValues: {
             name: '',
             description: '',
             isPrivate: false,
@@ -43,10 +42,9 @@ const WorkspaceSettings = ({ workspaceId }) => {
         }
     });
 
-    // Effect to reset form when workspace data loads or changes
     useEffect(() => {
         if (workspace && workspace._id === workspaceId) {
-            form.reset({ // Update form values using form.reset
+            form.reset({
                 name: workspace.name || '',
                 description: workspace.description || '',
                 isPrivate: workspace.settings?.isPrivate || false,
@@ -58,16 +56,13 @@ const WorkspaceSettings = ({ workspaceId }) => {
         } else if (workspaceId) {
             dispatch(fetchWorkspaceDetail(workspaceId));
         }
-    }, [workspace, workspaceId, dispatch, form]); // Add form dependency
+    }, [workspace, workspaceId, dispatch, form]);
 
-    // Handle form submission for updating settings
-    const onSubmit = async (data) => { // Receive validated data from RHF
+    const onSubmit = async (data) => {
         setLocalUpdateError('');
         setUpdateSuccess('');
         setIsSubmitting(true);
 
-        // Data is already validated if using resolver
-        // Prepare payload (ensure it matches backend expectation)
         const updateData = {
             name: data.name,
             description: data.description,
@@ -88,7 +83,20 @@ const WorkspaceSettings = ({ workspaceId }) => {
         }
     };
 
-    // Handle workspace deletion (remains the same)
+    const handleCopyInviteCode = async () => {
+        if (workspace?.settings?.inviteCode) {
+            try {
+                await navigator.clipboard.writeText(workspace.settings.inviteCode);
+                setCopied(true);
+                toast.success('Invite code copied to clipboard!');
+                setTimeout(() => setCopied(false), 2000);
+            } catch (err) {
+                toast.error('Failed to copy invite code');
+                console.error('Copy failed:', err);
+            }
+        }
+    };
+
     const handleDeleteWorkspace = async () => {
         const confirmMessage = `Are you absolutely sure you want to delete the workspace "${workspace?.name || 'this workspace'}"? \n\nThis action is IRREVERSIBLE and will permanently delete all associated projects, tasks, and files.`;
         if (window.confirm(confirmMessage)) {
@@ -102,7 +110,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
         }
     };
 
-    // Render loading state
     if (!workspace || workspace._id !== workspaceId) {
         return <div className="text-white p-6 animate-pulse">Loading Settings...</div>;
     }
@@ -115,7 +122,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
                     <CardTitle>Workspace Settings</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    {/* --- Wrap with Shadcn Form Provider --- */}
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
                             {localUpdateError && (
@@ -129,7 +135,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 </Alert>
                             )}
 
-                            {/* --- Name (Using FormField) --- */}
                             <FormField
                                 control={form.control}
                                 name="name"
@@ -144,7 +149,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             />
 
-                            {/* --- Description (Using FormField) --- */}
                              <FormField
                                 control={form.control}
                                 name="description"
@@ -159,7 +163,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             />
 
-                            {/* --- Is Private Switch (Using FormField) --- */}
                             <FormField
                                 control={form.control}
                                 name="isPrivate"
@@ -179,7 +182,6 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             />
 
-                            {/* --- Join By Code Switch (Using FormField) --- */}
                             <FormField
                                 control={form.control}
                                 name="joinByCode"
@@ -199,31 +201,56 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             />
 
-                            {/* --- Theme Input (Example - Using FormField) --- */}
-                            {/* <FormField
-                                control={form.control}
-                                name="theme"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Theme</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="Theme (e.g., light, dark)" {...field} className="bg-gray-700 border-gray-600"/>
-                                        </FormControl>
-                                        <FormMessage className="text-red-400" />
-                                    </FormItem>
-                                )}
-                            /> */}
-
-                            {/* --- Submit Button --- */}
                             <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
                                 {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>) : 'Save Changes'}
                             </Button>
                         </form>
-                    </Form> {/* --- End Shadcn Form Provider --- */}
+                    </Form>
                 </CardContent>
             </Card>
 
-            {/* Danger Zone Card (remains the same logic using Redux state for delete) */}
+            {/* Invite Code Card - Only visible if joinByCode is enabled */}
+            {workspace?.settings?.joinByCode && workspace?.settings?.inviteCode && (
+                <Card className='bg-blue-900/20 backdrop-blur-sm rounded-xl border border-blue-700/50 animate-fade-in-up'>
+                    <CardHeader>
+                        <CardTitle className="text-blue-400">Workspace Invite Code</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <p className="text-sm text-gray-300">
+                            Share this code with others to let them join this workspace.
+                        </p>
+                        <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+                            <code className="flex-1 text-lg font-mono text-blue-300 tracking-wider">
+                                {workspace.settings.inviteCode}
+                            </code>
+                            <Button
+                                onClick={handleCopyInviteCode}
+                                variant="outline"
+                                size="sm"
+                                className="border-blue-600 hover:bg-blue-600/20 text-blue-300"
+                            >
+                                {copied ? (
+                                    <>
+                                        <Check className="w-4 h-4 mr-2" />
+                                        Copied!
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="w-4 h-4 mr-2" />
+                                        Copy
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+                        <Alert className="bg-blue-900/20 border-blue-700/50 text-blue-200">
+                            <AlertDescription>
+                                This code allows anyone who has it to join the workspace. Keep it secure and only share it with trusted members.
+                            </AlertDescription>
+                        </Alert>
+                    </CardContent>
+                </Card>
+            )}
+
             <Card className="mt-6 bg-red-900/20 backdrop-blur-sm rounded-xl border border-red-700/50 animate-fade-in-up">
                 <CardHeader>
                     <CardTitle className="text-red-400">Danger Zone</CardTitle>

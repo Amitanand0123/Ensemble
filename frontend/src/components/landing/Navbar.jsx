@@ -35,7 +35,6 @@ const Navbar = () => {
                     if (response.data.success && response.data.avatarUrl) {
                         setCurrentAvatarUrl(response.data.avatarUrl);
                         if (user.avatar?.url !== response.data.avatarUrl) {
-                            // Only dispatches an update to the Redux store if the avatar URL has changed, preventing unnecessary global state updates.
                             dispatch(updateUser({ avatar: { url: response.data.avatarUrl } }));  
                         }
                     }
@@ -47,12 +46,12 @@ const Navbar = () => {
         fetchFreshAvatar();
     }, [isAuthenticated, user?.id, user?.avatar?.url, dispatch]);
 
-    useEffect(() => { // This is typically used to change the navbar’s appearance when the user scrolls (e.g., background blur, shadows, etc.).
+    useEffect(() => {
         const handleScroll = () => {
             const offset = window.scrollY;
             setScrolled(offset > 50);
         };
-        window.addEventListener('scroll', handleScroll); // Attaches the handleScroll function to the browser's scroll event.
+        window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -67,44 +66,45 @@ const Navbar = () => {
     };
 
     const handleLogoutClick = (e) => {
-        e.preventDefault(); // stops the default link/button behavior
+        e.preventDefault();
         setShowLogoutPopup(true);
     };
 
     const getInitials = (firstName, lastName) => {
         const firstInitial = firstName?.charAt(0)?.toUpperCase() || '';
         const lastInitial = lastName?.charAt(0)?.toUpperCase() || '';
-        return firstInitial + lastInitial || '?';
+        return firstInitial + lastInitial;
     };
 
     const profileName = `${user?.name?.first || ''} ${user?.name?.last || ''}`.trim();
     const avatarDisplayUrl = currentAvatarUrl || user?.avatar?.url;
+    const initials = getInitials(user?.name?.first, user?.name?.last);
 
     return (
         <>
             <nav
-                className={`w-full md:w-[80%] lg:w-[60%] fixed top-[3%] left-[50%] transform -translate-x-[50%] border border-slate-50 rounded-full shadow-lg backdrop-blur-md z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-black/50' : 'bg-transparent'}`}
+                className={`w-full fixed top-0 left-0 right-0 border-b-2 border-primary/30 backdrop-blur-xl z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-card/98 shadow-2xl glow-silver' : 'bg-card/90 glow-silver'}`}
             >
-                <div className="px-4 md:px-6 py-2 md:py-3">
-                    <div className="flex items-center justify-between h-14 md:h-16">
-                        <div className="flex items-center space-x-2 md:space-x-3">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex items-center justify-between h-16">
+                        <div className="flex items-center space-x-3">
                             <div className="flex items-center">
                                 <img
                                     src="/ensemble-logo-1.svg"
                                     alt="Ensemble Logo"
-                                    className="h-8 w-auto md:h-10 lg:h-12"
+                                    className="h-8 w-auto md:h-9"
                                 />
                             </div>
                             <a
                                 href="/"
-                                className="text-2xl md:text-3xl lg:text-4xl font-semibold text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text animate-gradient transition-colors"
+                                className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-200 bg-clip-text text-transparent hover:from-gray-50 hover:via-white hover:to-gray-100 transition-all duration-300 drop-shadow-lg"
                             >
                                 Ensemble
                             </a>
                         </div>
 
                         <button
-                            className="md:hidden p-2 rounded-lg bg-gray-800/80 text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-colors"
+                            className="md:hidden p-2 rounded-md bg-secondary/60 text-foreground hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
                             aria-label="Toggle Menu"
                             onClick={() => setIsMenuOpen(!isMenuOpen)}
                         >
@@ -124,57 +124,57 @@ const Navbar = () => {
                             </svg>
                         </button>
 
-                        <div className="hidden md:flex items-center space-x-6 lg:space-x-8 gap-4">
+                        <div className="hidden md:flex items-center space-x-6 lg:space-x-8">
                             <a
                                 href="/explore"
-                                className="text-base lg:text-lg text-gray-300 hover:text-white transition-colors"
+                                className="text-sm lg:text-base text-muted-foreground hover:text-foreground transition-colors font-medium"
                             >
                                 Explore
                             </a>
                             <a
                                 href="/pricing"
-                                className="text-base lg:text-lg text-gray-300 hover:text-white transition-colors"
+                                className="text-sm lg:text-base text-muted-foreground hover:text-foreground transition-colors font-medium"
                             >
                                 Pricing
                             </a>
                             <a
                                 href="/about"
-                                className="text-base lg:text-lg text-gray-300 hover:text-white transition-colors"
+                                className="text-sm lg:text-base text-muted-foreground hover:text-foreground transition-colors font-medium"
                             >
                                 About
                             </a>
                             {isAuthenticated && user ? (
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <button className="flex items-center focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900 focus:ring-purple-500 rounded-full">
-                                            <Avatar className="h-9 w-9 md:h-10 md:w-10">
-                                                <AvatarImage 
-                                                    src={avatarDisplayUrl} 
-                                                    alt={profileName} 
+                                        <button className="flex items-center focus:outline-none focus:ring-2 focus:ring-ring rounded-full ml-4">
+                                            <Avatar className="h-9 w-9 ring-2 ring-border hover:ring-primary transition-all duration-200">
+                                                <AvatarImage
+                                                    src={avatarDisplayUrl}
+                                                    alt={profileName}
                                                     key={avatarDisplayUrl}
                                                 />
-                                                <AvatarFallback className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white font-semibold">
-                                                    {getInitials(user.name?.first, user.name?.last)}
+                                                <AvatarFallback className="bg-gradient-to-br from-chart-1 via-chart-3 to-chart-5 text-foreground font-semibold">
+                                                    {initials || <UserIcon className="h-5 w-5" />}
                                                 </AvatarFallback>
                                             </Avatar>
                                         </button>
                                     </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56 bg-gray-800 border-gray-700 text-white" align="end">
+                                    <DropdownMenuContent className="w-56 bg-popover border-border text-popover-foreground" align="end">
                                         <DropdownMenuLabel className="font-normal">
                                             <div className="flex flex-col space-y-1">
                                                 <p className="text-sm font-medium leading-none">{profileName}</p>
-                                                <p className="text-xs leading-none text-gray-400">{user.email}</p>
+                                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                                             </div>
                                         </DropdownMenuLabel>
-                                        <DropdownMenuSeparator className="bg-gray-700" />
-                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
+                                        <DropdownMenuSeparator className="bg-border" />
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-accent focus:bg-accent">
                                             <Link to={`/profile/${user.id || 'me'}`}><UserIcon className="mr-2 h-4 w-4" /><span>My Profile</span></Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700">
+                                        <DropdownMenuItem asChild className="cursor-pointer hover:bg-accent focus:bg-accent">
                                             <Link to="/dashboard"><LayoutDashboard className="mr-2 h-4 w-4" /><span>Dashboard</span></Link>
                                         </DropdownMenuItem>
-                                        <DropdownMenuSeparator className="bg-gray-700" />
-                                        <DropdownMenuItem onClick={handleLogoutClick} className="cursor-pointer text-red-400 hover:bg-red-900/50 hover:text-red-300 focus:bg-red-900/50 focus:text-red-300">
+                                        <DropdownMenuSeparator className="bg-border" />
+                                        <DropdownMenuItem onClick={handleLogoutClick} className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive">
                                             <LogOut className="mr-2 h-4 w-4" /><span>Log out</span>
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>
@@ -182,7 +182,7 @@ const Navbar = () => {
                             ) : (
                                 <a
                                     href="/login"
-                                    className="px-4 py-2 text-base lg:text-lg rounded-full bg-white text-black hover:bg-gray-200 transition-colors"
+                                    className="ml-4 px-5 py-2 text-sm lg:text-base font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-200 shadow-md hover:shadow-lg"
                                 >
                                     Log in
                                 </a>
@@ -194,32 +194,32 @@ const Navbar = () => {
                         className={`
                             md:hidden
                             absolute top-full left-0
-                            w-full mt-2
-                            bg-gray-900/95 backdrop-blur-md
-                            rounded-2xl border border-gray-700
-                            shadow-lg
+                            w-full mt-1
+                            bg-popover/98 backdrop-blur-lg
+                            border-b border-x border-border
+                            shadow-xl
                             transform origin-top transition-all duration-200 ease-in-out
                             ${isMenuOpen ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'}
                         `}
                     >
-                        <div className="px-4 py-3 space-y-3">
+                        <div className="px-4 py-4 space-y-2">
                             <a
                                 href="/explore"
-                                className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
+                                className="block text-base text-muted-foreground hover:text-foreground hover:bg-accent transition-all py-2.5 px-3 rounded-md font-medium"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Explore
                             </a>
                             <a
                                 href="/pricing"
-                                className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
+                                className="block text-base text-muted-foreground hover:text-foreground hover:bg-accent transition-all py-2.5 px-3 rounded-md font-medium"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 Pricing
                             </a>
                             <a
                                 href="/about"
-                                className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
+                                className="block text-base text-muted-foreground hover:text-foreground hover:bg-accent transition-all py-2.5 px-3 rounded-md font-medium"
                                 onClick={() => setIsMenuOpen(false)}
                             >
                                 About
@@ -227,50 +227,52 @@ const Navbar = () => {
                              {isAuthenticated && user && (
                                  <Link
                                      to={`/profile/${user.id || 'me'}`}
-                                     className="block text-lg text-gray-300 hover:text-white transition-colors py-2"
+                                     className="block text-base text-muted-foreground hover:text-foreground hover:bg-accent transition-all py-2.5 px-3 rounded-md font-medium"
                                      onClick={() => setIsMenuOpen(false)}
                                  >
                                      My Profile
                                  </Link>
                              )}
-                            {isAuthenticated ? (
-                                <button
-                                    onClick={(e) => { handleLogoutClick(e); setIsMenuOpen(false); }}
-                                    className="block w-full text-lg text-center px-4 py-2 rounded-full bg-red-600 text-white hover:bg-red-500 transition-colors"
-                                >
-                                    Logout
-                                </button>
-                            ) : (
-                                <a
-                                    href="/login"
-                                    className="block text-lg text-center px-4 py-2 rounded-full bg-white text-black hover:bg-gray-200 transition-colors"
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Log in
-                                </a>
-                            )}
+                            <div className="pt-2">
+                                {isAuthenticated ? (
+                                    <button
+                                        onClick={(e) => { handleLogoutClick(e); setIsMenuOpen(false); }}
+                                        className="block w-full text-base text-center px-4 py-2.5 rounded-md bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors font-medium"
+                                    >
+                                        Logout
+                                    </button>
+                                ) : (
+                                    <a
+                                        href="/login"
+                                        className="block text-base text-center px-4 py-2.5 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium"
+                                        onClick={() => setIsMenuOpen(false)}
+                                    >
+                                        Log in
+                                    </a>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
             </nav>
 
             {showLogoutPopup && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-[90%] max-w-sm text-center">
-                        <h2 className="text-xl font-semibold">Confirm Logout</h2>
-                        <p className="mt-2 text-gray-300">Are you sure you want to log out?</p>
-                        <div className="flex justify-center gap-4 mt-4">
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-card border border-border p-6 rounded-xl shadow-2xl w-full max-w-sm text-center">
+                        <h2 className="text-xl font-semibold text-foreground">Confirm Logout</h2>
+                        <p className="mt-3 text-muted-foreground">Are you sure you want to log out?</p>
+                        <div className="flex justify-center gap-3 mt-6">
                             <button
                                 onClick={confirmLogout}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-md"
+                                className="px-5 py-2.5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-lg transition-colors font-medium"
                             >
                                 Yes, Logout
                             </button>
                             <button
                                 onClick={() => setShowLogoutPopup(false)}
-                                className="px-4 py-2 bg-gray-500 hover:bg-gray-400 text-white rounded-md"
+                                className="px-5 py-2.5 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-lg transition-colors font-medium"
                             >
-                                No, Cancel
+                                Cancel
                             </button>
                         </div>
                     </div>

@@ -43,11 +43,11 @@ const ChatHeader = ({ chatType, targetId }) => {
   };
 
   return (
-    <div className="border-b border-gray-700 p-4">
+    <div className="border-b-2 border-border p-4 bg-sidebar">
       <div className="flex items-center space-x-3">
-        <div className="h-10 w-10 rounded-full bg-gray-700 flex items-center justify-center">
+        <div className="h-10 w-10 rounded-full bg-accent border border-accent/50 flex items-center justify-center">
           {chatType === 'personal' ? (
-            <div className="text-lg font-bold">{getTitle().charAt(0)}</div>
+            <div className="text-lg font-bold text-white">{getTitle().charAt(0)}</div>
           ) : (
             <div className="text-white">
               {getIcon()}
@@ -55,8 +55,8 @@ const ChatHeader = ({ chatType, targetId }) => {
           )}
         </div>
         <div>
-          <h2 className="font-bold">{getTitle()}</h2>
-          <p className="text-sm text-gray-400">
+          <h2 className="font-bold text-sidebar-text">{getTitle()}</h2>
+          <p className="text-sm text-sidebar-textMuted">
             {chatType === 'personal' ? 'Personal Chat' : chatType === 'workspace' ? 'Workspace Chat' : 'Project Chat'}
           </p>
         </div>

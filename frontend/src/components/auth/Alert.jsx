@@ -5,19 +5,19 @@ const Alert = ({ type, message }) => {
     if (!message) return null;
 
     const alertStyles = {
-        success: 'bg-green-100 border-green-400 text-green-700',
-        error: 'bg-red-100 border-red-400 text-red-700',
-        warning: 'bg-yellow-100 border-yellow-400 text-yellow-700',
-        info: 'bg-blue-100 border-blue-400 text-blue-700'
+        success: 'bg-secondary/10 border-2 border-secondary text-secondary',
+        error: 'bg-destructive/10 border-2 border-destructive text-destructive',
+        warning: 'bg-chart-4/10 border-2 border-chart-4 text-chart-4',
+        info: 'bg-primary/10 border-2 border-primary text-primary'
     };
 
     const Icon = type === 'success' ? CheckCircle : type === 'error' ? XCircle : AlertCircle;
 
     return (
-        <div className={`border px-4 py-3 rounded relative mb-4 ${alertStyles[type]}`} role="alert">
+        <div className={`px-4 py-3 rounded-lg relative mb-4 ${alertStyles[type]}`} role="alert">
             <div className="flex items-center">
                 <Icon className="w-5 h-5 mr-2" />
-                <span className="block sm:inline">
+                <span className="block sm:inline font-medium">
                     {typeof message === 'string' ? message : JSON.stringify(message)}
                 </span>
             </div>

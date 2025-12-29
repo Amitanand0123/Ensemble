@@ -98,7 +98,7 @@ export const updateWorkspaceSettings=createAsyncThunk(
             const response=await axios.patch(`/api/workspaces/${workspaceId}`,settings,{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return response.data.workspace; // Corrected typo here
+            return response.data.workspace;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to update settings')
         }
@@ -113,7 +113,7 @@ export const inviteWorkspaceMember=createAsyncThunk(
             const response=await axios.post(`/api/workspaces/${workspaceId}/members/invite`,{email,role},{
                 headers:{'Authorization':`Bearer ${token}`}
             })
-            return response.data.workspace; // Return updated workspace
+            return response.data.workspace;
         } catch (error) {
             return rejectWithValue(error.response?.data?.message || 'Failed to invite member')
         }

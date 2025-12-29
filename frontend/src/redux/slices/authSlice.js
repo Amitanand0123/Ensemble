@@ -10,7 +10,7 @@ const handleAuthError=(error)=>{
 
 const initialState={
     user:localStorage.getItem('user')
-        ?JSON.parse(localStorage.getItem('user')) // f yes, parses it (because localStorage stores strings)
+        ?JSON.parse(localStorage.getItem('user'))
         :null,
     token:localStorage.getItem('token') || null,
     isAuthenticated:!!localStorage.getItem('token'),
@@ -22,8 +22,8 @@ const initialState={
 }
 
 export const registerUser=createAsyncThunk(
-    'auth/register', // 'auth/register' is the action type.
-    async (userData,{rejectWithValue})=>{ // rejectWithValue() is used to return a custom error to your reducers instead of throwing.
+    'auth/register',
+    async (userData,{rejectWithValue})=>{
         try {
             const response=await axios.post('/api/auth/register',userData)
             localStorage.setItem('token',response.data.accessToken)
@@ -56,7 +56,7 @@ export const logoutUser = createAsyncThunk(
     async (_, { getState }) => {
         try {
             const token = getState().auth.token;
-            const config = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {}; // Prepares an Axios config object to send the token in the request header (if token exists).
+            const config = token ? { headers: { 'Authorization': `Bearer ${token}` } } : {};
             await axios.post('/api/auth/logout', {}, config);
         } catch (error) {
             console.warn("Backend logout call failed (might be expected):", error.response?.data || error.message);
@@ -94,63 +94,25 @@ export const resetPassword=createAsyncThunk(
     }
 )
 
-export const verifyEmail=createAsyncThunk(
-    'auth/verify-email',
-    async(token,{rejectWithValue})=>{
-        try {
-            const response=await axios.get(`/api/auth/verify-email/${token}`)
-            return response.data
-        } catch (error) {
-            return rejectWithValue(handleAuthError(error))
-        }
-    }
-)
-
-export const verifyEmailWithCode = createAsyncThunk(
-    'auth/verifyEmailWithCode',
-    async ({ email, code }, { rejectWithValue }) => {
-        try {
-            const response = await axios.post('/api/auth/verify-email', { email, code });
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(handleAuthError(error));
-        }
-    }
-);
-
-export const resendVerificationCode = createAsyncThunk(
-    'auth/resendVerificationCode',
-    async (email, { rejectWithValue }) => {
-        try {
-            const response = await axios.post('/api/auth/resend-verification', { email });
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(handleAuthError(error));
-        }
-    }
-);
-
-
-
 const authSlice=createSlice({
     name:'auth',
     initialState,
     reducers:{
-        resetAuth:(state)=>{ // These are synchronous reducers that change state directly when called
-            Object.assign(state, initialState); // It clones the initial state into current state (a safe way to reset).
+        resetAuth:(state)=>{
+            Object.assign(state, initialState);
             state.isAuthenticated = false;
             state.token = null;
             state.user = null;
             state.isAdmin = false;
         },
-        clearError:(state)=>{ // This is used to manually dismiss error messages in the UI.
+        clearError:(state)=>{
             state.error=null;
         },
-        clearMessage:(state)=>{ // Clears any success/info messages shown to the user (like "Password reset email sent").
+        clearMessage:(state)=>{
             state.message=null
         },
         updateUser:(state,action)=>{
-            if (state.user) { // This is used when the logged-in user's data changes — maybe profile update or receiving fresh data from backend.
+            if (state.user) {
                  state.user={...state.user,...action.payload};
                  localStorage.setItem('user',JSON.stringify(state.user));
                  state.isAdmin=state.user.role==='admin';
@@ -159,7 +121,7 @@ const authSlice=createSlice({
     },
     extraReducers:(builder)=>{
         builder
-        .addCase(registerUser.pending, (state) => { // Triggered when the API request starts.
+        .addCase(registerUser.pending, (state) => {
             state.isLoading = true;
             state.error = null;
             state.message = null;
@@ -170,7 +132,7 @@ const authSlice=createSlice({
             state.user = action.payload.user;
             state.token = action.payload.accessToken;
             state.isAdmin = action.payload.user.role === 'admin';
-            state.message = 'Registration successful! Please check your email to verify.';
+            state.message = 'Registration successful! Welcome to Ensemble.';
             state.error = null;
         })
         .addCase(registerUser.rejected, (state, action) => {
@@ -248,61 +210,6 @@ const authSlice=createSlice({
             state.isLoading = false;
             state.error = action.payload;
             state.message = null;
-        })
-        .addCase(verifyEmail.pending, (state) => {
-            state.isLoading = true;
-            state.error = null;
-            state.message = null;
-        })
-        .addCase(verifyEmail.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.message = action.payload.message || 'Email verified successfully.';
-            state.error = null;
-            if (state.user && state.user.email_verification) {
-                state.user.email_verification.verified = true;
-                localStorage.setItem('user', JSON.stringify(state.user)); // Persist the updated user info in localStorage to keep UI in sync across refresh.
-            }
-        })
-        .addCase(verifyEmail.rejected, (state, action) => {
-            state.isLoading = false;
-            state.error = action.payload;
-            state.message = null;
-        })
-        .addCase(verifyEmailWithCode.pending, (state) => {
-            state.isLoading = true;
-            state.error = null;
-            state.message = null;
-        })
-        .addCase(verifyEmailWithCode.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.message = action.payload.message;
-            // If the verified user is the one in the state, update their status
-            if (state.user?.email === action.meta.arg.email) {
-                state.user.isVerified = true;
-                // Also update localStorage if you store user object there
-                const storedUser = JSON.parse(localStorage.getItem('user'));
-                if (storedUser) {
-                    storedUser.isVerified = true;
-                    localStorage.setItem('user', JSON.stringify(storedUser)); // Updates the user object stored in localStorage, so it persists after page reloads.
-                }
-            }
-        })
-        .addCase(verifyEmailWithCode.rejected, (state, action) => {
-            state.isLoading = false;
-            state.error = action.payload;
-        })
-        .addCase(resendVerificationCode.pending, (state) => {
-            state.isLoading = true;
-            state.error = null;
-            // Keep the previous message until a new one arrives
-        })
-        .addCase(resendVerificationCode.fulfilled, (state, action) => {
-            state.isLoading = false;
-            state.message = action.payload.message; // Update message from backend
-        })
-        .addCase(resendVerificationCode.rejected, (state, action) => {
-            state.isLoading = false;
-            state.error = action.payload; // Set new error
         });
     }
 })

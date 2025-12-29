@@ -4,7 +4,7 @@ import {  useNavigate} from 'react-router-dom';
 import { fetchProjects } from '../../redux/slices/projectSlice.js';
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card';
 import { Input } from '../ui/input';
-import { Calendar, AlertCircle, Search, Briefcase } from 'lucide-react';
+import { Calendar, AlertCircle, Search, Briefcase, Loader2, ArrowRight } from 'lucide-react';
 import PropTypes from 'prop-types';
 
 const ProjectList = ({ workspaceId }) => {
@@ -33,47 +33,85 @@ const ProjectList = ({ workspaceId }) => {
         (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
+    const getPriorityColor = (priority) => {
+        switch(priority) {
+            case 'critical':
+                return 'text-destructive bg-destructive/10 border-destructive/30';
+            case 'high':
+                return 'text-chart-5 bg-chart-5/10 border-chart-5/30';
+            case 'medium':
+                return 'text-chart-2 bg-chart-2/10 border-chart-2/30';
+            case 'low':
+                return 'text-chart-4 bg-chart-4/10 border-chart-4/30';
+            default:
+                return 'text-muted-foreground bg-accent/50 border-border';
+        }
+    };
 
-    if (isLoading) return <div className="text-gray-400 p-4">Loading projects...</div>;
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center py-12">
+                <div className="flex flex-col items-center gap-3">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="text-muted-foreground">Loading projects...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className='space-y-4 animate-fade-in-up'>
+        <div className='space-y-6 animate-fadeInUp'>
             {/* Search Input */}
-            <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <div className="relative">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                 <Input
                     type="text"
-                    placeholder="Search projects by name or description..." 
+                    placeholder="Search projects by name or description..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-700/50 rounded-lg border border-gray-600 focus:outline-none focus:border-purple-500 transition-colors text-sm"
+                    className="w-full pl-12 pr-4 py-3 bg-input border-2 border-border rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-ring transition-all text-foreground placeholder:text-muted-foreground"
                 />
             </div>
 
             {/* Project List/Grid */}
             {filteredProjects.length > 0 ? (
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {filteredProjects.map((project) => (
+                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {filteredProjects.map((project, index) => (
                         <Card
                             key={project._id}
-                            className="bg-gray-800/60 border border-gray-700 text-white hover:border-purple-500 cursor-pointer transition-all duration-200 hover:shadow-lg"
+                            className="group bg-card/60 backdrop-blur-sm border-2 border-border hover:border-primary/50 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-black/10 animate-fadeInUp"
                             onClick={() => handleProjectClick(project._id)}
+                            style={{ animationDelay: `${index * 50}ms` }}
                         >
                             <CardHeader className="pb-3">
-                                <CardTitle className="text-lg text-purple-400 hover:text-purple-300 transition-colors">
-                                    {project.name}
+                                <CardTitle className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors flex items-start justify-between">
+                                    <span className="flex-1">{project.name}</span>
+                                    <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0" />
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <p className='text-sm text-gray-400 mb-4 line-clamp-2 h-10'>{project.description || 'No description'}</p> {/* Fixed height */}
-                                <div className='flex justify-between text-xs text-gray-500'>
-                                    <div className='flex items-center gap-1'>
-                                        <Calendar className='w-3 h-3' />
-                                        Due: {project.endDate ? new Date(project.endDate).toLocaleDateString() : 'N/A'}
+                            <CardContent className="space-y-4">
+                                <p className='text-sm text-muted-foreground line-clamp-2 h-10 leading-relaxed'>
+                                    {project.description || 'No description'}
+                                </p>
+
+                                <div className='flex items-center justify-between gap-3'>
+                                    {/* Due Date */}
+                                    <div className='flex items-center gap-2 text-xs'>
+                                        <div className="p-1.5 rounded-md bg-accent">
+                                            <Calendar className='w-3.5 h-3.5 text-muted-foreground' />
+                                        </div>
+                                        <div>
+                                            <p className="text-muted-foreground font-medium">
+                                                {project.endDate ? new Date(project.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'No deadline'}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className='flex items-center gap-1 capitalize'>
-                                        <AlertCircle className={`w-3 h-3 ${project.priority === 'high' || project.priority === 'critical' ? 'text-red-400' : project.priority === 'medium' ? 'text-yellow-400' : 'text-green-400'}`} />
-                                        {project.priority}
+
+                                    {/* Priority Badge */}
+                                    <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md border text-xs font-semibold capitalize ${getPriorityColor(project.priority)}`}>
+                                        <AlertCircle className='w-3.5 h-3.5' />
+                                        {project.priority || 'low'}
                                     </div>
                                 </div>
                             </CardContent>
@@ -81,9 +119,18 @@ const ProjectList = ({ workspaceId }) => {
                     ))}
                 </div>
             ) : (
-                 <div className="text-center py-10 text-gray-500">
-                    <Briefcase className="mx-auto h-10 w-10 mb-3" />
-                    {searchQuery ? 'No projects found matching your search.' : 'No projects found in this workspace yet.'}
+                 <div className="text-center py-16">
+                    <div className="max-w-md mx-auto bg-card/50 border-2 border-dashed border-border rounded-xl p-8">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-accent flex items-center justify-center">
+                            <Briefcase className="w-8 h-8 text-muted-foreground" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                            {searchQuery ? 'No projects found' : 'No projects yet'}
+                        </h3>
+                        <p className="text-muted-foreground text-sm">
+                            {searchQuery ? 'Try adjusting your search criteria' : 'Create your first project to get started'}
+                        </p>
+                    </div>
                  </div>
             )}
         </div>

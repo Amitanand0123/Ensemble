@@ -1,4 +1,3 @@
-// tailwind.config.js
 import tailwindAnimate from "tailwindcss-animate";
 
 export default {
@@ -51,6 +50,13 @@ export default {
           '3': 'hsl(var(--chart-3))',
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))'
+        },
+        sidebar: {
+          DEFAULT: 'hsl(var(--sidebar-bg))',
+          hover: 'hsl(var(--sidebar-hover))',
+          active: 'hsl(var(--sidebar-active))',
+          text: 'hsl(var(--sidebar-text))',
+          textMuted: 'hsl(var(--sidebar-text-muted))'
         }
       },
       borderRadius: {

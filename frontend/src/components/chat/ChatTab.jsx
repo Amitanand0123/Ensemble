@@ -62,9 +62,9 @@ const ChatTab = ({ type, id }) => {
   const renderContent = () => {
     if (isLoading && messages.length === 0) {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-gray-400">
-            <Loader2 className="h-8 w-8 animate-spin mb-2" />
-            Loading messages...
+        <div className="flex flex-col items-center justify-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-accent mb-3" />
+            <p className="text-muted-foreground">Loading messages...</p>
         </div>
       );
     }
@@ -73,12 +73,12 @@ const ChatTab = ({ type, id }) => {
 
 
   return (
-    <Card className="h-[calc(100vh-250px)] flex flex-col bg-gray-900 border-gray-700">
+    <Card className="h-[calc(100vh-250px)] flex flex-col bg-card/60 backdrop-blur-sm border-2 border-accent/30 shadow-lg hover:shadow-accent/10 transition-all">
       <ChatHeader chatType={type} targetId={id} />
-      <div className="flex-1 overflow-y-auto p-4 bg-gray-850 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-4 bg-background/50 custom-scrollbar">
         {renderContent()}
       </div>
-      <div className="p-4 border-t border-gray-700 bg-gray-900">
+      <div className="p-4 border-t-2 border-border bg-card/80">
         <MessageInput chatType={type} targetId={id} isConnected={isConnected} />
       </div>
     </Card>

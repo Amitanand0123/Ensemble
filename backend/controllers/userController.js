@@ -22,7 +22,7 @@ export const getAllUsers = async (req, res) => {
 export const updateUserRole = async (req, res) => {
     const { userId } = req.params;
     const { role: newRole } = req.body;
-    if (!mongoose.Types.ObjectId.isValid(userId)) { // Checks if userId is a valid MongoDB ObjectId. Prevents database crashes due to malformed IDs.
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
         return res.status(400).json({
             success: false,
             message: 'Invalid user ID format'
@@ -126,7 +126,7 @@ export const updateMyAvatar = async (req, res) => {
         const result = await uploadToCloud(
             req.file.buffer,
             `avatar_${user._id}_${Date.now()}`, 
-            `user_avatars/${user._id}` // This is the folder path in the cloud storage. Example: user_avatars/662d9a0f14fa7a. Helps organize avatars per user.
+            `user_avatars/${user._id}`
         );
         user.avatar = {
             url: result.url,

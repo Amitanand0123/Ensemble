@@ -64,6 +64,6 @@ router.post('/:id/comments',
 )
 router.post('/:id/attachments',upload.array('newAttachments',5),addTaskAttachment)
 
-router.get('/project/:projectId/tasks',getTasksbyProject) // fix
+router.get('/project/:projectId/tasks',getTasksbyProject)
 
 export default router;

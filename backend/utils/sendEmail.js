@@ -13,7 +13,7 @@ const sendEmail = async (options) => {
                 service: 'gmail',
                 auth: {
                     user: process.env.GMAIL_USER,
-                    pass: process.env.GMAIL_APP_PASSWORD, // App password, not regular password
+                    pass: process.env.GMAIL_APP_PASSWORD,
                 },
             });
 
@@ -28,7 +28,6 @@ const sendEmail = async (options) => {
             html: options.html || `<p>${options.message}</p>`,
         };
 
-        // Send the email
         const info = await transporter.sendMail(mailOptions);
         console.log('Email sent successfully:', info.messageId);
         
