@@ -66,12 +66,12 @@ const AdminUserList = () => {
     };
 
 
-    if (isLoading) return <div className="p-4 text-center text-gray-400">Loading users...</div>;
-    if (error) return <div className="p-4 text-center text-red-500">{error}</div>;
+    if (isLoading) return <div className="p-4 text-center text-muted-foreground">Loading users...</div>;
+    if (error) return <div className="p-4 text-center text-destructive">{error}</div>;
 
     return (
-        <div className="p-4 md:p-6 bg-gray-800/50 rounded-lg border border-gray-700">
-            <h2 className="text-xl font-semibold mb-4 text-white">User Management</h2>
+        <div className="p-4 md:p-6 bg-card rounded-lg border border-border">
+            <h2 className="text-xl font-semibold mb-4 text-foreground">User Management</h2>
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -86,16 +86,16 @@ const AdminUserList = () => {
                         <TableRow key={user._id}>
                             <TableCell>{`${user.name.first} ${user.name.last}`}</TableCell>
                             <TableCell>{user.email}</TableCell>
-                            <TableCell><span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-purple-600' : 'bg-gray-600'}`}>{user.role}</span></TableCell>
+                            <TableCell><span className={`px-2 py-1 rounded-full text-xs ${user.role === 'admin' ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>{user.role}</span></TableCell>
                             <TableCell>
                                 <Select
                                     defaultValue={user.role}
                                     onValueChange={(newRole) => handleRoleChange(user._id, newRole)}
                                 >
-                                    <SelectTrigger className="w-[120px] bg-gray-700 border-gray-600">
+                                    <SelectTrigger className="w-[120px] bg-muted border-border">
                                         <SelectValue placeholder="Change role" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-700 text-white border-gray-600">
+                                    <SelectContent className="bg-card text-foreground border-border">
                                         <SelectItem value="user">User</SelectItem>
                                         <SelectItem value="admin">Admin</SelectItem>
                                         <SelectItem value="moderator">Moderator</SelectItem>
@@ -106,7 +106,7 @@ const AdminUserList = () => {
                     ))}
                 </TableBody>
             </Table>
-            {users.length === 0 && <p className="text-center py-4 text-gray-500">No users found.</p>}
+            {users.length === 0 && <p className="text-center py-4 text-muted-foreground">No users found.</p>}
         </div>
     );
 };

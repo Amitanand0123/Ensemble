@@ -96,7 +96,7 @@ const MembersList = ({ workspace }) => {
                                 <Link to={`/profile/${memberUserId}`}>
                                     <Avatar className="w-10 h-10 hover:opacity-80 transition-opacity">
                                         <AvatarImage src={member.user.avatar?.url} alt={memberName} />
-                                        <AvatarFallback className="bg-accent text-white">
+                                        <AvatarFallback className="bg-primary text-primary-foreground">
                                             {getInitials(member.user.name?.first, member.user.name?.last)}
                                         </AvatarFallback>
                                     </Avatar>
@@ -108,10 +108,10 @@ const MembersList = ({ workspace }) => {
                                     <p className="text-sm text-muted-foreground">{member.user.email || 'No Email'}</p>
                                 </div>
                                 <div className="ml-auto flex items-center space-x-2">
-                                     {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-accent" />}
+                                     {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-primary" />}
                                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${
                                         isOwner ? 'bg-chart-4 text-white' :
-                                        member.role === 'admin' ? 'bg-sidebar text-sidebar-text' :
+                                        member.role === 'admin' ? 'bg-primary text-primary-foreground' :
                                         'bg-secondary text-white'
                                     }`}>
                                         {isOwner ? 'Owner' : member.role}

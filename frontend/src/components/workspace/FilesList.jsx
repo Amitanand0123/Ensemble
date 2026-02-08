@@ -102,7 +102,7 @@ const FilesList = ({ contextType, contextId }) => {
     }
 
     return (
-        <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white animate-fade-in-up mt-4">
+        <Card className="bg-card backdrop-blur-sm rounded-xl border border-border text-foreground animate-fade-in-up mt-4">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-lg font-medium">Files</CardTitle>
                 <Button size="sm" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
@@ -119,11 +119,11 @@ const FilesList = ({ contextType, contextId }) => {
                     disabled={isUploading}
                 />
                 {selectedFiles.length > 0 && (
-                    <div className="my-4 p-3 border border-dashed border-gray-600 rounded-lg bg-gray-700/50">
-                        <h4 className="text-sm font-semibold mb-2 text-gray-300">Ready to upload:</h4>
+                    <div className="my-4 p-3 border border-dashed border-border rounded-lg bg-muted">
+                        <h4 className="text-sm font-semibold mb-2 text-muted-foreground">Ready to upload:</h4>
                         <ul className="space-y-1 list-disc list-inside">
                             {selectedFiles.map((file, index) => (
-                                <li key={index} className="text-xs text-gray-400">{file.name}</li>
+                                <li key={index} className="text-xs text-muted-foreground">{file.name}</li>
                             ))}
                         </ul>
                         <Button
@@ -138,19 +138,19 @@ const FilesList = ({ contextType, contextId }) => {
                     </div>
                 )}
                 {isLoading && !isUploading && (
-                    <div className="text-center py-6 text-gray-400">
+                    <div className="text-center py-6 text-muted-foreground">
                         <Loader2 className="mx-auto h-6 w-6 animate-spin" />
                         Loading files...
                     </div>
                 )}
                 {error && (
-                    <div className="text-center py-6 text-red-400 flex items-center justify-center">
+                    <div className="text-center py-6 text-destructive flex items-center justify-center">
                         <AlertCircle className="mr-2 h-5 w-5" /> Error: {error}
                     </div>
                 )}
 
                 {!isLoading && !error && files.length === 0 && (
-                     <div className="text-center py-10 text-gray-500">
+                     <div className="text-center py-10 text-muted-foreground">
                         <FileText className="mx-auto h-10 w-10 mb-3" />
                         No files uploaded to this {contextType} yet.
                      </div>
@@ -166,13 +166,13 @@ const FilesList = ({ contextType, contextId }) => {
                             const canSummarize = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.mimetype);
 
                             return (
-                                <div key={file._id} className="p-3 bg-gray-700/60 rounded-md transition-colors border border-transparent hover:border-gray-600">
+                                <div key={file._id} className="p-3 bg-muted rounded-md transition-colors border border-transparent hover:border-border">
                                     <div className="flex items-center justify-between">
                                          <div className="flex items-center space-x-3 overflow-hidden">
-                                            <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+                                            <FileText className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                                             <div className="overflow-hidden">
                                                 <a href={file.url}>{file.filename}</a>
-                                                <p className="text-xs text-gray-500 mt-0.5">
+                                                <p className="text-xs text-muted-foreground mt-0.5">
                                                 </p>
                                             </div>
                                         </div>
@@ -185,14 +185,14 @@ const FilesList = ({ contextType, contextId }) => {
                                                     size="icon"
                                                     onClick={() => handleSummarize(file._id)}
                                                     disabled={isSummarizing || !!summaryText || !!summaryError}
-                                                    className="text-purple-400 hover:text-purple-300 h-7 w-7"
+                                                    className="text-primary hover:text-primary/80 h-7 w-7"
                                                     aria-label="Summarize file"
                                                     title={summaryText ? "Summary generated" : summaryError ? `Error: ${summaryError}`: "Summarize file"}
                                                 >
                                                     {isSummarizing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                                                 </Button>
                                             )}
-                                             <Button variant="ghost" size="icon" asChild className="text-gray-400 hover:text-white h-7 w-7">
+                                             <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground h-7 w-7">
                                                  <a href={file.url}><Download className="h-4 w-4" /></a>
                                              </Button>
                                              <AlertDialog>
@@ -207,23 +207,23 @@ const FilesList = ({ contextType, contextId }) => {
 
                                     {/* Summary Display Area */}
                                     {(isSummarizing || summaryText || summaryError) && (
-                                        <div className="mt-2 pt-2 border-t border-gray-600/50 text-xs pl-8 relative"> {/* Indent summary */}
+                                        <div className="mt-2 pt-2 border-t border-border text-xs pl-8 relative"> {/* Indent summary */}
                                              {/* Clear Summary Button */}
                                              {(summaryText || summaryError) && !isSummarizing && (
                                                 <Button
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => handleClearSummary(file._id)}
-                                                    className="absolute top-1 right-0 text-gray-500 hover:text-gray-300 h-5 w-5 p-0"
+                                                    className="absolute top-1 right-0 text-muted-foreground hover:text-foreground h-5 w-5 p-0"
                                                     aria-label="Clear summary"
                                                     title="Clear summary"
                                                 >
                                                     <X className="h-3 w-3"/>
                                                 </Button>
                                              )}
-                                            {isSummarizing && <p className="text-gray-400 italic animate-pulse">Generating summary...</p>}
-                                            {summaryError && <p className="text-red-400">Summarization Error: {summaryError}</p>}
-                                            {summaryText && <p className="text-gray-300 whitespace-pre-wrap">{summaryText}</p>}
+                                            {isSummarizing && <p className="text-muted-foreground italic animate-pulse">Generating summary...</p>}
+                                            {summaryError && <p className="text-destructive">Summarization Error: {summaryError}</p>}
+                                            {summaryText && <p className="text-muted-foreground whitespace-pre-wrap">{summaryText}</p>}
                                         </div>
                                     )}
                                 </div>

@@ -51,12 +51,12 @@ const CreateWorkspace = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-background p-4">
-            <Card className="w-full max-w-2xl bg-card border-2 border-border shadow-2xl slack-hover-lift">
+            <Card className="w-full max-w-2xl bg-card border-2 border-border shadow-2xl ensemble-hover-lift">
                 <form onSubmit={handleSubmit}>
                     <CardHeader className="space-y-1 pb-6 border-b border-border">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-chart-1 to-chart-3 flex items-center justify-center">
-                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+                                <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                 </svg>
                             </div>
@@ -83,7 +83,7 @@ const CreateWorkspace = () => {
                                     maxLength={50}
                                     placeholder="e.g., Marketing Team, Engineering Hub"
                                     required
-                                    className="bg-input border-2 border-border focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all h-12 text-base"
+                                    className="bg-input border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all h-12 text-base"
                                 />
                                 <p className="text-xs text-muted-foreground pl-1">{formData.name.length}/50 characters</p>
                             </div>
@@ -97,7 +97,7 @@ const CreateWorkspace = () => {
                                     maxLength={500}
                                     placeholder="A brief description of your workspace's purpose and goals..."
                                     rows={5}
-                                    className="bg-input border-2 border-border focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all resize-none"
+                                    className="bg-input border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                                 />
                                 <p className="text-xs text-muted-foreground pl-1">{formData.description.length}/500 characters</p>
                             </div>
@@ -121,7 +121,7 @@ const CreateWorkspace = () => {
                             variant="outline"
                             onClick={() => navigate(-1)}
                             disabled={isLoading}
-                            className="px-6 h-11 border-2 hover:bg-accent"
+                            className="px-6 h-11 border-2 hover:bg-primary/10"
                         >
                             Cancel
                         </Button>

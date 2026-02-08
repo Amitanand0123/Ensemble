@@ -39,8 +39,8 @@ const FileUpload = ({ chatType, targetId, setIsUploading }) => {
         id="file-upload"
         accept="image/*,.pdf,.doc,.docx,.xls,.xlsx"
       />
-      <label htmlFor="file-upload" className="cursor-pointer p-2 hover:bg-gray-700 rounded-full">
-        <Paperclip className="h-5 w-5 text-gray-300" />
+      <label htmlFor="file-upload" className="cursor-pointer p-2 hover:bg-accent rounded-full">
+        <Paperclip className="h-5 w-5 text-muted-foreground" />
       </label>
     </div>
   );

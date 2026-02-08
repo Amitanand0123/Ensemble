@@ -1,43 +1,43 @@
 FROM node:18-alpine AS builder
 
-WORKDIR /usr/src/app/frontend
+WORKDIR /app
 
+COPY package*.json ./
 
-COPY frontend/package*.json ./
+RUN npm ci
 
-RUN npm install
+COPY . .
 
-COPY frontend/ ./
-
-# Declares build-time arguments.
-# These are used to inject environment variables into the build process (Vite exposes only VITE_ prefixed vars).
-
+# Build-time arguments for Vite (only VITE_ prefixed vars are exposed to client)
 ARG VITE_API_BASE_URL
 ARG VITE_RAZORPAY_KEY_ID
-
-# Sets the above ARGs as ENV variables so Vite can access them during npm run build.
+ARG VITE_SOCKET_URL
 
 ENV VITE_API_BASE_URL=${VITE_API_BASE_URL}
 ENV VITE_RAZORPAY_KEY_ID=${VITE_RAZORPAY_KEY_ID}
+ENV VITE_SOCKET_URL=${VITE_SOCKET_URL}
 
 RUN npm run build
 
-# Switches to a new, lightweight base image: NGINX on Alpine Linux.
-# Ideal for static file serving.
-
+# Production stage - serve with nginx
 FROM nginx:stable-alpine
 
-# Copies the final build files (dist/) from the builder stage into NGINX's default HTML serving folder.
-COPY --from=builder /usr/src/app/frontend/dist /usr/share/nginx/html
+# Copy built assets from builder
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Replaces the default NGINX config with your custom nginx.conf (for SPA routing, compression, etc.).
-COPY frontend/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy custom nginx config
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Exposes port 80 (standard HTTP port) to allow external traffic into the container.
+# Fix permissions for nginx
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
 EXPOSE 80
 
-# Starts NGINX in the foreground (Docker containers exit if the main process ends).
-
-# daemon off; keeps NGINX running as the main process.
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:80/ || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

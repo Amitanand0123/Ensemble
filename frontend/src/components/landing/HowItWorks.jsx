@@ -25,24 +25,24 @@ const HowItWorks = () => {
     ];
   
     return (
-      <section className="py-24 bg-black relative overflow-hidden">
+      <section className="py-24 bg-muted relative overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl" />
+          <div className="absolute top-1/4 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-1/4 right-0 w-64 h-64 bg-accent/10 rounded-full blur-3xl" />
         </div>
-  
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Section Header */}
           <div className="text-center mb-20 animate-fade-in-up">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               How Ensemble Works
             </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
               Get started in minutes with our simple four-step process
             </p>
           </div>
-  
+
           {/* Steps */}
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {steps.map((step, index) => (
@@ -51,15 +51,15 @@ const HowItWorks = () => {
                 className="relative animate-fade-in-up"
                 style={{ animationDelay: `${index * 200}ms` }}
               >
-                <div className="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700 p-6 h-full hover:transform hover:-translate-y-2 transition-all duration-300">
-                  <span className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
+                <div className="bg-card rounded-2xl border border-border p-6 h-full hover:transform hover:-translate-y-2 transition-all duration-300 ensemble-card-shadow">
+                  <span className="text-5xl font-bold text-primary">
                     {step.number}
                   </span>
-                  <h3 className="text-xl font-semibold text-white mt-4 mb-2">{step.title}</h3>
-                  <p className="text-gray-400">{step.description}</p>
+                  <h3 className="text-xl font-semibold text-foreground mt-4 mb-2">{step.title}</h3>
+                  <p className="text-muted-foreground">{step.description}</p>
                 </div>
                 {index < steps.length - 1 && (
-                  <ArrowRight className="hidden lg:block absolute top-1/2 -right-7 w-6 h-6 text-gray-600 transform -translate-y-1/2" />
+                  <ArrowRight className="hidden lg:block absolute top-1/2 -right-7 w-6 h-6 text-muted-foreground transform -translate-y-1/2" />
                 )}
               </div>
             ))}

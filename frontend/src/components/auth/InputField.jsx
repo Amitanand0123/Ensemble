@@ -15,7 +15,7 @@ const InputField=({icon:Icon,type:initialType,placeholder,value,onChange,name,er
                 <input
                     type={type}
                     name={name}
-                    className={`w-full bg-input border-2 ${error?'border-destructive/50':'border-border'} rounded-lg py-3 px-10 text-foreground placeholder-muted-foreground focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all backdrop-blur-sm`}
+                    className={`w-full bg-input border-2 ${error?'border-destructive/50':'border-border'} rounded-lg py-3 px-10 text-foreground placeholder-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all`}
                     placeholder={placeholder}
                     value={value}
                     onChange={onChange}

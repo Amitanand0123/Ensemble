@@ -69,17 +69,17 @@ const ProjectSettings = ({ project }) => {
         }
     };
     if (!project) {
-        return <div className="text-white p-6">Loading project settings...</div>;
+        return <div className="text-foreground p-6">Loading project settings...</div>;
     }
 
     return (
-        <Card className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white animate-fade-in-up mt-4">
+        <Card className="bg-card backdrop-blur-sm rounded-xl border border-border text-foreground animate-fade-in-up mt-4">
             <CardHeader>
                 <CardTitle>Project Settings</CardTitle>
             </CardHeader>
             <CardContent>
                 {localError && (
-                    <div className="mb-4 p-3 bg-red-900/30 border border-red-700 text-red-300 rounded-md text-sm">
+                    <div className="mb-4 p-3 bg-destructive/10 border border-destructive/50 text-destructive rounded-md text-sm">
                         Error: {localError}
                     </div>
                 )}
@@ -95,10 +95,10 @@ const ProjectSettings = ({ project }) => {
                                         <Input
                                             placeholder="Enter project name"
                                             {...field}
-                                            className="bg-gray-700 border-gray-600"
+                                            className="bg-muted border-border"
                                         />
                                     </FormControl>
-                                    <FormMessage className="text-red-400" />
+                                    <FormMessage className="text-destructive" />
                                 </FormItem>
                             )}
                         />
@@ -113,10 +113,10 @@ const ProjectSettings = ({ project }) => {
                                             placeholder="Enter project description"
                                             rows={4}
                                             {...field}
-                                            className="bg-gray-700 border-gray-600"
+                                            className="bg-muted border-border"
                                         />
                                     </FormControl>
-                                    <FormMessage className="text-red-400" />
+                                    <FormMessage className="text-destructive" />
                                 </FormItem>
                             )}
                         />
@@ -129,18 +129,18 @@ const ProjectSettings = ({ project }) => {
                                         <FormLabel>Priority</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="bg-gray-700 border-gray-600 w-full">
+                                                <SelectTrigger className="bg-muted border-border w-full">
                                                     <SelectValue placeholder="Select priority" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-gray-700 text-white border-gray-600">
+                                            <SelectContent className="bg-card text-foreground border-border">
                                                 <SelectItem value="low">Low</SelectItem>
                                                 <SelectItem value="medium">Medium</SelectItem>
                                                 <SelectItem value="high">High</SelectItem>
                                                 <SelectItem value="critical">Critical</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage className="text-red-400" />
+                                        <FormMessage className="text-destructive" />
                                     </FormItem>
                                 )}
                             />
@@ -153,17 +153,17 @@ const ProjectSettings = ({ project }) => {
                                         <FormLabel>Visibility</FormLabel>
                                         <Select onValueChange={field.onChange} value={field.value}>
                                             <FormControl>
-                                                <SelectTrigger className="bg-gray-700 border-gray-600 w-full">
+                                                <SelectTrigger className="bg-muted border-border w-full">
                                                     <SelectValue placeholder="Select visibility" />
                                                 </SelectTrigger>
                                             </FormControl>
-                                            <SelectContent className="bg-gray-700 text-white border-gray-600">
+                                            <SelectContent className="bg-card text-foreground border-border">
                                                 <SelectItem value="workspace">Workspace</SelectItem>
                                                 <SelectItem value="members">Members Only</SelectItem>
                                                 <SelectItem value="admins">Admins Only</SelectItem>
                                             </SelectContent>
                                         </Select>
-                                        <FormMessage className="text-red-400" />
+                                        <FormMessage className="text-destructive" />
                                     </FormItem>
                                 )}
                             />
@@ -180,24 +180,24 @@ const ProjectSettings = ({ project }) => {
                                             <FormControl>
                                                 <Button
                                                     variant="outline"
-                                                    className={`w-full md:w-[280px] justify-start text-left font-normal ${!field.value && 'text-muted-foreground'} bg-gray-700 border-gray-600 hover:bg-gray-600`}
+                                                    className={`w-full md:w-[280px] justify-start text-left font-normal ${!field.value && 'text-muted-foreground'} bg-muted border-border hover:bg-accent`}
                                                 >
                                                     <CalendarIcon className="mr-2 h-4 w-4" />
                                                     {field.value ? format(new Date(field.value), 'PPP') : <span>Pick a date</span>}
                                                 </Button>
                                             </FormControl>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0 bg-gray-700 border-gray-600" align="start">
+                                        <PopoverContent className="w-auto p-0 bg-muted border-border" align="start">
                                             <Calendar
                                                 mode="single"
                                                 selected={field.value ? new Date(field.value) : null}
                                                 onSelect={field.onChange}
                                                 initialFocus
-                                                className="text-white [&_button]:text-white [&_button:hover]:bg-gray-600 [&_button[aria-selected]]:bg-blue-600"
+                                                className="text-foreground [&_button]:text-foreground [&_button:hover]:bg-accent [&_button[aria-selected]]:bg-primary"
                                             />
                                         </PopoverContent>
                                     </Popover>
-                                    <FormMessage className="text-red-400" />
+                                    <FormMessage className="text-destructive" />
                                 </FormItem>
                             )}
                         />
@@ -206,10 +206,10 @@ const ProjectSettings = ({ project }) => {
                             control={form.control}
                             name="settings.isPrivate" 
                             render={({ field }) => (
-                                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-muted">
                                     <div className="space-y-0.5">
                                         <FormLabel className="text-base">Private Project</FormLabel>
-                                        <p className="text-sm text-gray-400">
+                                        <p className="text-sm text-muted-foreground">
                                             If enabled, only project members can see this project.
                                         </p>
                                     </div>
@@ -227,7 +227,7 @@ const ProjectSettings = ({ project }) => {
                             <Button type="button" variant="outline" onClick={() => form.reset()}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
+                            <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90 text-primary-foreground">
                                 {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>) : 'Save Changes'}
                             </Button>
                         </div>

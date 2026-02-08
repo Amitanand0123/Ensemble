@@ -61,7 +61,7 @@ const ProjectDetail = () => {
         return (
             <div className="flex justify-center items-center min-h-screen bg-background">
                 <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     <p className="text-muted-foreground">Loading project details...</p>
                 </div>
             </div>
@@ -170,7 +170,7 @@ const ProjectDetail = () => {
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs text-muted-foreground font-medium mb-0.5">Total Tasks</p>
                                         <p className="font-semibold text-foreground text-sm">
-                                            {tasksLoading ? <Loader2 className="w-4 h-4 animate-spin text-accent" /> : tasks.length}
+                                            {tasksLoading ? <Loader2 className="w-4 h-4 animate-spin text-primary" /> : tasks.length}
                                         </p>
                                     </div>
                                 </div>

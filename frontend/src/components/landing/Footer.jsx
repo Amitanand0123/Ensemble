@@ -17,7 +17,7 @@ const Footer = () => {
             <div className="lg:col-span-2">
               <div className="flex items-center space-x-3 mb-6">
                 <img src="/ensemble-logo-1.svg" alt="Ensemble Logo" className="h-8 w-auto" />
-                <span className="text-2xl font-semibold bg-gradient-to-r from-gray-200 to-gray-400 bg-clip-text text-transparent">Ensemble</span>
+                <span className="text-2xl font-semibold text-primary">Ensemble</span>
               </div>
               <p className="text-muted-foreground mb-6 max-w-md leading-relaxed">
                 Empower your team with the most intuitive project management platform.

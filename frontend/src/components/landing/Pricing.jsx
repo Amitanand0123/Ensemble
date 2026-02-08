@@ -77,7 +77,7 @@ const Pricing = () => {
                                                 onPaymentSuccess={handlePaymentSuccess}
                                             />
                                         ) : (
-                                            <Button className="w-full bg-sidebar hover:bg-sidebar-hover text-sidebar-text shadow-lg hover:shadow-accent/30 transition-all" asChild>
+                                            <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-primary/30 transition-all" asChild>
                                                 <a href="/login">Login to Choose Plan</a>
                                             </Button>
                                         )

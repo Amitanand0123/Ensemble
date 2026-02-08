@@ -138,17 +138,17 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
 
     return (
         <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900/95 backdrop-blur-sm border-2 border-gray-700 rounded-xl shadow-2xl">
-                <DialogHeader className="space-y-1 pb-6 border-b border-gray-700">
+            <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card backdrop-blur-sm border-2 border-border rounded-xl shadow-2xl">
+                <DialogHeader className="space-y-1 pb-6 border-b border-border">
                     <div className="flex items-center gap-3">
                         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-chart-1 to-chart-4 flex items-center justify-center flex-shrink-0">
-                            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
                         </div>
                         <div>
-                            <DialogTitle className="text-3xl font-bold text-white">{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
-                            <p className="text-sm text-gray-300 mt-1">{task ? 'Update task details and assignments' : 'Add a new task to track progress'}</p>
+                            <DialogTitle className="text-3xl font-bold text-foreground">{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+                            <p className="text-sm text-muted-foreground mt-1">{task ? 'Update task details and assignments' : 'Add a new task to track progress'}</p>
                         </div>
                     </div>
                 </DialogHeader>
@@ -169,17 +169,17 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                 rules={{ required: 'Title is required' }}
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-semibold text-white">Title*</FormLabel>
+                                        <FormLabel className="text-sm font-semibold text-foreground">Title*</FormLabel>
                                         <FormControl>
                                             <Input
                                                 placeholder="e.g., Implement user authentication, Fix navigation bug"
                                                 {...field}
                                                 maxLength={200}
-                                                className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all h-12 text-base placeholder:text-gray-400"
+                                                className="bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring transition-all h-12 text-base placeholder:text-muted-foreground"
                                             />
                                         </FormControl>
                                         <FormMessage className="text-destructive" />
-                                        <p className="text-xs text-gray-400 pl-1">{field.value?.length || 0}/200 characters</p>
+                                        <p className="text-xs text-muted-foreground pl-1">{field.value?.length || 0}/200 characters</p>
                                     </FormItem>
                                 )}
                             />
@@ -190,18 +190,18 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                 name="description"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel className="text-sm font-semibold text-white">Description (Optional)</FormLabel>
+                                        <FormLabel className="text-sm font-semibold text-foreground">Description (Optional)</FormLabel>
                                         <FormControl>
                                             <Textarea
                                                 placeholder="Provide detailed information about this task, acceptance criteria, or any relevant notes..."
                                                 maxLength={1000}
-                                                className="min-h-[120px] bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none placeholder:text-gray-400"
+                                                className="min-h-[120px] bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring transition-all resize-none placeholder:text-muted-foreground"
                                                 {...field}
                                                 rows={5}
                                             />
                                         </FormControl>
                                         <FormMessage className="text-destructive" />
-                                        <p className="text-xs text-gray-400 pl-1">{field.value?.length || 0}/1000 characters</p>
+                                        <p className="text-xs text-muted-foreground pl-1">{field.value?.length || 0}/1000 characters</p>
                                     </FormItem>
                                 )}
                             />
@@ -214,18 +214,18 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                     name="status"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-white">Status</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-foreground">Status</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 h-11">
+                                                    <SelectTrigger className="bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring h-11">
                                                         <SelectValue placeholder="Select status" />
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent className="bg-gray-900 border-gray-700 text-white">
-                                                    <SelectItem value="todo" className="hover:bg-gray-700 cursor-pointer">To Do</SelectItem>
-                                                    <SelectItem value="in-progress" className="hover:bg-gray-700 cursor-pointer">In Progress</SelectItem>
-                                                    <SelectItem value="review" className="hover:bg-gray-700 cursor-pointer">Review</SelectItem>
-                                                    <SelectItem value="done" className="hover:bg-gray-700 cursor-pointer">Done</SelectItem>
+                                                <SelectContent className="bg-card border-border text-foreground">
+                                                    <SelectItem value="todo" className="hover:bg-accent cursor-pointer">To Do</SelectItem>
+                                                    <SelectItem value="in-progress" className="hover:bg-accent cursor-pointer">In Progress</SelectItem>
+                                                    <SelectItem value="review" className="hover:bg-accent cursor-pointer">Review</SelectItem>
+                                                    <SelectItem value="done" className="hover:bg-accent cursor-pointer">Done</SelectItem>
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage className="text-destructive" />
@@ -238,33 +238,33 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                     name="priority"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-white">Priority</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-foreground">Priority</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 h-11">
+                                                    <SelectTrigger className="bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring h-11">
                                                         <SelectValue placeholder="Select priority" />
                                                     </SelectTrigger>
                                                 </FormControl>
-                                                <SelectContent className="bg-gray-900 border-gray-700 text-white">
-                                                    <SelectItem value="low" className="hover:bg-gray-700 cursor-pointer">
+                                                <SelectContent className="bg-card border-border text-foreground">
+                                                    <SelectItem value="low" className="hover:bg-accent cursor-pointer">
                                                         <span className="flex items-center gap-2">
                                                             <span className="w-2 h-2 rounded-full bg-chart-2"></span>
                                                             Low
                                                         </span>
                                                     </SelectItem>
-                                                    <SelectItem value="medium" className="hover:bg-gray-700 cursor-pointer">
+                                                    <SelectItem value="medium" className="hover:bg-accent cursor-pointer">
                                                         <span className="flex items-center gap-2">
                                                             <span className="w-2 h-2 rounded-full bg-chart-3"></span>
                                                             Medium
                                                         </span>
                                                     </SelectItem>
-                                                    <SelectItem value="high" className="hover:bg-gray-700 cursor-pointer">
+                                                    <SelectItem value="high" className="hover:bg-accent cursor-pointer">
                                                         <span className="flex items-center gap-2">
                                                             <span className="w-2 h-2 rounded-full bg-chart-4"></span>
                                                             High
                                                         </span>
                                                     </SelectItem>
-                                                    <SelectItem value="critical" className="hover:bg-gray-700 cursor-pointer">
+                                                    <SelectItem value="critical" className="hover:bg-accent cursor-pointer">
                                                         <span className="flex items-center gap-2">
                                                             <span className="w-2 h-2 rounded-full bg-chart-5"></span>
                                                             Critical
@@ -285,20 +285,20 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                     name="dueDate"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <FormLabel className="text-sm font-semibold text-white">Due Date</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-foreground">Due Date</FormLabel>
                                             <Popover>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button
                                                             variant={"outline"}
-                                                            className={`w-full justify-start text-left font-normal h-11 bg-gray-800 border-2 border-gray-700 hover:bg-gray-700 hover:border-blue-500 ${!field.value ? "text-gray-400" : "text-white"}`}
+                                                            className={`w-full justify-start text-left font-normal h-11 bg-card border-2 border-border hover:bg-accent hover:border-primary ${!field.value ? "text-muted-foreground" : "text-foreground"}`}
                                                         >
                                                             <CalendarIcon className="mr-2 h-4 w-4" />
                                                             {field.value ? format(field.value, "PPP") : <span>Pick a date</span>}
                                                         </Button>
                                                     </FormControl>
                                                 </PopoverTrigger>
-                                                <PopoverContent className="w-auto p-0 bg-gray-900 border-gray-700" align="start">
+                                                <PopoverContent className="w-auto p-0 bg-card border-border" align="start">
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
@@ -317,7 +317,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                     name="estimatedHours"
                                     render={({ field }) => (
                                         <FormItem>
-                                            <FormLabel className="text-sm font-semibold text-white">Estimated Hours</FormLabel>
+                                            <FormLabel className="text-sm font-semibold text-foreground">Estimated Hours</FormLabel>
                                             <FormControl>
                                                 <Input
                                                     type="number"
@@ -326,7 +326,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                                     placeholder="0.0"
                                                     {...field}
                                                     onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                                    className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all h-11 placeholder:text-gray-400"
+                                                    className="bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring transition-all h-11 placeholder:text-muted-foreground"
                                                 />
                                             </FormControl>
                                             <FormMessage className="text-destructive" />
@@ -338,32 +338,32 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                             {/* --- File Input (Only for Create) --- */}
                             {!task && (
                                 <FormItem>
-                                    <FormLabel className="text-sm font-semibold text-white">Attachments (Optional)</FormLabel>
+                                    <FormLabel className="text-sm font-semibold text-foreground">Attachments (Optional)</FormLabel>
                                     <FormControl>
                                         <Input
                                             type="file"
                                             multiple
                                             onChange={handleFileChange}
-                                            className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600 transition-all h-11 cursor-pointer"
+                                            className="bg-card text-foreground border-2 border-border focus:border-primary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 transition-all h-11 cursor-pointer"
                                         />
                                     </FormControl>
                                     {selectedFiles.length > 0 && (
                                         <div className="mt-3 space-y-2">
                                             {selectedFiles.map((file, index) => (
-                                                <div key={index} className="flex items-center justify-between bg-gray-800/50 border border-gray-700 p-3 rounded-lg hover:bg-gray-700 transition-colors">
+                                                <div key={index} className="flex items-center justify-between bg-muted border border-border p-3 rounded-lg hover:bg-accent transition-colors">
                                                     <div className="flex items-center gap-3 min-w-0 flex-1">
-                                                        <svg className="w-5 h-5 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <svg className="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                                                         </svg>
-                                                        <span className="truncate text-sm text-white">{file.name}</span>
-                                                        <span className="text-xs text-gray-400 flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
+                                                        <span className="truncate text-sm text-foreground">{file.name}</span>
+                                                        <span className="text-xs text-muted-foreground flex-shrink-0">({(file.size / 1024).toFixed(1)} KB)</span>
                                                     </div>
                                                     <Button
                                                         type="button"
                                                         variant="ghost"
                                                         size="sm"
                                                         onClick={() => removeSelectedFile(index)}
-                                                        className="text-red-400 hover:text-red-300 hover:bg-red-500/20 p-2 h-auto flex-shrink-0"
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/20 p-2 h-auto flex-shrink-0"
                                                     >
                                                         <XCircle className="w-4 h-4" />
                                                     </Button>
@@ -378,13 +378,13 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                             {/* --- Assignees & Tags (Future enhancement) --- */}
                             {/* TODO: Add multi-select components for assignees and tags */}
 
-                            <DialogFooter className="flex justify-end gap-3 mt-6 pt-6 border-t border-gray-700 sticky bottom-0 bg-gray-900/95">
+                            <DialogFooter className="flex justify-end gap-3 mt-6 pt-6 border-t border-border sticky bottom-0 bg-card">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={onClose}
                                     disabled={isLoading}
-                                    className="px-6 h-11 border-2 border-gray-600 bg-gray-200 text-gray-900 hover:bg-gray-300 hover:border-gray-500 font-medium"
+                                    className="px-6 h-11 border-2 border-border bg-muted text-foreground hover:bg-muted hover:border-border font-medium"
                                 >
                                     Cancel
                                 </Button>
@@ -395,7 +395,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                 >
                                     {isLoading ? (
                                         <>
-                                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-primary-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                             </svg>

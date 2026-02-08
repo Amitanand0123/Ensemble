@@ -5,10 +5,10 @@ import Project from '../models/Project.js'
 import Workspace from '../models/Workspace.js'
 import Chat from '../models/Chat.js'
 
-export const setupSocketIO=(server)=>{
+export const setupSocketIO=(server, allowedOrigins)=>{
     const io=new Server(server,{
         cors:{
-            origin:process.env.FRONTEND_URL || 'http://localhost:5173',
+            origin:allowedOrigins || [process.env.FRONTEND_URL || 'http://localhost:5173'],
             methods:["GET","POST"],
             credentials:true
         }

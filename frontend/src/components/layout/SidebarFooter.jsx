@@ -51,9 +51,9 @@ const SidebarFooter = ({ onNavigate }) => {
                         <button className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-sidebar-hover transition-colors text-sidebar-text">
                             <div className="flex items-center gap-3 min-w-0">
                                 <div className="relative">
-                                    <Avatar className="h-8 w-8 ring-2 ring-sidebar-hover">
+                                    <Avatar className="h-8 w-8 ring-2 ring-sidebar">
                                         <AvatarImage src={user?.avatar?.url} alt={profileName} />
-                                        <AvatarFallback className="bg-gradient-to-br from-chart-1 via-chart-3 to-chart-5 text-foreground text-xs font-semibold">
+                                        <AvatarFallback className="bg-primary text-foreground text-xs font-semibold">
                                             {initials || <UserIcon className="h-4 w-4" />}
                                         </AvatarFallback>
                                     </Avatar>
@@ -101,14 +101,14 @@ const SidebarFooter = ({ onNavigate }) => {
 
             {/* Logout Confirmation Modal */}
             {showLogoutConfirm && createPortal(
-                <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
-                    <div className="bg-gray-900/95 backdrop-blur-sm border-2 border-gray-700 p-6 rounded-xl shadow-2xl w-full max-w-sm">
-                        <h2 className="text-xl font-semibold text-white mb-2">Sign Out?</h2>
-                        <p className="text-gray-300 mb-6">Are you sure you want to sign out?</p>
+                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
+                    <div className="bg-card backdrop-blur-sm border-2 border-border p-6 rounded-xl shadow-2xl w-full max-w-sm">
+                        <h2 className="text-xl font-semibold text-foreground mb-2">Sign Out?</h2>
+                        <p className="text-muted-foreground mb-6">Are you sure you want to sign out?</p>
                         <div className="flex justify-end gap-3">
                             <button
                                 onClick={() => setShowLogoutConfirm(false)}
-                                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg transition-colors font-medium border-2 border-gray-600 hover:border-gray-500"
+                                className="px-4 py-2 bg-muted hover:bg-accent text-foreground rounded-lg transition-colors font-medium border border-border hover:border-border"
                             >
                                 Cancel
                             </button>

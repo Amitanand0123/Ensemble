@@ -39,8 +39,9 @@ jobs:  # A job is a group of steps that run in the same runner environment.
 
       - name: Build Frontend
         run: npm run build --prefix frontend  # Runs the build script in frontend/package.json
-        env:  # This section defines environment variables for the frontend build process using values stored in GitHub secrets:
+        env:
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
+          VITE_SOCKET_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
           VITE_RAZORPAY_KEY_ID: ${{ secrets.VITE_RAZORPAY_KEY_ID_PROD }}
 
   deploy_to_vercel:  # This block defines a GitHub Actions job named deploy_to_vercel

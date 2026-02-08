@@ -34,7 +34,7 @@ const MainLayout = ({ children }) => {
             {/* Mobile overlay backdrop */}
             {isMobile && sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
                     onClick={() => setSidebarOpen(false)}
                     aria-label="Close sidebar"
                 />

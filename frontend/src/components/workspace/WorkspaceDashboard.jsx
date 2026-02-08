@@ -28,7 +28,7 @@ const WorkspaceDashboard = () => {
          return (
              <div className="flex justify-center items-center min-h-screen bg-background">
                  <div className="flex flex-col items-center gap-3">
-                     <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
                      <p className="text-muted-foreground">Loading workspaces...</p>
                  </div>
              </div>
@@ -39,8 +39,8 @@ const WorkspaceDashboard = () => {
          return (
              <div className="flex justify-center items-center min-h-screen bg-background">
                  <div className="text-center p-8 bg-card/50 border-2 border-border rounded-xl max-w-md shadow-2xl">
-                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-chart-1 to-chart-3 flex items-center justify-center">
-                         <Users className="w-8 h-8 text-white" />
+                     <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary flex items-center justify-center">
+                         <Users className="w-8 h-8 text-primary-foreground" />
                      </div>
                      <p className="text-foreground font-semibold text-lg mb-2">Unable to load workspaces</p>
                      <p className="text-muted-foreground text-sm">{error.message || 'Please try refreshing the page'}</p>
@@ -75,7 +75,7 @@ const WorkspaceDashboard = () => {
                        {/* Join Workspace Button (Visible to all logged-in users) */}
                        <button
                             onClick={() => setIsJoinModalOpen(true)}
-                            className="px-4 py-2.5 rounded-lg border-2 border-border hover:border-primary/50 hover:bg-accent transition-all flex items-center gap-2 font-medium text-sm"
+                            className="px-4 py-2.5 rounded-lg border-2 border-border hover:border-primary/50 hover:bg-primary/10 transition-all flex items-center gap-2 font-medium text-sm"
                         >
                             <LogIn className="w-4 h-4" />
                             <span className="hidden sm:inline">Join Workspace</span>
@@ -101,7 +101,7 @@ const WorkspaceDashboard = () => {
                         placeholder="Search workspaces..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-card border-2 border-border rounded-xl focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all text-foreground placeholder:text-muted-foreground"
+                        className="w-full pl-12 pr-4 py-3 bg-card border-2 border-border rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all text-foreground placeholder:text-muted-foreground"
                     />
                 </div>
 
@@ -112,24 +112,24 @@ const WorkspaceDashboard = () => {
                             <div
                                 key={workspace._id}
                                 onClick={() => navigate(`/workspaces/${workspace._id}`)}
-                                className="group bg-card/60 backdrop-blur-sm rounded-xl border-2 border-border p-6 hover:border-accent hover:shadow-xl hover:shadow-accent/5 transition-all duration-300 cursor-pointer animate-fadeInUp slack-hover-lift"
+                                className="group bg-card/60 backdrop-blur-sm rounded-xl border-2 border-border p-6 hover:border-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 cursor-pointer animate-fadeInUp ensemble-hover-lift"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
                                 <div className="flex items-start justify-between mb-4">
-                                    <h3 className="text-xl font-semibold text-foreground group-hover:text-accent transition-colors">{workspace.name}</h3>
-                                    <div className="flex items-center gap-2 text-muted-foreground p-2 rounded-lg bg-gradient-to-br from-accent/20 to-secondary/20 border border-accent/30">
-                                        {workspace.settings?.isPrivate ? <Lock className="w-4 h-4 text-accent" /> : <Globe className="w-4 h-4 text-secondary" />}
+                                    <h3 className="text-xl font-semibold text-foreground group-hover:text-primary transition-colors">{workspace.name}</h3>
+                                    <div className="flex items-center gap-2 text-muted-foreground p-2 rounded-lg bg-primary/10 border border-primary/20">
+                                        {workspace.settings?.isPrivate ? <Lock className="w-4 h-4 text-primary" /> : <Globe className="w-4 h-4 text-secondary" />}
                                     </div>
                                 </div>
                                 <p className="text-muted-foreground mb-5 text-sm line-clamp-2 h-10 leading-relaxed">{workspace.description || 'No description available.'}</p>
                                 <div className="flex items-center justify-between text-sm">
                                     <div className="flex items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
-                                        <div className="p-1.5 rounded-md bg-gradient-to-br from-chart-2 to-chart-3">
-                                            <Users className="w-4 h-4 text-white" />
+                                        <div className="p-1.5 rounded-md bg-primary">
+                                            <Users className="w-4 h-4 text-primary-foreground" />
                                         </div>
                                         <span className="font-medium">{workspace.members?.length || 0} members</span>
                                     </div>
-                                    <div className="flex items-center gap-1 text-accent font-medium">
+                                    <div className="flex items-center gap-1 text-primary font-medium">
                                         <span className="text-sm">View</span>
                                         <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                     </div>
@@ -140,8 +140,8 @@ const WorkspaceDashboard = () => {
                 ) : (
                     <div className="text-center py-20">
                         <div className="max-w-lg mx-auto bg-card/50 border-2 border-dashed border-border rounded-xl p-10 shadow-xl">
-                            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-accent via-secondary to-primary flex items-center justify-center shadow-lg">
-                                <Users className="w-10 h-10 text-white" />
+                            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary flex items-center justify-center shadow-lg">
+                                <Users className="w-10 h-10 text-primary-foreground" />
                             </div>
                             <h3 className="text-2xl font-bold text-foreground mb-3">
                                 {searchQuery ? 'No workspaces found' : 'Welcome to Ensemble!'}
@@ -164,7 +164,7 @@ const WorkspaceDashboard = () => {
                                     )}
                                     <button
                                         onClick={() => setIsJoinModalOpen(true)}
-                                        className="px-6 py-3 rounded-lg border-2 border-accent text-accent hover:bg-accent/10 transition-all flex items-center gap-2 font-semibold hover:shadow-lg"
+                                        className="px-6 py-3 rounded-lg border-2 border-primary text-primary hover:bg-primary/10 transition-all flex items-center gap-2 font-semibold hover:shadow-lg"
                                     >
                                         <LogIn className="w-5 h-5" />
                                         Join Workspace

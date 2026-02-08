@@ -10,6 +10,13 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: [
+          '-apple-system', 'BlinkMacSystemFont', "'Segoe UI'", 'Roboto',
+          "'Noto Sans'", 'Ubuntu', "'Droid Sans'", "'Helvetica Neue'",
+          'sans-serif'
+        ],
+      },
       colors: {
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -57,12 +64,31 @@ export default {
           active: 'hsl(var(--sidebar-active))',
           text: 'hsl(var(--sidebar-text))',
           textMuted: 'hsl(var(--sidebar-text-muted))'
+        },
+        label: {
+          green: '#70B500',
+          yellow: '#F2D600',
+          orange: '#FF9F1A',
+          red: '#EB5A46',
+          purple: '#C377E0',
+          blue: '#0079BF',
+          sky: '#00C2E0',
+          lime: '#51E898',
+          pink: '#FF78CB',
+          black: '#344563',
         }
       },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+        sm: 'calc(var(--radius) - 4px)',
+        'ensemble': '3px',
+      },
+      boxShadow: {
+        'ensemble-card': '0 1px 0 rgba(9, 30, 66, 0.25)',
+        'ensemble-drag': '0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 0 1px rgba(9, 30, 66, 0.08)',
+        'ensemble-modal': '0 8px 16px -4px rgba(9, 30, 66, 0.25), 0 0 0 1px rgba(9, 30, 66, 0.08)',
+        'ensemble-popover': '0 8px 16px -4px rgba(9, 30, 66, 0.31), 0 0 0 1px rgba(9, 30, 66, 0.08)',
       },
       animation: {
         gradient: 'gradient-flow 3s ease infinite',
@@ -71,36 +97,18 @@ export default {
       },
       keyframes: {
         'gradient-flow': {
-          '0%': {
-            backgroundPosition: '0% 50%'
-          },
-          '50%': {
-            backgroundPosition: '100% 50%'
-          },
-          '100%': {
-            backgroundPosition: '0% 50%'
-          }
+          '0%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+          '100%': { backgroundPosition: '0% 50%' }
         },
         float: {
-          '0%': {
-            transform: 'translateY(0px)'
-          },
-          '50%': {
-            transform: 'translateY(-10px)'
-          },
-          '100%': {
-            transform: 'translateY(0px)'
-          }
+          '0%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+          '100%': { transform: 'translateY(0px)' }
         },
         fadeInUp: {
-          from: {
-            opacity: 0,
-            transform: 'translateY(20px)'
-          },
-          to: {
-            opacity: 1,
-            transform: 'translateY(0)'
-          }
+          from: { opacity: 0, transform: 'translateY(20px)' },
+          to: { opacity: 1, transform: 'translateY(0)' }
         }
       }
     }

@@ -193,7 +193,7 @@ const MessageInput = ({ chatType, targetId, isConnected }) => {
                     disabled={isSendDisabled}
                     className={`p-2.5 rounded-lg shadow-lg transition-all ${isSendDisabled
                             ? 'bg-muted text-muted-foreground cursor-not-allowed opacity-50'
-                            : 'bg-accent hover:bg-accent/90 text-white'
+                            : 'bg-accent hover:bg-accent/90 text-accent-foreground'
                         }`}
                     aria-label="Send message"
                     title="Send message"

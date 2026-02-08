@@ -111,13 +111,13 @@ const WorkspaceSettings = ({ workspaceId }) => {
     };
 
     if (!workspace || workspace._id !== workspaceId) {
-        return <div className="text-white p-6 animate-pulse">Loading Settings...</div>;
+        return <div className="text-foreground p-6 animate-pulse">Loading Settings...</div>;
     }
 
     return (
-        <div className="text-white space-y-6">
+        <div className="text-foreground space-y-6">
             {/* Settings Update Card */}
-            <Card className='bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 animate-fade-in-up'>
+            <Card className='bg-card backdrop-blur-sm rounded-xl border border-border animate-fade-in-up'>
                 <CardHeader>
                     <CardTitle>Workspace Settings</CardTitle>
                 </CardHeader>
@@ -125,12 +125,12 @@ const WorkspaceSettings = ({ workspaceId }) => {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className='space-y-4'>
                             {localUpdateError && (
-                                <Alert variant="destructive" className="bg-red-900/30 border-red-700 text-red-300">
+                                <Alert variant="destructive" className="bg-destructive/5 border-destructive text-destructive">
                                     <AlertDescription>{localUpdateError}</AlertDescription>
                                 </Alert>
                             )}
                             {updateSuccess && (
-                                <Alert variant="success" className="bg-green-900/30 border-green-700 text-green-300">
+                                <Alert variant="success" className="bg-secondary/10 border-secondary text-secondary">
                                     <AlertDescription>{updateSuccess}</AlertDescription>
                                 </Alert>
                             )}
@@ -142,9 +142,9 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                     <FormItem>
                                         <FormLabel>Name</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="Workspace name" {...field} className="bg-gray-700 border-gray-600" />
+                                            <Input placeholder="Workspace name" {...field} className="bg-muted border-border" />
                                         </FormControl>
-                                        <FormMessage className="text-red-400" />
+                                        <FormMessage className="text-destructive" />
                                     </FormItem>
                                 )}
                             />
@@ -156,9 +156,9 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                     <FormItem>
                                         <FormLabel>Description</FormLabel>
                                         <FormControl>
-                                            <Textarea placeholder="Workspace description" {...field} className="bg-gray-700 border-gray-600 min-h-[80px]" />
+                                            <Textarea placeholder="Workspace description" {...field} className="bg-muted border-border min-h-[80px]" />
                                         </FormControl>
-                                        <FormMessage className="text-red-400" />
+                                        <FormMessage className="text-destructive" />
                                     </FormItem>
                                 )}
                             />
@@ -167,10 +167,10 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 control={form.control}
                                 name="isPrivate"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-muted/50">
                                          <div className="space-y-0.5">
                                              <FormLabel className="text-base">Private Workspace</FormLabel>
-                                             <p className="text-sm text-gray-400">Only invited members can join.</p>
+                                             <p className="text-sm text-muted-foreground">Only invited members can join.</p>
                                          </div>
                                          <FormControl>
                                              <Switch
@@ -186,10 +186,10 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 control={form.control}
                                 name="joinByCode"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-gray-700 p-4 bg-gray-900/30">
+                                    <FormItem className="flex flex-row items-center justify-between rounded-lg border border-border p-4 bg-muted/50">
                                         <div className="space-y-0.5">
                                             <FormLabel className="text-base">Allow Join via Code</FormLabel>
-                                            <p className="text-sm text-gray-400">Allow users to join using the invite code.</p>
+                                            <p className="text-sm text-muted-foreground">Allow users to join using the invite code.</p>
                                         </div>
                                         <FormControl>
                                             <Switch
@@ -201,7 +201,7 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             />
 
-                            <Button type="submit" disabled={isSubmitting} className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
+                            <Button type="submit" disabled={isSubmitting} className="bg-primary hover:bg-primary/90">
                                 {isSubmitting ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</>) : 'Save Changes'}
                             </Button>
                         </form>
@@ -211,23 +211,23 @@ const WorkspaceSettings = ({ workspaceId }) => {
 
             {/* Invite Code Card - Only visible if joinByCode is enabled */}
             {workspace?.settings?.joinByCode && workspace?.settings?.inviteCode && (
-                <Card className='bg-blue-900/20 backdrop-blur-sm rounded-xl border border-blue-700/50 animate-fade-in-up'>
+                <Card className='bg-primary/5 backdrop-blur-sm rounded-xl border border-primary/30 animate-fade-in-up'>
                     <CardHeader>
-                        <CardTitle className="text-blue-400">Workspace Invite Code</CardTitle>
+                        <CardTitle className="text-primary">Workspace Invite Code</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <p className="text-sm text-gray-300">
+                        <p className="text-sm text-muted-foreground">
                             Share this code with others to let them join this workspace.
                         </p>
-                        <div className="flex items-center gap-3 p-4 bg-gray-800/50 rounded-lg border border-gray-700">
-                            <code className="flex-1 text-lg font-mono text-blue-300 tracking-wider">
+                        <div className="flex items-center gap-3 p-4 bg-card rounded-lg border border-border">
+                            <code className="flex-1 text-lg font-mono text-primary tracking-wider">
                                 {workspace.settings.inviteCode}
                             </code>
                             <Button
                                 onClick={handleCopyInviteCode}
                                 variant="outline"
                                 size="sm"
-                                className="border-blue-600 hover:bg-blue-600/20 text-blue-300"
+                                className="border-primary hover:bg-primary/10 text-primary"
                             >
                                 {copied ? (
                                     <>
@@ -242,7 +242,7 @@ const WorkspaceSettings = ({ workspaceId }) => {
                                 )}
                             </Button>
                         </div>
-                        <Alert className="bg-blue-900/20 border-blue-700/50 text-blue-200">
+                        <Alert className="bg-primary/5 border-primary/30 text-primary">
                             <AlertDescription>
                                 This code allows anyone who has it to join the workspace. Keep it secure and only share it with trusted members.
                             </AlertDescription>
@@ -251,17 +251,17 @@ const WorkspaceSettings = ({ workspaceId }) => {
                 </Card>
             )}
 
-            <Card className="mt-6 bg-red-900/20 backdrop-blur-sm rounded-xl border border-red-700/50 animate-fade-in-up">
+            <Card className="mt-6 bg-destructive/5 backdrop-blur-sm rounded-xl border border-destructive/30 animate-fade-in-up">
                 <CardHeader>
-                    <CardTitle className="text-red-400">Danger Zone</CardTitle>
+                    <CardTitle className="text-destructive">Danger Zone</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     {deleteErrorMsg && (
-                        <Alert variant="destructive" className="bg-red-800/50 border-red-600 text-red-200">
+                        <Alert variant="destructive" className="bg-destructive/10 border-destructive text-destructive">
                             <AlertDescription>{deleteErrorMsg}</AlertDescription>
                         </Alert>
                     )}
-                    <p className="text-sm text-red-200">
+                    <p className="text-sm text-destructive">
                         Deleting this workspace is permanent and cannot be undone. All associated projects, tasks, and files will be lost.
                     </p>
                     <Button variant="destructive" onClick={handleDeleteWorkspace} disabled={isDeleting}>

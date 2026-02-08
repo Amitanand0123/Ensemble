@@ -3,11 +3,6 @@ import {ArrowRight,Users,Calendar,CheckCircle} from 'lucide-react';
 const Hero=()=>{
     return(
         <div className='relative min-h-[calc(100vh-4rem)] flex items-center'>
-            <div className='absolute inset-0 overflow-hidden'>
-                <div className='absolute -right-40 top-20 w-96 h-96 bg-chart-1/30 rounded-full blur-3xl animate-pulse'/>
-                <div className='absolute top-40 -left-40 w-80 h-80 bg-chart-3/30 rounded-full blur-3xl animate-pulse'/>
-                <div className='absolute bottom-20 right-1/3 w-72 h-72 bg-primary/25 rounded-full blur-3xl animate-pulse'/>
-            </div>
             {/* Main content container */}
             <div className='relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24'>
                 <div className='grid lg:grid-cols-2 gap-12 items-center'>

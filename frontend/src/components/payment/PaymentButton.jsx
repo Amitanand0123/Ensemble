@@ -124,7 +124,7 @@ const PaymentButton = ({ amount, planId, planName = 'Selected Plan', onPaymentSu
      }
 
     return (
-        <Button onClick={handlePayment} disabled={isLoading} className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:opacity-90">
+        <Button onClick={handlePayment} disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 text-primary-foreground">
             {isLoading ? (
                 <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Processing...

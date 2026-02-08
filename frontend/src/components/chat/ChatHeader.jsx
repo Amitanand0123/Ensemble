@@ -47,9 +47,9 @@ const ChatHeader = ({ chatType, targetId }) => {
       <div className="flex items-center space-x-3">
         <div className="h-10 w-10 rounded-full bg-accent border border-accent/50 flex items-center justify-center">
           {chatType === 'personal' ? (
-            <div className="text-lg font-bold text-white">{getTitle().charAt(0)}</div>
+            <div className="text-lg font-bold text-foreground">{getTitle().charAt(0)}</div>
           ) : (
-            <div className="text-white">
+            <div className="text-foreground">
               {getIcon()}
             </div>
           )}

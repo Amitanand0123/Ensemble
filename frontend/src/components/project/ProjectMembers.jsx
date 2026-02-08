@@ -36,7 +36,7 @@ const ProjectMembers = ({ project }) => {
     ];
 
     if (!project) {
-        return <p className="text-gray-400 p-4">Loading project data...</p>;
+        return <p className="text-muted-foreground p-4">Loading project data...</p>;
     }
 
     const handleRoleChange = async (memberUserId, newRole) => {
@@ -91,34 +91,34 @@ const ProjectMembers = ({ project }) => {
                     const isLoadingAction = actionLoading.id === memberUserId;
 
                     return (
-                        <Card key={member._id || memberUserId} className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700 text-white">
+                        <Card key={member._id || memberUserId} className="bg-card backdrop-blur-sm rounded-xl border border-border text-foreground">
                             <CardContent className="flex items-center space-x-4 p-3">
                                 <Avatar className="w-10 h-10">
                                     <AvatarImage src={member.user.avatar?.url} alt={memberName} />
-                                    <AvatarFallback className="bg-gray-600">{getInitials(member.user.name?.first, member.user.name?.last)}</AvatarFallback>
+                                    <AvatarFallback className="bg-muted">{getInitials(member.user.name?.first, member.user.name?.last)}</AvatarFallback>
                                 </Avatar>
                                 <div>
                                     <p className="font-semibold">{memberName}</p>
-                                    <p className="text-sm text-gray-400">{member.user.email || 'No Email'}</p>
+                                    <p className="text-sm text-muted-foreground">{member.user.email || 'No Email'}</p>
                                 </div>
                                 <div className="ml-auto flex items-center space-x-2">
-                                    {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-gray-400" />}
+                                    {isLoadingAction && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium capitalize ${
-                                        isOwner ? 'bg-yellow-600' :
-                                        member.role === 'admin' ? 'bg-purple-600' :
-                                        member.role === 'member' ? 'bg-blue-600' :
-                                        'bg-gray-600'
+                                        isOwner ? 'bg-label-yellow text-foreground' :
+                                        member.role === 'admin' ? 'bg-label-purple text-foreground' :
+                                        member.role === 'member' ? 'bg-primary text-primary-foreground' :
+                                        'bg-muted text-foreground'
                                     }`}>
                                         {isOwner ? 'Owner' : member.role}
                                     </span>
                                     {canManageMember && !isLoadingAction && (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-gray-400 hover:text-white">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
                                                     <MoreVertical className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="bg-gray-800 border-gray-700 text-white">
+                                            <DropdownMenuContent align="end" className="bg-card border-border text-foreground">
                                                  {projectRoles.map(r => {
                                                      if (r.value === member.role) return null;
                                                      const Icon = r.value === 'admin' ? ShieldCheck : r.value === 'member' ? Shield : UserX;
@@ -127,29 +127,29 @@ const ProjectMembers = ({ project }) => {
                                                             key={r.value}
                                                             disabled={isLoadingAction}
                                                             onClick={() => handleRoleChange(memberUserId, r.value)}
-                                                            className="cursor-pointer hover:bg-gray-700 focus:bg-gray-700"
+                                                            className="cursor-pointer hover:bg-accent focus:bg-accent"
                                                         >
-                                                            <Icon className={`mr-2 h-4 w-4 ${r.value === 'admin' ? 'text-purple-400' : 'text-gray-400'}`} /> Set as {r.label}
+                                                            <Icon className={`mr-2 h-4 w-4 ${r.value === 'admin' ? 'text-label-purple' : 'text-muted-foreground'}`} /> Set as {r.label}
                                                         </DropdownMenuItem>
                                                      );
                                                  })}
-                                                <DropdownMenuSeparator className="bg-gray-700" />
+                                                <DropdownMenuSeparator className="bg-border" />
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
-                                                        <DropdownMenuItem disabled={isLoadingAction} onSelect={(e) => e.preventDefault()} className="cursor-pointer text-red-400 hover:bg-red-900/50 hover:text-red-300 focus:bg-red-900/50 focus:text-red-300">
+                                                        <DropdownMenuItem disabled={isLoadingAction} onSelect={(e) => e.preventDefault()} className="cursor-pointer text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/10 focus:text-destructive">
                                                             <Trash2 className="mr-2 h-4 w-4" /> Remove from Project...
                                                         </DropdownMenuItem>
                                                     </AlertDialogTrigger>
-                                                    <AlertDialogContent className="bg-gray-800 border-gray-700 text-white">
+                                                    <AlertDialogContent className="bg-card border-border text-foreground">
                                                         <AlertDialogHeader>
                                                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                                                            <AlertDialogDescription className="text-gray-300">
+                                                            <AlertDialogDescription className="text-muted-foreground">
                                                                 This will remove {memberName} from this project. They might still have access via the workspace.
                                                             </AlertDialogDescription>
                                                         </AlertDialogHeader>
                                                         <AlertDialogFooter>
                                                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                            <AlertDialogAction onClick={() => handleRemoveMember(memberUserId)} className="bg-red-600 hover:bg-red-700">Yes, Remove</AlertDialogAction>
+                                                            <AlertDialogAction onClick={() => handleRemoveMember(memberUserId)} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">Yes, Remove</AlertDialogAction>
                                                         </AlertDialogFooter>
                                                     </AlertDialogContent>
                                                 </AlertDialog>

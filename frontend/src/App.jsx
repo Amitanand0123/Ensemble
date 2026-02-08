@@ -49,7 +49,7 @@ const AppContent = () => {
   const isLandingPage = location.pathname === '/';
 
   return (
-    <div className="dark min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
       <Routes>
         {/* --- Landing Page with Navbar --- */}
         <Route

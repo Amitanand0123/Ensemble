@@ -4,86 +4,116 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --ring: 240 10% 3.9%;
-    --radius: 0.5rem;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+    /* Ensemble Light Theme - Vibrant Trello-inspired palette */
+    --background: 220 15% 95%;            /* #F0F2F5 - slightly cooler page background */
+    --foreground: 215 35% 17%;            /* #172B4D - dark navy text */
+
+    /* Sidebar - Bold blue nav */
+    --sidebar-bg: 207 100% 30%;           /* #005A99 - deeper richer blue */
+    --sidebar-hover: 207 90% 36%;         /* Brighter on hover */
+    --sidebar-active: 207 95% 42%;        /* Active item highlight */
+    --sidebar-text: 0 0% 100%;            /* White text */
+    --sidebar-text-muted: 200 40% 82%;    /* Light blue-gray muted text */
+
+    /* Muted elements */
+    --muted: 220 14% 90%;                 /* #E4E7EB - slightly cooler list bg */
+    --muted-foreground: 215 15% 40%;      /* #4D6080 - darker secondary text for better contrast */
+
+    /* Accent - Vivid Blue */
+    --accent: 207 100% 38%;               /* #0079BF - Trello blue, full saturation */
+    --accent-foreground: 0 0% 100%;       /* White text on blue */
+
+    /* Popovers & Dropdowns */
+    --popover: 0 0% 100%;                 /* White */
+    --popover-foreground: 215 35% 17%;    /* Dark navy text */
+
+    /* Borders and inputs */
+    --border: 216 16% 82%;                /* #CDD2D9 - slightly darker border for definition */
+    --input: 0 0% 100%;                   /* White input backgrounds */
+
+    /* Cards - White elevated surfaces */
+    --card: 0 0% 100%;                    /* #FFFFFF - White cards */
+    --card-foreground: 215 35% 17%;       /* Dark navy text */
+
+    /* Primary - Vivid Blue (brighter than standard Trello) */
+    --primary: 207 100% 38%;              /* #0079BF full saturation */
+    --primary-foreground: 0 0% 100%;      /* White text on blue */
+
+    /* Secondary - Vivid Green from label palette */
+    --secondary: 86 100% 35%;             /* #70B500 - bright label green */
+    --secondary-foreground: 0 0% 100%;    /* White text on green */
+
+    /* Destructive - Vivid Red from label palette */
+    --destructive: 8 80% 55%;             /* #EB5A46 - bright Trello red */
+    --destructive-foreground: 0 0% 100%;  /* White text on red */
+
+    /* Focus rings */
+    --ring: 207 100% 38%;                 /* Vivid blue focus ring */
+
+    /* Border radius */
+    --radius: 0.1875rem;
+
+    /* Chart colors - using vivid label palette */
+    --chart-1: 207 100% 38%;              /* Blue #0079BF */
+    --chart-2: 86 100% 35%;               /* Green #70B500 */
+    --chart-3: 34 100% 55%;               /* Orange #FF9F1A */
+    --chart-4: 50 100% 47%;               /* Yellow #F2D600 */
+    --chart-5: 8 80% 55%;                 /* Red #EB5A46 */
   }
 
   .dark {
-    /* Slack-Inspired Theme - Purple/Teal/Green vibrant palette */
-    --background: 0 0% 7%;           /* Main content area - very dark gray */
-    --foreground: 0 0% 95%;          /* Main text - off-white */
+    /* Ensemble Dark Mode - vibrant on dark */
+    --background: 210 10% 13%;            /* #1D2125 */
+    --foreground: 210 20% 82%;            /* #BCC9D7 - brighter text */
 
-    /* Sidebar specific colors */
-    --sidebar-bg: 271 81% 20%;       /* #4A154B - Slack purple background */
-    --sidebar-hover: 274 57% 27%;    /* #611f69 - Hover state */
-    --sidebar-active: 284 42% 39%;   /* #8b3a8f - Active item */
-    --sidebar-text: 0 0% 90%;        /* Light text on purple */
-    --sidebar-text-muted: 0 0% 70%;  /* Muted text on purple */
+    /* Sidebar */
+    --sidebar-bg: 210 15% 11%;
+    --sidebar-hover: 210 12% 16%;
+    --sidebar-active: 210 12% 20%;
+    --sidebar-text: 210 20% 90%;
+    --sidebar-text-muted: 210 10% 55%;
 
-    /* Muted elements */
-    --muted: 0 0% 15%;               /* Dark backgrounds for muted */
-    --muted-foreground: 0 0% 65%;    /* Muted text color */
+    /* Muted */
+    --muted: 210 10% 18%;                 /* #282E33 */
+    --muted-foreground: 210 12% 58%;      /* Brighter muted text */
 
-    /* Accent - Slack Teal */
-    --accent: 191 82% 58%;           /* #36C5F0 - Slack teal */
-    --accent-foreground: 0 0% 10%;   /* Dark text on teal */
+    /* Accent */
+    --accent: 207 100% 50%;               /* Brighter blue in dark mode */
+    --accent-foreground: 0 0% 100%;
 
-    /* Popovers & Dropdowns */
-    --popover: 0 0% 8%;              /* Darker than background */
-    --popover-foreground: 0 0% 95%;  /* Off-white text */
+    /* Popovers */
+    --popover: 210 12% 16%;
+    --popover-foreground: 210 20% 82%;
 
     /* Borders and inputs */
-    --border: 0 0% 20%;              /* Medium gray borders */
-    --input: 0 0% 12%;               /* Input backgrounds */
+    --border: 210 8% 25%;                 /* Slightly brighter border */
+    --input: 210 12% 16%;
 
-    /* Cards - Elevated surfaces */
-    --card: 0 0% 10%;                /* Cards slightly lighter than background */
-    --card-foreground: 0 0% 95%;     /* Off-white text on cards */
+    /* Cards */
+    --card: 210 12% 16%;
+    --card-foreground: 210 20% 82%;
 
-    /* Primary - Slack Blue */
-    --primary: 203 87% 35%;          /* #1264A3 - Slack blue */
-    --primary-foreground: 0 0% 100%; /* White text on blue */
+    /* Primary */
+    --primary: 207 100% 55%;              /* Brighter blue */
+    --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Slack Green */
-    --secondary: 159 56% 43%;        /* #2BAC76 - Slack green */
-    --secondary-foreground: 0 0% 100%; /* White text on green */
+    /* Secondary */
+    --secondary: 86 100% 42%;             /* Brighter green */
+    --secondary-foreground: 0 0% 100%;
 
-    /* Destructive - Slack Red */
-    --destructive: 343 81% 52%;      /* #E01E5A - Slack red */
-    --destructive-foreground: 0 0% 100%; /* White text on red */
+    /* Destructive */
+    --destructive: 8 85% 58%;             /* Brighter red */
+    --destructive-foreground: 0 0% 100%;
 
-    /* Focus rings - Slack Teal for accessibility */
-    --ring: 191 82% 58%;             /* Teal focus ring */
+    /* Focus rings */
+    --ring: 207 100% 55%;
 
-    /* Chart colors - Vibrant Slack palette */
-    --chart-1: 191 82% 58%;          /* Teal #36C5F0 */
-    --chart-2: 159 56% 43%;          /* Green #2BAC76 */
-    --chart-3: 203 87% 35%;          /* Blue #1264A3 */
-    --chart-4: 44 85% 55%;           /* Yellow #ECB22E */
-    --chart-5: 343 81% 52%;          /* Red #E01E5A */
+    /* Chart colors */
+    --chart-1: 207 100% 55%;
+    --chart-2: 86 100% 42%;
+    --chart-3: 34 100% 58%;
+    --chart-4: 50 100% 52%;
+    --chart-5: 8 85% 58%;
   }
 }
 
@@ -92,54 +122,50 @@
     @apply border-border;
   }
   body {
-    @apply font-sans antialiased bg-background text-foreground;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+                 'Noto Sans', 'Ubuntu', 'Droid Sans', 'Helvetica Neue',
+                 sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
     margin: 0;
     padding: 0;
   }
 }
 
-/* Custom utilities for Slack-inspired theme */
+/* Ensemble utilities */
 @layer utilities {
-  /* Sidebar gradient background */
-  .sidebar-gradient {
-    background: linear-gradient(135deg, hsl(271, 81%, 20%) 0%, hsl(274, 57%, 27%) 100%);
+  /* Card shadow */
+  .ensemble-card-shadow {
+    box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
   }
 
-  /* Slack-style glow effects */
-  .slack-glow {
-    box-shadow: 0 0 20px rgba(54, 197, 240, 0.2);
+  /* Card shadow on drag/hover */
+  .ensemble-card-shadow-hover {
+    box-shadow: 0 8px 16px -4px rgba(9, 30, 66, 0.25),
+                0 0 0 1px rgba(9, 30, 66, 0.08);
   }
 
-  .slack-glow-purple {
-    box-shadow: 0 0 20px rgba(74, 21, 75, 0.3);
+  /* Popover shadow */
+  .ensemble-popover-shadow {
+    box-shadow: 0 8px 16px -4px rgba(9, 30, 66, 0.31),
+                0 0 0 1px rgba(9, 30, 66, 0.08);
   }
 
-  .slack-glow-hover:hover {
-    box-shadow: 0 0 30px rgba(54, 197, 240, 0.4);
+  /* Hover lift effect */
+  .ensemble-hover-lift {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
-  /* Hover lift effect for interactive elements */
-  .slack-hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .slack-hover-lift:hover {
+  .ensemble-hover-lift:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 8px -2px rgba(9, 30, 66, 0.25),
+                0 0 0 1px rgba(9, 30, 66, 0.08);
   }
 
-  /* Unread badge - Slack red */
+  /* Unread badge */
   .unread-badge {
-    background: hsl(343, 81%, 52%);
+    background: hsl(8, 80%, 55%);
     color: white;
     font-weight: bold;
     font-size: 0.75rem;
@@ -149,10 +175,10 @@
     text-align: center;
   }
 
-  /* Online status indicator - Slack green */
+  /* Online status indicator */
   .online-indicator {
-    background: hsl(159, 56%, 43%);
-    border: 2px solid hsl(271, 81%, 20%);
+    background: hsl(86, 100%, 35%);
+    border: 2px solid white;
     border-radius: 9999px;
     width: 0.75rem;
     height: 0.75rem;
@@ -161,29 +187,31 @@
 
   /* Offline status indicator */
   .offline-indicator {
-    background: hsl(0, 0%, 50%);
-    border: 2px solid hsl(271, 81%, 20%);
+    background: hsl(0, 0%, 75%);
+    border: 2px solid white;
     border-radius: 9999px;
     width: 0.75rem;
     height: 0.75rem;
     display: inline-block;
   }
 
-  /* Purple-to-teal gradient text */
-  .text-slack-gradient {
-    background: linear-gradient(135deg, hsl(274, 57%, 57%) 0%, hsl(191, 82%, 58%) 100%);
+  /* Blue gradient text */
+  .text-ensemble-gradient {
+    background: linear-gradient(135deg, hsl(207, 100%, 38%) 0%, hsl(207, 100%, 25%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Teal-to-green gradient background */
-  .bg-slack-accent-gradient {
-    background: linear-gradient(135deg, hsl(191, 82%, 58%) 0%, hsl(159, 56%, 43%) 100%);
+  /* Sidebar smooth transitions */
+  .sidebar-item-transition {
+    transition: background-color 0.15s ease, color 0.15s ease, padding-left 0.15s ease;
   }
 
-  /* Smooth transitions for sidebar items */
-  .sidebar-item-transition {
-    transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
+  /* List column style */
+  .ensemble-list {
+    background-color: hsl(220, 14%, 90%);
+    border-radius: 3px;
+    padding: 4px 8px;
   }
 }

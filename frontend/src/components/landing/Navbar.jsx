@@ -83,7 +83,7 @@ const Navbar = () => {
     return (
         <>
             <nav
-                className={`w-full fixed top-0 left-0 right-0 border-b-2 border-primary/30 backdrop-blur-xl z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-card/98 shadow-2xl glow-silver' : 'bg-card/90 glow-silver'}`}
+                className={`w-full fixed top-0 left-0 right-0 border-b border-border backdrop-blur-xl z-50 transition-all duration-300 ease-in-out ${scrolled ? 'bg-card/98 ensemble-card-shadow' : 'bg-card/90'}`}
             >
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
@@ -97,7 +97,7 @@ const Navbar = () => {
                             </div>
                             <a
                                 href="/"
-                                className="text-xl md:text-2xl font-bold bg-gradient-to-r from-white via-gray-100 to-gray-200 bg-clip-text text-transparent hover:from-gray-50 hover:via-white hover:to-gray-100 transition-all duration-300 drop-shadow-lg"
+                                className="text-xl md:text-2xl font-bold text-primary hover:text-primary/80 transition-all duration-300"
                             >
                                 Ensemble
                             </a>

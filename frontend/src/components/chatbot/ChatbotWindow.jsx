@@ -50,10 +50,10 @@ const ChatbotWindow = ({ onClose }) => {
   };
 
   return (
-    <div className="absolute bottom-20 right-0 w-96 h-96 bg-white rounded-lg shadow-xl flex flex-col overflow-hidden border border-gray-200">
-      <div className="bg-blue-600 text-white px-4 py-3 flex justify-between items-center">
+    <div className="absolute bottom-20 right-0 w-96 h-96 bg-card rounded-lg shadow-xl flex flex-col overflow-hidden border border-border">
+      <div className="bg-primary text-primary-foreground px-4 py-3 flex justify-between items-center">
         <h3 className="font-medium">Ensemble Assistant</h3>
-        <button onClick={onClose} className="text-white hover:text-gray-200">
+        <button onClick={onClose} className="text-primary-foreground hover:text-primary-foreground/80">
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
             <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
           </svg>
@@ -68,9 +68,9 @@ const ChatbotWindow = ({ onClose }) => {
           >
             <div 
               className={`inline-block px-4 py-2 rounded-lg max-w-[80%] ${
-                message.sender === 'user' 
-                  ? 'bg-blue-600 text-white rounded-br-none' 
-                  : 'bg-gray-200 text-gray-800 rounded-bl-none'
+                message.sender === 'user'
+                  ? 'bg-primary text-primary-foreground rounded-br-none'
+                  : 'bg-muted text-foreground rounded-bl-none'
               }`}
             >
               {message.text}
@@ -78,7 +78,7 @@ const ChatbotWindow = ({ onClose }) => {
           </div>
         ))}
         {isLoading && (
-          <div className="flex items-center text-gray-500 mb-3">
+          <div className="flex items-center text-muted-foreground mb-3">
             <div className="typing-indicator">
               <span></span>
               <span></span>
@@ -89,18 +89,18 @@ const ChatbotWindow = ({ onClose }) => {
         <div ref={messagesEndRef} />
       </div>
       
-      <form onSubmit={handleSubmit} className="border-t border-gray-200 p-3 flex">
+      <form onSubmit={handleSubmit} className="border-t border-border p-3 flex">
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           placeholder="Type your message..."
-          className="text-black flex-1 rounded-l-lg border border-gray-300 px-4 py-2 focus:outline-none focus:border-blue-500"
+          className="text-foreground flex-1 rounded-l-lg border border-border px-4 py-2 focus:outline-none focus:border-primary bg-background"
           disabled={isLoading}
         />
         <button 
           type="submit" 
-          className="bg-blue-600 hover:bg-blue-700 text-white rounded-r-lg px-4 py-2 disabled:bg-blue-400"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-r-lg px-4 py-2 disabled:bg-primary/50"
           disabled={isLoading}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">

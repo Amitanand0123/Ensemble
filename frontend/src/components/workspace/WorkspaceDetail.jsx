@@ -30,7 +30,7 @@ const WorkspaceDetail = () => {
         return (
             <div className="flex justify-center items-center min-h-screen bg-background">
                 <div className="flex flex-col items-center gap-3">
-                    <Loader2 className="w-8 h-8 animate-spin text-accent" />
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                     <p className="text-muted-foreground">Loading workspace...</p>
                 </div>
             </div>
@@ -72,9 +72,9 @@ const WorkspaceDetail = () => {
                             </div>
                         </CardHeader>
                         <CardContent>
-                            <div className='flex items-center gap-3 p-3 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-lg border border-border max-w-xs'>
-                                <div className="p-2 rounded-md bg-gradient-to-br from-chart-2 to-chart-3">
-                                    <Users className='w-5 h-5 text-white' />
+                            <div className='flex items-center gap-3 p-3 bg-primary/5 rounded-lg border border-border max-w-xs'>
+                                <div className="p-2 rounded-md bg-primary">
+                                    <Users className='w-5 h-5 text-primary-foreground' />
                                 </div>
                                 <div>
                                     <p className="text-xs text-muted-foreground font-medium">Members</p>
@@ -89,31 +89,31 @@ const WorkspaceDetail = () => {
                             <TabsList className="bg-card/60 backdrop-blur-sm border-2 border-border p-1 rounded-lg mb-6 w-full sm:w-auto grid grid-cols-5 sm:inline-grid">
                                 <TabsTrigger
                                     value="projects"
-                                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     Projects
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="members"
-                                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     Members
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="files"
-                                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     Files
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="chat"
-                                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     Chat
                                 </TabsTrigger>
                                 <TabsTrigger
                                     value="settings"
-                                    className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
+                                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-md transition-all text-xs sm:text-sm px-2 sm:px-4"
                                 >
                                     <Settings className="w-4 h-4 sm:hidden" />
                                     <span className="hidden sm:inline">Settings</span>

@@ -167,9 +167,9 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-[550px] bg-gray-900/95 backdrop-blur-sm text-white border-2 border-gray-700">
+            <DialogContent className="sm:max-w-[550px] bg-card backdrop-blur-sm text-foreground border-2 border-border">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl text-white">Invite Member to {contextType === 'workspace' ? 'Workspace' : 'Project'}</DialogTitle>
+                    <DialogTitle className="text-2xl text-foreground">Invite Member to {contextType === 'workspace' ? 'Workspace' : 'Project'}</DialogTitle>
                     <DialogClose asChild>
                         <Button className="absolute top-4 right-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100" variant="ghost" size="icon" onClick={onClose}>
                             <X className="h-4 w-4" />
@@ -185,12 +185,12 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                 )}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
-                    <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-                        <TabsTrigger value="search" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">
+                    <TabsList className="grid w-full grid-cols-2 bg-muted">
+                        <TabsTrigger value="search" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                             <UsersIcon className="w-4 h-4 mr-2" />
                             Search Users
                         </TabsTrigger>
-                        <TabsTrigger value="email" className="data-[state=active]:bg-blue-500/20 data-[state=active]:text-blue-400">
+                        <TabsTrigger value="email" className="data-[state=active]:bg-primary/20 data-[state=active]:text-primary">
                             <Mail className="w-4 h-4 mr-2" />
                             Invite by Email
                         </TabsTrigger>
@@ -199,26 +199,26 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                     <TabsContent value="search" className="space-y-4 mt-4">
                         {/* Search Input */}
                         <div className="space-y-2">
-                            <Label htmlFor="user-search" className="text-white">Search for existing users</Label>
+                            <Label htmlFor="user-search" className="text-foreground">Search for existing users</Label>
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                                 <Input
                                     id="user-search"
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => handleSearch(e.target.value)}
                                     placeholder="Search by name or email..."
-                                    className="pl-10 bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400"
+                                    className="pl-10 bg-muted text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground"
                                 />
                                 {isSearching && (
-                                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-blue-400" />
+                                    <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 animate-spin text-primary" />
                                 )}
                             </div>
                         </div>
 
                         {/* Search Results */}
                         {searchResults.length > 0 && (
-                            <div className="max-h-60 overflow-y-auto space-y-2 border-2 border-gray-700 rounded-lg p-2 bg-gray-800/50">
+                            <div className="max-h-60 overflow-y-auto space-y-2 border-2 border-border rounded-lg p-2 bg-muted/50">
                                 {searchResults.map((user) => (
                                     <button
                                         key={user._id}
@@ -226,19 +226,19 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                                         onClick={() => setSelectedUser(user)}
                                         className={`w-full flex items-center gap-3 p-3 rounded-lg transition-all ${
                                             selectedUser?._id === user._id
-                                                ? 'bg-blue-500/20 text-white'
-                                                : 'hover:bg-gray-700 text-white'
+                                                ? 'bg-primary/20 text-foreground'
+                                                : 'hover:bg-muted text-foreground'
                                         }`}
                                     >
                                         <Avatar className="h-8 w-8">
                                             <AvatarImage src={user.avatar?.url} alt={getUserName(user)} />
-                                            <AvatarFallback className="bg-blue-500 text-white text-xs">
+                                            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                                                 {getInitials(user)}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="flex-1 text-left">
                                             <p className="font-medium text-sm">{getUserName(user)}</p>
-                                            <p className="text-xs text-gray-400">{user.email}</p>
+                                            <p className="text-xs text-muted-foreground">{user.email}</p>
                                         </div>
                                     </button>
                                 ))}
@@ -246,30 +246,30 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                         )}
 
                         {searchQuery.trim().length >= 2 && !isSearching && searchResults.length === 0 && (
-                            <p className="text-sm text-gray-400 text-center py-4">No users found</p>
+                            <p className="text-sm text-muted-foreground text-center py-4">No users found</p>
                         )}
 
                         {/* Selected User Card */}
                         {selectedUser && (
-                            <div className="bg-blue-500/10 border-2 border-blue-500/50 rounded-lg p-3">
-                                <p className="text-xs text-gray-400 mb-2">Selected User:</p>
+                            <div className="bg-primary/10 border-2 border-primary/50 rounded-lg p-3">
+                                <p className="text-xs text-muted-foreground mb-2">Selected User:</p>
                                 <div className="flex items-center gap-3">
                                     <Avatar className="h-10 w-10">
                                         <AvatarImage src={selectedUser.avatar?.url} alt={getUserName(selectedUser)} />
-                                        <AvatarFallback className="bg-blue-500 text-white">
+                                        <AvatarFallback className="bg-primary text-primary-foreground">
                                             {getInitials(selectedUser)}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div className="flex-1">
-                                        <p className="font-semibold text-white">{getUserName(selectedUser)}</p>
-                                        <p className="text-sm text-gray-400">{selectedUser.email}</p>
+                                        <p className="font-semibold text-foreground">{getUserName(selectedUser)}</p>
+                                        <p className="text-sm text-muted-foreground">{selectedUser.email}</p>
                                     </div>
                                     <Button
                                         type="button"
                                         variant="ghost"
                                         size="sm"
                                         onClick={() => setSelectedUser(null)}
-                                        className="text-white hover:bg-gray-700"
+                                        className="text-foreground hover:bg-muted"
                                     >
                                         <X className="h-4 w-4" />
                                     </Button>
@@ -279,25 +279,25 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
 
                         {/* Role Selection */}
                         <div className="space-y-2">
-                            <Label htmlFor="role-search" className="text-white">Assign Role</Label>
+                            <Label htmlFor="role-search" className="text-foreground">Assign Role</Label>
                             {Array.isArray(availableRoles) && availableRoles.length > 0 ? (
                                 <Select value={role} onValueChange={setRole}>
-                                    <SelectTrigger id="role-search" className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500">
+                                    <SelectTrigger id="role-search" className="bg-muted text-foreground border-2 border-border focus:border-primary">
                                         <SelectValue placeholder="Select a role" />
                                     </SelectTrigger>
-                                    <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                                    <SelectContent className="bg-card border-border text-foreground">
                                         {availableRoles.map(r => (
                                             <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             ) : (
-                                <p className="text-sm text-gray-400">No roles available</p>
+                                <p className="text-sm text-muted-foreground">No roles available</p>
                             )}
                         </div>
 
                         <DialogFooter>
-                            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="border-2 border-gray-600 bg-gray-200 text-gray-900 hover:bg-gray-300 hover:border-gray-500 font-medium">
+                            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="border-2 border-border bg-muted text-foreground hover:bg-muted/80 hover:border-border font-medium">
                                 Cancel
                             </Button>
                             <Button
@@ -321,39 +321,39 @@ const InviteMemberModal = ({ contextType, contextId, isOpen, onClose, onInviteSu
                     <TabsContent value="email" className="space-y-4 mt-4">
                         <form onSubmit={handleEmailInvite} className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email-invite" className="text-white">Email Address</Label>
+                                <Label htmlFor="email-invite" className="text-foreground">Email Address</Label>
                                 <Input
                                     id="email-invite"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="member@example.com"
-                                    className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400"
+                                    className="bg-muted text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20 placeholder:text-muted-foreground"
                                     required
                                 />
-                                <p className="text-xs text-gray-400">An invitation email will be sent to this address</p>
+                                <p className="text-xs text-muted-foreground">An invitation email will be sent to this address</p>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="role-email" className="text-white">Assign Role</Label>
+                                <Label htmlFor="role-email" className="text-foreground">Assign Role</Label>
                                 {Array.isArray(availableRoles) && availableRoles.length > 0 ? (
                                     <Select value={role} onValueChange={setRole}>
-                                        <SelectTrigger id="role-email" className="bg-gray-800 text-white border-2 border-gray-700 focus:border-blue-500">
+                                        <SelectTrigger id="role-email" className="bg-muted text-foreground border-2 border-border focus:border-primary">
                                             <SelectValue placeholder="Select a role" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-gray-900 border-gray-700 text-white">
+                                        <SelectContent className="bg-card border-border text-foreground">
                                             {availableRoles.map(r => (
                                                 <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                 ) : (
-                                    <p className="text-sm text-gray-400">No roles available</p>
+                                    <p className="text-sm text-muted-foreground">No roles available</p>
                                 )}
                             </div>
 
                             <DialogFooter>
-                                <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="border-2 border-gray-600 bg-gray-200 text-gray-900 hover:bg-gray-300 hover:border-gray-500 font-medium">
+                                <Button type="button" variant="outline" onClick={onClose} disabled={isLoading} className="border-2 border-border bg-muted text-foreground hover:bg-muted/80 hover:border-border font-medium">
                                     Cancel
                                 </Button>
                                 <Button

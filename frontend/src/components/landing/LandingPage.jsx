@@ -6,7 +6,7 @@ import Pricing from './Pricing';
 
 const LandingPage = () => {
     return (
-      <div className="bg-black">
+      <div className="bg-background">
         <Hero />
         <Features />
         <HowItWorks />
