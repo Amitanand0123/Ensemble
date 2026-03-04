@@ -60,7 +60,7 @@ const Registration=()=>{
                         <h2 className='text-3xl font-bold text-foreground mb-2'>Create Account</h2>
                     </div>
 
-                    {alert && <Alert type="error" message={error} />}
+                    {(alert || error) && <Alert type="error" message={alert?.message || error} />}
 
                     <form onSubmit={handleSubmit} className='space-y-6'>
                         <div className='grid grid-cols-2 gap-4'>
@@ -101,43 +101,6 @@ const Registration=()=>{
                             onChange={(e)=>setFormData({...formData,confirmPassword:e.target.value})}
                         />
                         
-                        {/* Role selection */}
-                        <div className='space-y-2'>
-                            <label className='text-sm text-foreground mb-1 block font-medium'>Account Type</label>
-                            <div className='bg-card border-2 border-border rounded-lg p-3 flex'>
-                                <div className='flex items-center space-x-2 mr-4'>
-                                    <input
-                                        type="radio"
-                                        name="role"
-                                        id="role-user"
-                                        value="user"
-                                        checked={formData.role === 'user'}
-                                        onChange={(e) => setFormData({...formData, role: e.target.value})}
-                                        className='w-4 h-4 text-primary border-border focus:ring-2 focus:ring-primary'
-                                    />
-                                    <label htmlFor="role-user" className='text-sm text-foreground cursor-pointer'>
-                                        Employee
-                                    </label>
-                                </div>
-                                <div className='flex items-center space-x-2'>
-                                    <input
-                                        type="radio"
-                                        name="role"
-                                        id="role-admin"
-                                        value="admin"
-                                        checked={formData.role === 'admin'}
-                                        onChange={(e) => setFormData({...formData, role: e.target.value})}
-                                        className='w-4 h-4 text-primary border-border focus:ring-2 focus:ring-primary'
-                                    />
-                                    <label htmlFor="role-admin" className='text-sm text-foreground cursor-pointer'>
-                                        Administrator
-                                    </label>
-                                </div>
-                            </div>
-                            <p className='text-xs text-muted-foreground mt-1'>
-                                Admins can create projects, manage members and workspaces
-                            </p>
-                        </div>
                         
                         <div className='flex items-start'>
                             <input

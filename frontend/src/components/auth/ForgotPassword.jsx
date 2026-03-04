@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { forgotPassword } from '../../redux/slices/authSlice'
 import Alert from './Alert';
 import InputField from './InputField';
@@ -8,11 +8,12 @@ import { Loader, Mail } from 'lucide-react';
 const ForgotPassword=()=>{
     
     const [email,setEmail]=useState('');
+    const dispatch=useDispatch();
     const {isLoading,error,message}=useSelector(state=>state.auth)
 
     const handleSubmit=async(e)=>{
         e.preventDefault()
-        dispatchEvent(forgotPassword({email}))
+        dispatch(forgotPassword({email}))
     }
 
     return (

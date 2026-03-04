@@ -126,8 +126,8 @@ const ProjectDetail = () => {
                             {/* Stats Grid */}
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                                 {/* Due Date Card */}
-                                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-accent/10 to-primary/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
-                                    <div className="p-2.5 rounded-lg bg-gradient-to-br from-chart-4 to-chart-1">
+                                <div className="flex items-center gap-3 p-4 bg-accent/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
+                                    <div className="p-2.5 rounded-lg bg-chart-4">
                                         <Calendar className="w-5 h-5 text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -139,8 +139,8 @@ const ProjectDetail = () => {
                                 </div>
 
                                 {/* Team Members Card */}
-                                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-accent/10 to-secondary/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
-                                    <div className="p-2.5 rounded-lg bg-gradient-to-br from-chart-1 to-chart-2">
+                                <div className="flex items-center gap-3 p-4 bg-accent/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
+                                    <div className="p-2.5 rounded-lg bg-chart-1">
                                         <Users className="w-5 h-5 text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -150,8 +150,8 @@ const ProjectDetail = () => {
                                 </div>
 
                                 {/* Priority Card */}
-                                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-secondary/10 to-primary/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
-                                    <div className="p-2.5 rounded-lg bg-gradient-to-br from-chart-5 to-chart-4">
+                                <div className="flex items-center gap-3 p-4 bg-accent/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
+                                    <div className="p-2.5 rounded-lg bg-chart-5">
                                         <AlertCircle className="w-5 h-5 text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">
@@ -163,8 +163,8 @@ const ProjectDetail = () => {
                                 </div>
 
                                 {/* Total Tasks Card */}
-                                <div className="flex items-center gap-3 p-4 bg-gradient-to-br from-secondary/10 to-accent/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
-                                    <div className="p-2.5 rounded-lg bg-gradient-to-br from-chart-2 to-chart-3">
+                                <div className="flex items-center gap-3 p-4 bg-accent/10 rounded-lg border border-border hover:border-accent/50 transition-colors">
+                                    <div className="p-2.5 rounded-lg bg-chart-2">
                                         <BarChart2 className="w-5 h-5 text-white" />
                                     </div>
                                     <div className="flex-1 min-w-0">

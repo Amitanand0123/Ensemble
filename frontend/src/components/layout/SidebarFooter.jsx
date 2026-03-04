@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { User as UserIcon, Settings, LogOut, ChevronUp } from 'lucide-react';
+import { User as UserIcon, LogOut, ChevronUp } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
@@ -79,13 +79,6 @@ const SidebarFooter = ({ onNavigate }) => {
                         >
                             <UserIcon className="w-4 h-4 mr-2" />
                             <span>My Profile</span>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => handleNavigate('/settings')}
-                            className="cursor-pointer hover:bg-accent"
-                        >
-                            <Settings className="w-4 h-4 mr-2" />
-                            <span>Preferences</span>
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-border" />
                         <DropdownMenuItem

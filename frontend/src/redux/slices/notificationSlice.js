@@ -9,7 +9,7 @@ const initialState={
 }
 
 export const fetchNotifications=createAsyncThunk(
-    'notofications/fetchAll',
+    'notifications/fetchAll',
     async (_,{rejectWithValue})=>{
         try {
             const response=await axios.get('/api/notifications')

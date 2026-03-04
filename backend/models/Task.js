@@ -97,9 +97,9 @@ const TaskSchema = new mongoose.Schema({
     timestamps: true
 });
 
-TaskSchema.index({projects:1,status:1})
+TaskSchema.index({project:1,status:1})
 TaskSchema.index({workspace:1,project:1})
-TaskSchema.index({'assignedTo.user':1,status:1})
+TaskSchema.index({assignedTo:1,status:1})
 
 TaskSchema.virtual('progress').get(function(){
     if(this.status==='done') return 100;
@@ -129,7 +129,7 @@ TaskSchema.methods.getTimeLine=function(){
         timeLine.push({
             action:'completed',
             date:this.completedAt,
-            user:this.assignedTo[this.assignedTo.length-1]?.user
+            user:this.assignedTo[this.assignedTo.length-1]
         })
     }
     return timeLine.sort((a,b)=>b.date-a.date);

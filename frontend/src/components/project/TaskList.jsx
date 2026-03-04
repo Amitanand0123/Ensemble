@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchTasks, deleteTask as deleteTaskAction } from '../../redux/slices/taskSlice';
+import { fetchTasks, deleteTask as deleteTaskAction, updateTask } from '../../redux/slices/taskSlice';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -74,6 +74,15 @@ const TaskList = ({ projectId, workspaceId }) => {
         } catch (err) {
             console.error("Failed to delete task:", err);
             toast.error(`Failed to delete task: ${err || 'Unknown error'}`, { id: loadingToast });
+        }
+    };
+
+    const handleStatusChange = async (taskId, newStatus) => {
+        try {
+            await dispatch(updateTask({ taskId, updates: { status: newStatus } })).unwrap();
+            toast.success(`Status updated to "${newStatus.replace('-', ' ')}"`);
+        } catch (err) {
+            toast.error(`Failed to update status: ${err || 'Unknown error'}`);
         }
     };
 
@@ -151,9 +160,29 @@ const TaskList = ({ projectId, workspaceId }) => {
                                     >
                                         <TableCell className="font-medium text-foreground">{task.title}</TableCell>
                                         <TableCell>
-                                            <span className={`capitalize px-2.5 py-1 rounded-md text-xs font-semibold ${getStatusColor(task.status)}`}>
-                                                {task.status.replace('-', ' ')}
-                                            </span>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <button className={`capitalize px-2.5 py-1 rounded-md text-xs font-semibold cursor-pointer hover:opacity-80 transition-opacity ${getStatusColor(task.status)}`}>
+                                                        {task.status.replace('-', ' ')}
+                                                    </button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="start" className="bg-card border-border min-w-[140px]">
+                                                    {['todo', 'in-progress', 'review', 'done'].map((status) => (
+                                                        <DropdownMenuItem
+                                                            key={status}
+                                                            onClick={() => handleStatusChange(task._id, status)}
+                                                            className={`cursor-pointer capitalize text-sm ${task.status === status ? 'bg-accent font-semibold' : ''}`}
+                                                        >
+                                                            <span className={`inline-block w-2 h-2 rounded-full mr-2 ${
+                                                                status === 'done' ? 'bg-chart-4' :
+                                                                status === 'in-progress' ? 'bg-chart-1' :
+                                                                status === 'review' ? 'bg-chart-2' : 'bg-muted-foreground'
+                                                            }`} />
+                                                            {status.replace('-', ' ')}
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                         <TableCell>
                                             <span className={`capitalize px-2.5 py-1 rounded-md text-xs font-semibold ${getPriorityColor(task.priority)}`}>

@@ -64,10 +64,11 @@ export const fetchProjectMessages = createAsyncThunk(
 
 export const markAsRead = createAsyncThunk(
   'chat/markAsRead',
-  async (chatId, { rejectWithValue }) => {
+  async (chatId, { getState, rejectWithValue }) => {
     try {
       await axios.patch(`/api/chat/read/${chatId}`);
-      return chatId;
+      const currentUserId = getState().auth?.user?._id;
+      return { chatId, userId: currentUserId };
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -202,8 +203,7 @@ const chatSlice = createSlice({
         state.error = action.payload;
       })
       .addCase(markAsRead.fulfilled, (state, action) => {
-        const chatId = action.payload; 
-        const currentUserId = state.auth?.user?._id; 
+        const { chatId, userId: currentUserId } = action.payload;
         if (!currentUserId) return;
         const markMessageAsReadInList = (messageList) => {
           if (!messageList) return;

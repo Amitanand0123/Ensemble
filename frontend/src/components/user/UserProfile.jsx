@@ -1,13 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchUserById, updateUserAvatar, clearSelectedUser } from '../../redux/slices/usersSlice';
+import { fetchUserById, updateUserAvatar, clearSelectedUser, updateMyProfile } from '../../redux/slices/usersSlice';
 import { setCurrentChat } from '../../redux/slices/chatSlice';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Mail, MapPin, Upload, MessageSquare, Edit, Building, Lock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Loader2, Mail, MapPin, Upload, MessageSquare, Edit, Building, Lock, X } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const UserProfile = () => {
@@ -20,6 +24,10 @@ const UserProfile = () => {
     const isOwnProfile = !!loggedInUser && !!profile && loggedInUser.id === profile._id;
 
     const [isUploading, setIsUploading] = useState(false);
+    const [showEditDialog, setShowEditDialog] = useState(false);
+    const [editForm, setEditForm] = useState({ firstName: '', lastName: '', bio: '', skills: '', city: '', country: '' });
+    const [skillInput, setSkillInput] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -79,6 +87,61 @@ const UserProfile = () => {
         toast.info(`Chat with ${chatPartnerName} opened.`);
     };
     
+    const openEditDialog = () => {
+        if (!profile) return;
+        setEditForm({
+            firstName: profile.name?.first || '',
+            lastName: profile.name?.last || '',
+            bio: profile.bio || '',
+            skills: profile.skills || [],
+            city: profile.location?.city || '',
+            country: profile.location?.country || '',
+        });
+        setSkillInput('');
+        setShowEditDialog(true);
+    };
+
+    const handleAddSkill = () => {
+        const skill = skillInput.trim();
+        if (skill && !editForm.skills.includes(skill)) {
+            setEditForm(prev => ({ ...prev, skills: [...prev.skills, skill] }));
+            setSkillInput('');
+        }
+    };
+
+    const handleRemoveSkill = (skillToRemove) => {
+        setEditForm(prev => ({ ...prev, skills: prev.skills.filter(s => s !== skillToRemove) }));
+    };
+
+    const handleSkillKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleAddSkill();
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        if (!editForm.firstName.trim() || !editForm.lastName.trim()) {
+            toast.error('First and last name are required.');
+            return;
+        }
+        setIsSaving(true);
+        try {
+            await dispatch(updateMyProfile({
+                name: { first: editForm.firstName.trim(), last: editForm.lastName.trim() },
+                bio: editForm.bio.trim(),
+                skills: editForm.skills,
+                location: { city: editForm.city.trim(), country: editForm.country.trim() },
+            })).unwrap();
+            toast.success('Profile updated successfully!');
+            setShowEditDialog(false);
+        } catch (err) {
+            toast.error(`Failed to update profile: ${err || 'Unknown error'}`);
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     const getInitials = (firstName, lastName) => {
         return `${firstName?.charAt(0) || ''}${lastName?.charAt(0) || ''}`.toUpperCase() || '?';
     };
@@ -166,7 +229,7 @@ const UserProfile = () => {
                             </div>
                             <div className="flex flex-col md:flex-row gap-2 mt-4 md:mt-0 md:ml-auto self-center md:self-start">
                                 {isOwnProfile ? (
-                                    <Button variant="outline" size="sm" disabled className="border-border hover:bg-accent">
+                                    <Button variant="outline" size="sm" onClick={openEditDialog} className="border-border hover:bg-accent">
                                         <Edit className="w-4 h-4 mr-2"/> Edit Profile
                                     </Button>
                                 ) : (
@@ -219,6 +282,106 @@ const UserProfile = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+                <DialogContent className="bg-card border-border max-w-lg max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-foreground">Edit Profile</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 py-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="firstName">First Name</Label>
+                                <Input
+                                    id="firstName"
+                                    value={editForm.firstName}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, firstName: e.target.value }))}
+                                    className="bg-input border-border"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="lastName">Last Name</Label>
+                                <Input
+                                    id="lastName"
+                                    value={editForm.lastName}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, lastName: e.target.value }))}
+                                    className="bg-input border-border"
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="bio">Bio</Label>
+                            <Textarea
+                                id="bio"
+                                value={editForm.bio}
+                                onChange={(e) => setEditForm(prev => ({ ...prev, bio: e.target.value }))}
+                                placeholder="Tell us about yourself..."
+                                maxLength={500}
+                                rows={3}
+                                className="bg-input border-border resize-none"
+                            />
+                            <p className="text-xs text-muted-foreground text-right">{editForm.bio.length}/500</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Skills</Label>
+                            <div className="flex gap-2">
+                                <Input
+                                    value={skillInput}
+                                    onChange={(e) => setSkillInput(e.target.value)}
+                                    onKeyDown={handleSkillKeyDown}
+                                    placeholder="Type a skill and press Enter"
+                                    className="bg-input border-border flex-1"
+                                />
+                                <Button type="button" variant="outline" size="sm" onClick={handleAddSkill} className="border-border">
+                                    Add
+                                </Button>
+                            </div>
+                            {editForm.skills.length > 0 && (
+                                <div className="flex flex-wrap gap-2 mt-2">
+                                    {editForm.skills.map((skill, i) => (
+                                        <Badge key={i} variant="outline" className="bg-chart-1/10 border-chart-1/30 text-chart-1 pr-1 flex items-center gap-1">
+                                            {skill}
+                                            <button onClick={() => handleRemoveSkill(skill)} className="ml-1 hover:text-destructive">
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </Badge>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="city">City</Label>
+                                <Input
+                                    id="city"
+                                    value={editForm.city}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, city: e.target.value }))}
+                                    placeholder="e.g. Mumbai"
+                                    className="bg-input border-border"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="country">Country</Label>
+                                <Input
+                                    id="country"
+                                    value={editForm.country}
+                                    onChange={(e) => setEditForm(prev => ({ ...prev, country: e.target.value }))}
+                                    placeholder="e.g. India"
+                                    className="bg-input border-border"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setShowEditDialog(false)} className="border-border">
+                            Cancel
+                        </Button>
+                        <Button onClick={handleSaveProfile} disabled={isSaving} className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                            {isSaving ? <><Loader2 className="w-4 h-4 animate-spin mr-2" /> Saving...</> : 'Save Changes'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

@@ -11,15 +11,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { useDispatch, useSelector } from 'react-redux';
 import { createTask, updateTask, fetchTasks } from '../../redux/slices/taskSlice';
-import { CalendarIcon,XCircle } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { CalendarIcon, XCircle, Check, Users } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import PropTypes from 'prop-types';
 
 const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
     const dispatch = useDispatch();
     const { isLoading, error: taskSliceError } = useSelector(state => state.task);
+    const currentProject = useSelector(state => state.projects.currentProject);
+    const projectMembers = currentProject?.members?.filter(m => m.user) || [];
     const [localError, setLocalError] = useState(null);
     const [selectedFiles, setSelectedFiles] = useState([]);
+    const [calendarOpen, setCalendarOpen] = useState(false);
 
     const form = useForm({
          defaultValues: {
@@ -141,7 +145,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
             <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto bg-card backdrop-blur-sm border-2 border-border rounded-xl shadow-2xl">
                 <DialogHeader className="space-y-1 pb-6 border-b border-border">
                     <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-chart-1 to-chart-4 flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0">
                             <svg className="w-6 h-6 text-primary-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                             </svg>
@@ -286,7 +290,7 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
                                             <FormLabel className="text-sm font-semibold text-foreground">Due Date</FormLabel>
-                                            <Popover>
+                                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                                                 <PopoverTrigger asChild>
                                                     <FormControl>
                                                         <Button
@@ -302,7 +306,10 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
+                                                        onSelect={(date) => {
+                                                            field.onChange(date);
+                                                            setCalendarOpen(false);
+                                                        }}
                                                         initialFocus
                                                     />
                                                 </PopoverContent>
@@ -325,7 +332,8 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                                     step="0.5"
                                                     placeholder="0.0"
                                                     {...field}
-                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                                                    value={field.value || ''}
+                                                    onChange={(e) => field.onChange(e.target.value === '' ? 0 : parseFloat(e.target.value))}
                                                     className="bg-card text-foreground border-2 border-border focus:border-primary focus:ring-2 focus:ring-ring transition-all h-11 placeholder:text-muted-foreground"
                                                 />
                                             </FormControl>
@@ -375,8 +383,73 @@ const CreateTask = ({ projectId, workspaceId, task = null, onClose, open }) => {
                                 </FormItem>
                             )}
 
-                            {/* --- Assignees & Tags (Future enhancement) --- */}
-                            {/* TODO: Add multi-select components for assignees and tags */}
+                            {/* --- Assign Members --- */}
+                            {projectMembers.length > 0 && (
+                                <FormField
+                                    control={form.control}
+                                    name="assignedTo"
+                                    render={({ field }) => {
+                                        const toggleMember = (userId) => {
+                                            const current = field.value || [];
+                                            const updated = current.includes(userId)
+                                                ? current.filter(id => id !== userId)
+                                                : [...current, userId];
+                                            field.onChange(updated);
+                                        };
+                                        return (
+                                            <FormItem>
+                                                <FormLabel className="text-sm font-semibold text-foreground flex items-center gap-2">
+                                                    <Users className="w-4 h-4" />
+                                                    Assign Members
+                                                    {field.value?.length > 0 && (
+                                                        <span className="text-xs font-normal text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                                                            {field.value.length} selected
+                                                        </span>
+                                                    )}
+                                                </FormLabel>
+                                                <div className="border-2 border-border rounded-lg overflow-hidden max-h-40 overflow-y-auto">
+                                                    {projectMembers.map((member) => {
+                                                        const user = member.user;
+                                                        const userId = typeof user === 'object' ? user._id : user;
+                                                        const isSelected = (field.value || []).includes(userId);
+                                                        const name = typeof user === 'object'
+                                                            ? `${user.name?.first || ''} ${user.name?.last || ''}`.trim() || user.email
+                                                            : userId;
+                                                        const avatarUrl = typeof user === 'object' ? user.avatar?.url : null;
+                                                        const initials = typeof user === 'object'
+                                                            ? `${user.name?.first?.charAt(0) || ''}${user.name?.last?.charAt(0) || ''}`.toUpperCase()
+                                                            : '?';
+
+                                                        return (
+                                                            <button
+                                                                key={userId}
+                                                                type="button"
+                                                                onClick={() => toggleMember(userId)}
+                                                                className={`w-full flex items-center gap-3 px-3 py-2.5 text-left transition-colors ${
+                                                                    isSelected
+                                                                        ? 'bg-primary/10 text-foreground'
+                                                                        : 'hover:bg-accent text-foreground'
+                                                                }`}
+                                                            >
+                                                                <Avatar className="h-7 w-7">
+                                                                    <AvatarImage src={avatarUrl} alt={name} />
+                                                                    <AvatarFallback className="text-xs bg-chart-1 text-white">
+                                                                        {initials}
+                                                                    </AvatarFallback>
+                                                                </Avatar>
+                                                                <span className="flex-1 text-sm truncate">{name}</span>
+                                                                <span className="text-xs text-muted-foreground capitalize">{member.role}</span>
+                                                                {isSelected && <Check className="w-4 h-4 text-primary flex-shrink-0" />}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                                <FormMessage className="text-destructive" />
+                                            </FormItem>
+                                        );
+                                    }}
+                                />
+                            )}
 
                             <DialogFooter className="flex justify-end gap-3 mt-6 pt-6 border-t border-border sticky bottom-0 bg-card">
                                 <Button

@@ -9,7 +9,7 @@ const SidebarDirectMessages = ({ onNavigate }) => {
     const { user } = useSelector(state => state.auth);
     const personalMessages = useSelector(state => state.chat.personalMessages);
     const currentChat = useSelector(state => state.chat.currentChat);
-    const allUsers = useSelector(state => state.users.users);
+    const allUsers = useSelector(state => state.users.usersList);
 
     const chatUserIds = Object.keys(personalMessages || {});
 

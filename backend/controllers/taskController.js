@@ -373,7 +373,7 @@ export const addTaskAttachment=async(req,res)=>{
 
     } catch (error) {
         console.error('Add task attachments error:',error)
-        if(error.name==='ValidaionError'){
+        if(error.name==='ValidationError'){
             return res.status(400).json({
                 success:false,
                 message:error.message
@@ -434,7 +434,7 @@ export const addTaskComment=async(req,res)=>{
 
     } catch (error) {
         console.error('Add comment error:',error)
-        if(error.name==='ValidaionError'){
+        if(error.name==='ValidationError'){
             return res.status(400).json({
                 success:false,
                 message:error.message
@@ -445,31 +445,6 @@ export const addTaskComment=async(req,res)=>{
             message:'Could not add comment',
             error:process.env.NODE_ENV==='development'?error.message:undefined
         })
-    }
-}
-
-export const addTaskDependeny=async(req,res)=>{
-    try {
-        const {dependencyId}=req.body;
-        const task=await Task.findById(req.params.id)
-        
-        if(!task){
-            return res.status(404).json({success:false,message:'Task not found'})
-        }
-        const dependency=await Task.findById(dependencyId);
-        if(!dependency){
-            return res.status(404).json({success:false,message:'Dependency task not found'})
-        }
-        if(task.dependencies.includes(dependencyId)){
-            return res.status(400).json({success:false,message:'Dependency already exists'})
-        }
-        task.dependencies.push(dependencyId)
-        await task.save();
-        res.json({success:true,message:'Dependency added successfully',task})
-
-    } catch (error) {
-        console.error('Add task dependency error:',error)
-        res.status(500).json({success:false,message:'Could not add dependency',error:process.env.NODE_ENV==='development'?error.message:undefined})
     }
 }
 
@@ -493,7 +468,7 @@ export const getTasksbyProject=async(req,res)=>{
         const filter={project:projectId}
         if(status) filter.status=status;
         if(priority) filter.priority=priority;
-        if(assignedTo) filter['assignedTo.user']=assignedTo
+        if(assignedTo) filter.assignedTo=assignedTo
         if(search){
             filter.$or=[
                 {title:{$regex:search,$options:'i'}},
@@ -502,7 +477,7 @@ export const getTasksbyProject=async(req,res)=>{
         }
 
         const tasks=await Task.find(filter)
-            .populate('assignedTo.user','name email avatar')
+            .populate('assignedTo','name email avatar')
             .populate('createdBy','name email avatar')
             .populate('comments.user','name email avatar')
             .sort({createdAt:-1})

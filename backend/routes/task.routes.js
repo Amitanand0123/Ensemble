@@ -45,7 +45,7 @@ router.route('/:id')
 
 router.post('/:id/comments',
     [
-        check('comment')
+        check('content')
             .trim()
             .notEmpty()
             .withMessage('Comment is required')

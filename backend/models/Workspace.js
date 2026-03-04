@@ -91,8 +91,7 @@ WorkspaceSchema.methods.isMember=function(userId){
 WorkspaceSchema.methods.isAdmin=function(userId){
     return this.members.some(member=>
         member.user.toString()===userId.toString() &&
-        member.role==='admin' &&
-        member.status==='active'
+        member.role==='admin'
     )
 }
 

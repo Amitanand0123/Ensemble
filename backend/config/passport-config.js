@@ -23,7 +23,6 @@ passport.use(new GoogleStrategy({
             user=await User.findOne({email:userEmail});
             if(user){
                 user.googleId=profile.id;
-                user.email_verification.verified=true;
                 await user.save();
                 return done(null,user);
             }
@@ -36,11 +35,6 @@ passport.use(new GoogleStrategy({
                 },
                 avatar:{
                     url:profile.photos?.[0]?.value || 'default-avatar.png'
-                },
-                email_verification:{
-                    verified:true,
-                    token:undefined,
-                    tokenExpires:undefined
                 }
             })
             await newUser.save();

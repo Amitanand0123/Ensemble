@@ -46,9 +46,9 @@ export const registerUser = async(req,res)=>{
                 message: errors.array()[0].msg
             });
         }
-        const {firstName,lastName,email,password,role}=req.body
+        const {firstName,lastName,email,password}=req.body
         const userExists=await User.findOne({
-            email:{$regex:new RegExp(`^${email}$`,'i')} 
+            email:{$regex:new RegExp(`^${email}$`,'i')}
         });
 
         if(userExists){
@@ -58,9 +58,6 @@ export const registerUser = async(req,res)=>{
             })
         }
 
-        const allowedRoles=['admin','user','moderator'];
-        const userRole=role && allowedRoles.includes(role) ? role : 'user';
-
         const user=new User({
             name:{
                 first:firstName.trim(),
@@ -68,7 +65,7 @@ export const registerUser = async(req,res)=>{
             },
             email:email.toLowerCase(),
             password,
-            role:userRole,
+            role:'user',
         });
 
         await user.save();
@@ -89,7 +86,7 @@ export const registerUser = async(req,res)=>{
             user:{
                 id:user._id,
                 email:user.email,
-                name:`${user.name.first} ${user.name.last}`,
+                name:user.name,
                 role:user.role
             }
         })
@@ -144,7 +141,7 @@ export const loginUser = async(req,res)=>{
             user:{
                 id:user._id,
                 email:user.email,
-                name:`${user.name.first} ${user.name.last}`,
+                name:user.name,
                 role:user.role
             }
         })

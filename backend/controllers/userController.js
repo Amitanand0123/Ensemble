@@ -149,6 +149,50 @@ export const updateMyAvatar = async (req, res) => {
     }
 };
 
+export const updateMyProfile = async (req, res) => {
+    try {
+        const allowedFields = ['name', 'bio', 'skills', 'location', 'socialLinks'];
+        const updates = {};
+        for (const key of allowedFields) {
+            if (req.body[key] !== undefined) {
+                updates[key] = req.body[key];
+            }
+        }
+
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ success: false, message: 'No valid fields to update.' });
+        }
+
+        if (updates.name) {
+            if (!updates.name.first?.trim() || !updates.name.last?.trim()) {
+                return res.status(400).json({ success: false, message: 'First and last name are required.' });
+            }
+        }
+
+        if (updates.bio && updates.bio.length > 500) {
+            return res.status(400).json({ success: false, message: 'Bio cannot exceed 500 characters.' });
+        }
+
+        const user = await User.findByIdAndUpdate(
+            req.user._id,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select('-password -security -activity.loginHistory');
+
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found.' });
+        }
+
+        res.json({ success: true, message: 'Profile updated successfully.', user });
+    } catch (error) {
+        console.error('Error updating profile:', error);
+        if (error.name === 'ValidationError') {
+            return res.status(400).json({ success: false, message: error.message });
+        }
+        res.status(500).json({ success: false, message: 'Server error updating profile.' });
+    }
+};
+
 export const getMyAvatarUrl = async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('avatar.url'); 

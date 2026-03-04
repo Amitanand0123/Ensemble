@@ -4,9 +4,10 @@ import { adminProtect } from '../middlewares/adminAuth.js';
 import {
     getAllUsers,
     updateUserRole,
-    getUserProfile, 
-    updateMyAvatar,  
-    getMyAvatarUrl
+    getUserProfile,
+    updateMyAvatar,
+    getMyAvatarUrl,
+    updateMyProfile
 } from '../controllers/userController.js';
 import multer from 'multer'; 
 
@@ -20,6 +21,7 @@ const upload = multer({
 router.get('/', protect, adminProtect, getAllUsers);
 router.patch('/:userId/role', protect, adminProtect, updateUserRole); 
 router.get('/me/avatar-url', protect, getMyAvatarUrl);
+router.patch('/me/profile', protect, updateMyProfile);
 router.get('/:userId', protect, getUserProfile); 
 router.patch('/me/avatar', protect, upload.single('avatar'), updateMyAvatar); 
 

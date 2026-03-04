@@ -7,8 +7,8 @@ import PropTypes from 'prop-types';
 const ChatHeader = ({ chatType, targetId }) => {
   const dispatch = useDispatch();
   const user = useSelector(selectUserById(targetId));
-  const workspaces = useSelector(state => state.workspaces?.workspaces || {});
-  const projects = useSelector(state => state.projects?.projects || {});
+  const workspaces = useSelector(state => state.workspaces?.workspaces || []);
+  const projects = useSelector(state => state.projects?.projects || []);
   const isLoadingUsers = useSelector(state => state.users.isLoading);
 
   
@@ -21,13 +21,16 @@ const ChatHeader = ({ chatType, targetId }) => {
   const getTitle = () => {
     if (chatType === 'personal') {
       if (isLoadingUsers) return 'Loading...';
-      return user ? user.name : 'User Chat';
+      if (!user) return 'User Chat';
+      return typeof user.name === 'object'
+        ? `${user.name.first || ''} ${user.name.last || ''}`.trim() || 'User Chat'
+        : user.name || 'User Chat';
     } else if (chatType === 'workspace') {
-      const workspace = workspaces[targetId];
-      return workspace ? workspace.name : 'Loading...';
+      const workspace = workspaces.find(w => w._id === targetId);
+      return workspace ? workspace.name : 'Workspace Chat';
     } else if (chatType === 'project') {
-      const project = projects[targetId];
-      return project ? project.name : 'Loading...';
+      const project = projects.find(p => p._id === targetId);
+      return project ? project.name : 'Project Chat';
     }
     return 'Chat';
   };

@@ -20,7 +20,7 @@ export const useAuth = () => {
     if (storedToken !== token) {
       setToken(storedToken);
     }
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated]);
 
   const handleLogin = async (credentials) => {
     try {

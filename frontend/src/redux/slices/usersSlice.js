@@ -73,6 +73,28 @@ export const updateUserAvatar = createAsyncThunk(
   }
 );
 
+export const updateMyProfile = createAsyncThunk(
+  'users/updateProfile',
+  async (profileData, { getState, rejectWithValue, dispatch }) => {
+    try {
+      const token = getState().auth.token;
+      const response = await axios.patch('/api/users/me/profile', profileData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const user = response.data.user;
+      dispatch(updateUser({
+        name: `${user.name.first} ${user.name.last}`,
+        bio: user.bio,
+        skills: user.skills,
+        location: user.location,
+      }));
+      return user;
+    } catch (error) {
+      return rejectWithValue(handleError(error));
+    }
+  }
+);
+
 export const updateUserRole = createAsyncThunk(
     'users/updateRole',
     async ({ userId, role }, { getState, rejectWithValue }) => {
@@ -150,6 +172,18 @@ const usersSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload;
       })
+      .addCase(updateMyProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateMyProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.selectedUserProfile = action.payload;
+      })
+      .addCase(updateMyProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload;
+      })
       .addCase(updateUserRole.pending, (state) => {
         state.error = null;
       })
@@ -176,8 +210,8 @@ export const selectUserProfile = (state) => state.users.selectedUserProfile;
 export const selectIsUsersLoading = (state) => state.users.isLoading;
 export const selectUsersError = (state) => state.users.error;
 export const selectUserById = (userId) => (state) => {
-    if (state.selectedUserProfile?._id === userId) {
-        return state.selectedUserProfile;
+    if (state.users.selectedUserProfile?._id === userId) {
+        return state.users.selectedUserProfile;
     }
     return state.users.usersList?.find(u => u._id === userId);
 };
